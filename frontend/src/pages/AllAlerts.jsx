@@ -1,26 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faFilter,
   faSortAmountDown,
   faDownload,
+  faImages,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import AlertCard from "../components/AlertCard";
+import ScreenshotCard from "../components/ScreenshotCard";
 import EmptyState from "../components/EmptyState";
-import { useAlerts } from "../hooks/useApi";
+import { useAlerts, useScreenshots } from "../hooks/useApi";
 import API from "../utils/api";
 
 const AllAlerts = () => {
   const { alerts, loading, error } = useAlerts(5000); // Poll every 5 seconds
+  const { screenshots } = useScreenshots(5000); // Poll every 5 seconds for screenshots
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [viewMode, setViewMode] = useState("alerts"); // "alerts" or "screenshots"
+  const [unavailableImages, setUnavailableImages] = useState(new Set());
+
+  // Process screenshots data, filtering out unavailable images
+  const screenshotsData = useMemo(() => 
+    screenshots ? screenshots.filter(alert => 
+      !unavailableImages.has(alert.id)
+    ) : []
+  , [screenshots, unavailableImages]);
 
   useEffect(() => {
-    if (alerts && alerts.length > 0) {
-      let filtered = [...alerts];
+    const sourceData = viewMode === "screenshots" ? screenshotsData : alerts;
+    if (sourceData && sourceData.length > 0) {
+      let filtered = [...sourceData];
 
       // Filter by type
       if (filterType !== "all") {
@@ -44,9 +58,20 @@ const AllAlerts = () => {
         filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       }
 
+      // Limit screenshots to top 10
+      if (viewMode === "screenshots") {
+        filtered = filtered.slice(0, 10);
+      }
+
       setFilteredAlerts(filtered);
+    } else {
+      setFilteredAlerts([]);
     }
-  }, [alerts, searchTerm, filterType, sortOrder]);
+  }, [alerts, screenshotsData, searchTerm, filterType, sortOrder, viewMode]);
+
+  const handleImageError = (alertId) => {
+    setUnavailableImages(prev => new Set([...prev, alertId]));
+  };
 
   const downloadAlertImage = async (alertId) => {
     try {
@@ -56,8 +81,19 @@ const AllAlerts = () => {
     }
   };
 
+  const downloadAllImages = async () => {
+    try {
+      const promises = filteredAlerts.map(alert =>
+        API.downloadAlertImage(alert.id, `screenshot_${alert.id}_${alert.alert_type}.jpg`)
+      );
+      await Promise.all(promises);
+    } catch (err) {
+      console.error("Failed to download images:", err);
+    }
+  };
+
   const alertTypes = [
-    { value: "all", label: "All Alerts" },
+    { value: "all", label: viewMode === "screenshots" ? "All Types" : "All Alerts" },
     { value: "distress", label: "Distress" },
     { value: "lone_woman_night", label: "Lone Woman Night" },
     { value: "woman_surrounded", label: "Woman Surrounded" },
@@ -85,9 +121,49 @@ const AllAlerts = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Recent Alerts</h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FontAwesomeIcon 
+                icon={viewMode === "screenshots" ? faImages : faExclamationTriangle} 
+                className="text-blue-500 text-3xl" 
+              />
+              <h1 className="text-4xl font-bold text-white">
+                {viewMode === "screenshots" ? "Captured Screenshots" : "Recent Alerts"}
+              </h1>
+            </div>
+            
+            {/* View Mode Toggle */}
+            <div className="flex bg-gray-800 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode("alerts")}
+                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${
+                  viewMode === "alerts" 
+                    ? "bg-blue-600 text-white" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <FontAwesomeIcon icon={faExclamationTriangle} />
+                <span>Alerts</span>
+              </button>
+              <button
+                onClick={() => setViewMode("screenshots")}
+                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${
+                  viewMode === "screenshots" 
+                    ? "bg-blue-600 text-white" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <FontAwesomeIcon icon={faImages} />
+                <span>Screenshots</span>
+              </button>
+            </div>
+          </div>
+          
           <p className="text-gray-400">
-            Showing top 10 recent alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
+            {viewMode === "screenshots" 
+              ? `Showing top 10 recent screenshots • Available: ${filteredAlerts.length} screenshot${filteredAlerts.length !== 1 ? 's' : ''}`
+              : `Showing recent alerts • Total: ${filteredAlerts.length} alert${filteredAlerts.length !== 1 ? 's' : ''}`
+            }
           </p>
         </div>
 
@@ -142,13 +218,37 @@ const AllAlerts = () => {
               <option value="oldest">Oldest First</option>
             </select>
           </div>
+
+          {/* Download All Button - only show for screenshots mode */}
+          {viewMode === "screenshots" && filteredAlerts.length > 0 && (
+            <button
+              onClick={downloadAllImages}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+              title="Download all visible screenshots"
+            >
+              <FontAwesomeIcon icon={faDownload} />
+              <span className="hidden sm:inline">Download All</span>
+            </button>
+          )}
         </div>
 
-        {/* Alerts Grid */}
+        {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
           <EmptyState 
-            type={searchTerm || filterType !== "all" ? "filtered" : (alerts && alerts.length === 0 ? "safe" : "alerts")} 
+            type={searchTerm || filterType !== "all" ? "filtered" : 
+                 (viewMode === "screenshots" ? "screenshots" : 
+                  (alerts && alerts.length === 0 ? "safe" : "alerts"))} 
           />
+        ) : viewMode === "screenshots" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredAlerts.map((alert) => (
+              <ScreenshotCard 
+                key={alert.id} 
+                alert={alert} 
+                onImageError={handleImageError}
+              />
+            ))}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAlerts.slice(0, 10).map((alert) => (
@@ -166,6 +266,28 @@ const AllAlerts = () => {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Stats Footer - show when in screenshots mode and have data */}
+        {viewMode === "screenshots" && alerts && alerts.length > 0 && (
+          <div className="mt-8 bg-gray-800 rounded-xl p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-white">{alerts.length}</div>
+                <div className="text-gray-400 text-sm">Total Alerts</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-500">{screenshotsData.length}</div>
+                <div className="text-gray-400 text-sm">With Screenshots</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-500">
+                  {((screenshotsData.length / alerts.length) * 100).toFixed(1)}%
+                </div>
+                <div className="text-gray-400 text-sm">Capture Rate</div>
+              </div>
+            </div>
           </div>
         )}
       </div>
