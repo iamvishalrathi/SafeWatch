@@ -75,6 +75,41 @@ export const useGenderCount = (refreshInterval = 1000) => {
 };
 
 /**
+ * Hook to fetch screenshots with auto-refresh
+ * @param {number} refreshInterval - Refresh interval in milliseconds (default: 5000)
+ * @returns {Object} { screenshots, loading, error, refetch }
+ */
+export const useScreenshots = (refreshInterval = 5000) => {
+    const [screenshots, setScreenshots] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchScreenshots = useCallback(async () => {
+        try {
+            setError(null);
+            const data = await API.getScreenshots();
+            setScreenshots(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch screenshots');
+            console.error('Error in useScreenshots:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchScreenshots();
+
+        if (refreshInterval > 0) {
+            const interval = setInterval(fetchScreenshots, refreshInterval);
+            return () => clearInterval(interval);
+        }
+    }, [fetchScreenshots, refreshInterval]);
+
+    return { screenshots, loading, error, refetch: fetchScreenshots };
+};
+
+/**
  * Hook to get alert statistics
  * @param {number} refreshInterval - Refresh interval in milliseconds (default: 10000)
  * @returns {Object} { stats, loading, error, refetch }

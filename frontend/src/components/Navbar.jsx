@@ -49,6 +49,30 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
+              to="/all-alerts"
+              className={({ isActive }) =>
+                ` ${
+                  isActive ? "text-red-600" : "text-white "
+                } text-lg px-2 rounded-lg text-white`
+              }
+            >
+              Alerts
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/screenshots"
+              className={({ isActive }) =>
+                ` ${
+                  isActive ? "text-red-600" : "text-white "
+                } text-lg px-2 rounded-lg text-white`
+              }
+            >
+              Screenshots
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/event"
               className={({ isActive }) =>
                 ` ${

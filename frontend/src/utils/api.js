@@ -27,6 +27,21 @@ const API = {
     },
 
     /**
+     * GET /screenshots
+     * Retrieves the 10 most recent alerts with screenshots available
+     * @returns {Promise<Array>} Array of alert objects with screenshots
+     */
+    getScreenshots: async () => {
+        try {
+            const response = await axiosInstance.get('/screenshots');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching screenshots:', error);
+            throw error;
+        }
+    },
+
+    /**
      * GET /gender_count
      * Gets current real-time gender count
      * @returns {Promise<Object>} Object with male and female counts

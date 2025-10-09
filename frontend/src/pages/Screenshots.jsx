@@ -1,26 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faFilter,
   faSortAmountDown,
+  faImages,
   faDownload,
 } from "@fortawesome/free-solid-svg-icons";
-import AlertCard from "../components/AlertCard";
+import ScreenshotCard from "../components/ScreenshotCard";
 import EmptyState from "../components/EmptyState";
-import { useAlerts } from "../hooks/useApi";
+import { useAlerts, useScreenshots } from "../hooks/useApi";
 import API from "../utils/api";
 
-const AllAlerts = () => {
-  const { alerts, loading, error } = useAlerts(5000); // Poll every 5 seconds
-  const [filteredAlerts, setFilteredAlerts] = useState([]);
+const Screenshots = () => {
+  const { alerts } = useAlerts(5000); // Get all alerts for stats
+  const { screenshots, loading, error } = useScreenshots(5000); // Poll every 5 seconds for screenshots
+  const [filteredScreenshots, setFilteredScreenshots] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [unavailableImages, setUnavailableImages] = useState(new Set());
+
+  // Use screenshots from dedicated endpoint, filter out unavailable images
+  const screenshotsData = useMemo(() => 
+    screenshots ? screenshots.filter(alert => 
+      !unavailableImages.has(alert.id)
+    ) : []
+  , [screenshots, unavailableImages]);
 
   useEffect(() => {
-    if (alerts && alerts.length > 0) {
-      let filtered = [...alerts];
+    if (screenshotsData && screenshotsData.length > 0) {
+      let filtered = [...screenshotsData];
 
       // Filter by type
       if (filterType !== "all") {
@@ -44,30 +54,40 @@ const AllAlerts = () => {
         filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       }
 
-      setFilteredAlerts(filtered);
+      // Limit to top 10 recent screenshots
+      setFilteredScreenshots(filtered.slice(0, 10));
+    } else {
+      setFilteredScreenshots([]);
     }
-  }, [alerts, searchTerm, filterType, sortOrder]);
+  }, [screenshotsData, searchTerm, filterType, sortOrder]);
 
-  const downloadAlertImage = async (alertId) => {
+  const handleImageError = (alertId) => {
+    setUnavailableImages(prev => new Set([...prev, alertId]));
+  };
+
+  const downloadAllImages = async () => {
     try {
-      await API.downloadAlertImage(alertId);
+      const promises = filteredScreenshots.map(alert =>
+        API.downloadAlertImage(alert.id, `screenshot_${alert.id}_${alert.alert_type}.jpg`)
+      );
+      await Promise.all(promises);
     } catch (err) {
-      console.error("Failed to download alert image:", err);
+      console.error("Failed to download images:", err);
     }
   };
 
   const alertTypes = [
-    { value: "all", label: "All Alerts" },
+    { value: "all", label: "All Types" },
     { value: "distress", label: "Distress" },
     { value: "lone_woman_night", label: "Lone Woman Night" },
     { value: "woman_surrounded", label: "Woman Surrounded" },
     { value: "woman_surrounded_spatial", label: "Spatial Risk" },
   ];
 
-  if (loading && !alerts) {
+  if (loading && !screenshots) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading alerts...</div>
+        <div className="text-white text-xl">Loading screenshots...</div>
       </div>
     );
   }
@@ -75,7 +95,7 @@ const AllAlerts = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-red-500 text-xl">Error loading alerts: {error}</div>
+        <div className="text-red-500 text-xl">Error loading screenshots: {error}</div>
       </div>
     );
   }
@@ -85,9 +105,12 @@ const AllAlerts = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Recent Alerts</h1>
+          <div className="flex items-center gap-3 mb-4">
+            <FontAwesomeIcon icon={faImages} className="text-blue-500 text-3xl" />
+            <h1 className="text-4xl font-bold text-white">Captured Screenshots</h1>
+          </div>
           <p className="text-gray-400">
-            Showing top 10 recent alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
+            Showing top 10 recent screenshots • Available: {filteredScreenshots.length} screenshot{filteredScreenshots.length !== 1 ? 's' : ''}
           </p>
         </div>
 
@@ -142,27 +165,56 @@ const AllAlerts = () => {
               <option value="oldest">Oldest First</option>
             </select>
           </div>
+
+          {/* Download All Button */}
+          {filteredScreenshots.length > 0 && (
+            <button
+              onClick={downloadAllImages}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+              title="Download all visible screenshots"
+            >
+              <FontAwesomeIcon icon={faDownload} />
+              <span className="hidden sm:inline">Download All</span>
+            </button>
+          )}
         </div>
 
-        {/* Alerts Grid */}
-        {filteredAlerts.length === 0 ? (
+        {/* Screenshots Grid */}
+        {filteredScreenshots.length === 0 ? (
           <EmptyState 
-            type={searchTerm || filterType !== "all" ? "filtered" : (alerts && alerts.length === 0 ? "safe" : "alerts")} 
+            type={searchTerm || filterType !== "all" ? "filtered" : "screenshots"} 
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAlerts.slice(0, 10).map((alert) => (
-              <div key={alert.id} className="relative group">
-                <AlertCard alert={alert} />
-                <button
-                  onClick={() => downloadAlertImage(alert.id)}
-                  className="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  title="Download alert image"
-                >
-                  <FontAwesomeIcon icon={faDownload} />
-                </button>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredScreenshots.map((alert) => (
+              <ScreenshotCard 
+                key={alert.id} 
+                alert={alert} 
+                onImageError={handleImageError}
+              />
             ))}
+          </div>
+        )}
+
+        {/* Stats Footer */}
+        {alerts && alerts.length > 0 && (
+          <div className="mt-8 bg-gray-800 rounded-xl p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-white">{alerts.length}</div>
+                <div className="text-gray-400 text-sm">Total Alerts</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-500">{screenshotsData.length}</div>
+                <div className="text-gray-400 text-sm">With Screenshots</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-500">
+                  {((screenshotsData.length / alerts.length) * 100).toFixed(1)}%
+                </div>
+                <div className="text-gray-400 text-sm">Capture Rate</div>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -170,4 +222,4 @@ const AllAlerts = () => {
   );
 };
 
-export default AllAlerts;
+export default Screenshots;

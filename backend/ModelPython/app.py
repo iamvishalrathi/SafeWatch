@@ -59,6 +59,12 @@ def get_alerts():
     alerts = DBAlert.query.order_by(DBAlert.timestamp.desc()).limit(10).all()
     return jsonify([a.to_dict() for a in alerts])
 
+@app.route('/screenshots')
+def get_screenshots():
+    """Returns the 10 most recent alerts that have frame_path (screenshots available)"""
+    alerts = DBAlert.query.filter(DBAlert.frame_path.isnot(None)).order_by(DBAlert.timestamp.desc()).limit(10).all()
+    return jsonify([a.to_dict() for a in alerts])
+
 @app.route('/gender_count')
 def get_gender_count():
     """Returns the current gender count from the detector"""
