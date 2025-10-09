@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useVideoFeed } from "../hooks/useApi";
+
 const VideoFeed = () => {
+  const videoFeedUrl = useVideoFeed();
+  
   return (
     <>
-      {" "}
       <img
-        src="http://localhost:5000/video_feed"
+        src={videoFeedUrl}
         alt="Live Video Feed"
         style={{
           width: "664px",

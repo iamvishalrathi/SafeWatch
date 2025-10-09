@@ -8,9 +8,9 @@ import Home from "./pages/Home";
 import Live from "./pages/Live";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
-import Signup from "./pages/Signup"; // Add this import
+import Signup from "./pages/Signup";
+import APITest from "./pages/APITest";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -25,6 +25,7 @@ function App() {
           <Route path="/live" element={<Live />} />
           <Route path="/event" element={<Event />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/api-test" element={<APITest />} />
         </Routes>
       </div>
     </BrowserRouter>
