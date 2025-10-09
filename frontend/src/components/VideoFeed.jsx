@@ -4,7 +4,7 @@ const VideoFeed = () => {
     <>
       {" "}
       <img
-        src="http://localhost:5000/video"
+        src="http://localhost:5000/video_feed"
         alt="Live Video Feed"
         style={{
           width: "664px",
