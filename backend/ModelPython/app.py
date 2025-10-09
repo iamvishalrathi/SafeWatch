@@ -73,10 +73,16 @@ def get_gender_count():
         'female': detector.current_counts.get('female', 0)
     })
 
+@app.route('/alert/<int:alert_id>')
+def get_alert_detail(alert_id):
+    """Get detailed information about a specific alert"""
+    alert = DBAlert.query.get_or_404(alert_id)
+    return jsonify(alert.to_dict())
+
 @app.route('/alert_image/<int:alert_id>')
 def get_alert_image(alert_id):
     alert = DBAlert.query.get_or_404(alert_id)
-    if os.path.exists(alert.frame_path):
+    if alert.frame_path and os.path.exists(alert.frame_path):
         return send_file(alert.frame_path, mimetype='image/jpeg')
     return jsonify({'error': 'Image not found'}), 404
 

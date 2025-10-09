@@ -155,7 +155,10 @@ const AllAlerts = () => {
               <div key={alert.id} className="relative group">
                 <AlertCard alert={alert} />
                 <button
-                  onClick={() => downloadAlertImage(alert.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadAlertImage(alert.id);
+                  }}
                   className="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   title="Download alert image"
                 >

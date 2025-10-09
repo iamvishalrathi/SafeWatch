@@ -6,8 +6,14 @@ import {
   faHand,
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from 'react-router-dom';
 
 const AlertCard = ({ alert, compact = false }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/alert/${alert.id}`);
+  };
   const getAlertIcon = (type) => {
     switch (type) {
       case "distress":
@@ -52,18 +58,24 @@ const AlertCard = ({ alert, compact = false }) => {
   };
 
   const formatDate = (timestamp) => {
+    if (!timestamp) return 'Unknown';
     const date = new Date(timestamp);
-    return date.toLocaleString("en-US", {
+    
+    // Format for IST timezone
+    return date.toLocaleString("en-IN", {
+      timeZone: 'Asia/Kolkata',
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZoneName: "short"
     });
   };
 
   if (compact) {
     return (
       <div
+        onClick={handleCardClick}
         className={`bg-gradient-to-r ${getAlertColor(
           alert.alert_type
         )} p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer`}
@@ -97,6 +109,7 @@ const AlertCard = ({ alert, compact = false }) => {
 
   return (
     <div
+      onClick={handleCardClick}
       className={`bg-gradient-to-r ${getAlertColor(
         alert.alert_type
       )} p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300`}
@@ -143,6 +156,7 @@ const AlertCard = ({ alert, compact = false }) => {
             href={`https://www.google.com/maps/search/?api=1&query=${alert.latitude},${alert.longitude}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-2 text-white hover:text-white/80 transition-colors mt-3 bg-white/10 p-2 rounded-lg hover:bg-white/20"
           >
             <FontAwesomeIcon icon={faMapMarkerAlt} />

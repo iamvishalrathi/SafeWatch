@@ -4,11 +4,17 @@ import os
 import mediapipe as mp
 import time
 from datetime import datetime
+import pytz
 from typing import Tuple, Optional, List
 from .models import Alert, DetectionConfig
 from .utils import get_location, is_nighttime, save_alert_frame, encode_frame_to_jpg
 from .db import db
 from .models import Alert as DBAlert
+
+def ist_now():
+    """Return current time in IST"""
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    return datetime.now(ist_tz)
 
 
 class SafetyDetector:
@@ -213,7 +219,7 @@ class SafetyDetector:
         # Save to in-memory alert list (optional)
         alert = Alert(
             alert_type=alert_type,
-            timestamp=datetime.now(),
+            timestamp=ist_now(),
             latitude=lat,
             longitude=lng,
             frame_path=frame_path,
