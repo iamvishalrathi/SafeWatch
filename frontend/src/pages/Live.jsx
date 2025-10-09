@@ -21,7 +21,7 @@ const Live = () => {
   const { alerts, error: alertsError } = useAlerts(1000);
   const { totalCount, maleCount, femaleCount } = usePersonCount(1000);
   const { downloadImage } = useDownloadAlertImage();
-  
+
   const [screenshots, setScreenshots] = useState([]);
   const galleryRef = useRef(null);
 

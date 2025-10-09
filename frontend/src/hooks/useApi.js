@@ -10,33 +10,33 @@ import API from '../utils/api';
  * @returns {Object} { alerts, loading, error, refetch }
  */
 export const useAlerts = (refreshInterval = 5000) => {
-  const [alerts, setAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [alerts, setAlerts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const fetchAlerts = useCallback(async () => {
-    try {
-      setError(null);
-      const data = await API.getAlerts();
-      setAlerts(data);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch alerts');
-      console.error('Error in useAlerts:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchAlerts = useCallback(async () => {
+        try {
+            setError(null);
+            const data = await API.getAlerts();
+            setAlerts(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch alerts');
+            console.error('Error in useAlerts:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    fetchAlerts();
+    useEffect(() => {
+        fetchAlerts();
 
-    if (refreshInterval > 0) {
-      const interval = setInterval(fetchAlerts, refreshInterval);
-      return () => clearInterval(interval);
-    }
-  }, [fetchAlerts, refreshInterval]);
+        if (refreshInterval > 0) {
+            const interval = setInterval(fetchAlerts, refreshInterval);
+            return () => clearInterval(interval);
+        }
+    }, [fetchAlerts, refreshInterval]);
 
-  return { alerts, loading, error, refetch: fetchAlerts };
+    return { alerts, loading, error, refetch: fetchAlerts };
 };
 
 /**
@@ -45,33 +45,33 @@ export const useAlerts = (refreshInterval = 5000) => {
  * @returns {Object} { genderCount, loading, error, refetch }
  */
 export const useGenderCount = (refreshInterval = 1000) => {
-  const [genderCount, setGenderCount] = useState({ male: 0, female: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [genderCount, setGenderCount] = useState({ male: 0, female: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const fetchGenderCount = useCallback(async () => {
-    try {
-      setError(null);
-      const data = await API.getGenderCount();
-      setGenderCount(data);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch gender count');
-      console.error('Error in useGenderCount:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchGenderCount = useCallback(async () => {
+        try {
+            setError(null);
+            const data = await API.getGenderCount();
+            setGenderCount(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch gender count');
+            console.error('Error in useGenderCount:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    fetchGenderCount();
+    useEffect(() => {
+        fetchGenderCount();
 
-    if (refreshInterval > 0) {
-      const interval = setInterval(fetchGenderCount, refreshInterval);
-      return () => clearInterval(interval);
-    }
-  }, [fetchGenderCount, refreshInterval]);
+        if (refreshInterval > 0) {
+            const interval = setInterval(fetchGenderCount, refreshInterval);
+            return () => clearInterval(interval);
+        }
+    }, [fetchGenderCount, refreshInterval]);
 
-  return { genderCount, loading, error, refetch: fetchGenderCount };
+    return { genderCount, loading, error, refetch: fetchGenderCount };
 };
 
 /**
@@ -80,33 +80,33 @@ export const useGenderCount = (refreshInterval = 1000) => {
  * @returns {Object} { stats, loading, error, refetch }
  */
 export const useAlertStats = (refreshInterval = 10000) => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const fetchStats = useCallback(async () => {
-    try {
-      setError(null);
-      const data = await API.getAlertStats();
-      setStats(data);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch alert stats');
-      console.error('Error in useAlertStats:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchStats = useCallback(async () => {
+        try {
+            setError(null);
+            const data = await API.getAlertStats();
+            setStats(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch alert stats');
+            console.error('Error in useAlertStats:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    fetchStats();
+    useEffect(() => {
+        fetchStats();
 
-    if (refreshInterval > 0) {
-      const interval = setInterval(fetchStats, refreshInterval);
-      return () => clearInterval(interval);
-    }
-  }, [fetchStats, refreshInterval]);
+        if (refreshInterval > 0) {
+            const interval = setInterval(fetchStats, refreshInterval);
+            return () => clearInterval(interval);
+        }
+    }, [fetchStats, refreshInterval]);
 
-  return { stats, loading, error, refetch: fetchStats };
+    return { stats, loading, error, refetch: fetchStats };
 };
 
 /**
@@ -115,34 +115,34 @@ export const useAlertStats = (refreshInterval = 10000) => {
  * @returns {Object} { isHealthy, checking, error }
  */
 export const useBackendHealth = (checkInterval = 30000) => {
-  const [isHealthy, setIsHealthy] = useState(null);
-  const [checking, setChecking] = useState(true);
-  const [error, setError] = useState(null);
+    const [isHealthy, setIsHealthy] = useState(null);
+    const [checking, setChecking] = useState(true);
+    const [error, setError] = useState(null);
 
-  const checkHealth = useCallback(async () => {
-    try {
-      setError(null);
-      const healthy = await API.healthCheck();
-      setIsHealthy(healthy);
-    } catch (err) {
-      setError(err.message || 'Health check failed');
-      setIsHealthy(false);
-      console.error('Error in useBackendHealth:', err);
-    } finally {
-      setChecking(false);
-    }
-  }, []);
+    const checkHealth = useCallback(async () => {
+        try {
+            setError(null);
+            const healthy = await API.healthCheck();
+            setIsHealthy(healthy);
+        } catch (err) {
+            setError(err.message || 'Health check failed');
+            setIsHealthy(false);
+            console.error('Error in useBackendHealth:', err);
+        } finally {
+            setChecking(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    checkHealth();
+    useEffect(() => {
+        checkHealth();
 
-    if (checkInterval > 0) {
-      const interval = setInterval(checkHealth, checkInterval);
-      return () => clearInterval(interval);
-    }
-  }, [checkHealth, checkInterval]);
+        if (checkInterval > 0) {
+            const interval = setInterval(checkHealth, checkInterval);
+            return () => clearInterval(interval);
+        }
+    }, [checkHealth, checkInterval]);
 
-  return { isHealthy, checking, error };
+    return { isHealthy, checking, error };
 };
 
 /**
@@ -150,7 +150,7 @@ export const useBackendHealth = (checkInterval = 30000) => {
  * @returns {string} Video feed URL
  */
 export const useVideoFeed = () => {
-  return API.getVideoFeedUrl();
+    return API.getVideoFeedUrl();
 };
 
 /**
@@ -159,7 +159,7 @@ export const useVideoFeed = () => {
  * @returns {string} Alert image URL
  */
 export const useAlertImage = (alertId) => {
-  return alertId ? API.getAlertImageUrl(alertId) : null;
+    return alertId ? API.getAlertImageUrl(alertId) : null;
 };
 
 /**
@@ -167,24 +167,24 @@ export const useAlertImage = (alertId) => {
  * @returns {Function} downloadImage function
  */
 export const useDownloadAlertImage = () => {
-  const [downloading, setDownloading] = useState(false);
-  const [error, setError] = useState(null);
+    const [downloading, setDownloading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const downloadImage = useCallback(async (alertId, filename) => {
-    try {
-      setDownloading(true);
-      setError(null);
-      await API.downloadAlertImage(alertId, filename);
-    } catch (err) {
-      setError(err.message || 'Failed to download image');
-      console.error('Error downloading image:', err);
-      throw err;
-    } finally {
-      setDownloading(false);
-    }
-  }, []);
+    const downloadImage = useCallback(async (alertId, filename) => {
+        try {
+            setDownloading(true);
+            setError(null);
+            await API.downloadAlertImage(alertId, filename);
+        } catch (err) {
+            setError(err.message || 'Failed to download image');
+            console.error('Error downloading image:', err);
+            throw err;
+        } finally {
+            setDownloading(false);
+        }
+    }, []);
 
-  return { downloadImage, downloading, error };
+    return { downloadImage, downloading, error };
 };
 
 /**
@@ -193,33 +193,33 @@ export const useDownloadAlertImage = () => {
  * @returns {Object} { alert, loading, error, refetch }
  */
 export const useAlert = (alertId) => {
-  const [alert, setAlert] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [alert, setAlert] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const fetchAlert = useCallback(async () => {
-    if (!alertId) {
-      setLoading(false);
-      return;
-    }
+    const fetchAlert = useCallback(async () => {
+        if (!alertId) {
+            setLoading(false);
+            return;
+        }
 
-    try {
-      setError(null);
-      const data = await API.getAlertById(alertId);
-      setAlert(data);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch alert');
-      console.error('Error in useAlert:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [alertId]);
+        try {
+            setError(null);
+            const data = await API.getAlertById(alertId);
+            setAlert(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch alert');
+            console.error('Error in useAlert:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [alertId]);
 
-  useEffect(() => {
-    fetchAlert();
-  }, [fetchAlert]);
+    useEffect(() => {
+        fetchAlert();
+    }, [fetchAlert]);
 
-  return { alert, loading, error, refetch: fetchAlert };
+    return { alert, loading, error, refetch: fetchAlert };
 };
 
 /**
@@ -228,15 +228,15 @@ export const useAlert = (alertId) => {
  * @returns {Object} { totalCount, maleCount, femaleCount, loading, error }
  */
 export const usePersonCount = (refreshInterval = 1000) => {
-  const { genderCount, loading, error } = useGenderCount(refreshInterval);
-  
-  const totalCount = genderCount.male + genderCount.female;
+    const { genderCount, loading, error } = useGenderCount(refreshInterval);
 
-  return {
-    totalCount,
-    maleCount: genderCount.male,
-    femaleCount: genderCount.female,
-    loading,
-    error
-  };
+    const totalCount = genderCount.male + genderCount.female;
+
+    return {
+        totalCount,
+        maleCount: genderCount.male,
+        femaleCount: genderCount.female,
+        loading,
+        error
+    };
 };

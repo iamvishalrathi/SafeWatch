@@ -2,7 +2,7 @@ import { useVideoFeed } from "../hooks/useApi";
 
 const VideoFeed = () => {
   const videoFeedUrl = useVideoFeed();
-  
+
   return (
     <>
       <img
