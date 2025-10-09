@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import HotspotMap from "../components/HotspotMap";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 
 import VideoFeed from "../components/VideoFeed.jsx";
 import Piegraph from "../components/Piegraph.jsx";
-import Alert from "./Alert.jsx";
+import AlertCard from "../components/AlertCard.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faVideo,
@@ -12,11 +13,14 @@ import {
   faCamera,
   faTrash,
   faDownload,
+  faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useApi";
 import API from "../utils/api";
 
 const Live = () => {
+  const navigate = useNavigate();
+  
   // Use custom hooks for API data
   const { alerts, error: alertsError } = useAlerts(1000);
   const { totalCount, maleCount, femaleCount } = usePersonCount(1000);
@@ -24,6 +28,9 @@ const Live = () => {
 
   const [screenshots, setScreenshots] = useState([]);
   const galleryRef = useRef(null);
+
+  // Get top 10 alerts
+  const topAlerts = alerts.slice(0, 10);
 
   // Update screenshots from alerts
   useEffect(() => {
@@ -99,15 +106,29 @@ const Live = () => {
 
         {/* Alerts */}
         <div className="flex flex-col items-center w-[20%] bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-          <div className="w-full mb-4 text-xl font-semibold flex items-center gap-2">
-            <FontAwesomeIcon icon={faBell} />
-            <span>Alerts</span>
+          <div className="w-full mb-4 text-xl font-semibold flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faBell} />
+              <span>Recent Alerts</span>
+            </div>
+            <span className="text-sm font-normal text-gray-400">
+              {alerts.length} total
+            </span>
           </div>
-          <div className="flex flex-col gap-2 w-full overflow-y-auto h-[460px] pr-2">
-            {alerts.map((alert, i) => (
-              <Alert key={i} lat={alert.latitude} lng={alert.longitude} />
+          <div className="flex flex-col gap-3 w-full overflow-y-auto h-[400px] pr-2">
+            {topAlerts.map((alert) => (
+              <AlertCard key={alert.id} alert={alert} compact={true} />
             ))}
           </div>
+          {alerts.length > 10 && (
+            <button
+              onClick={() => navigate("/all-alerts")}
+              className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <span>Show All Alerts</span>
+              <FontAwesomeIcon icon={faArrowRight} />
+            </button>
+          )}
         </div>
       </div>
 

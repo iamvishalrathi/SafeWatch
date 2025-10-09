@@ -6,6 +6,7 @@ import Contact from "./pages/Contact";
 import Event from "./pages/Event";
 import Home from "./pages/Home";
 import Live from "./pages/Live";
+import AllAlerts from "./pages/AllAlerts";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
@@ -26,6 +27,7 @@ function App() {
           <Route path="/event" element={<Event />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/api-test" element={<APITest />} />
+          <Route path="/all-alerts" element={<AllAlerts />} />
         </Routes>
       </div>
     </BrowserRouter>
