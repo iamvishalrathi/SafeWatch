@@ -24,8 +24,7 @@ const Navbar = () => {
               <NavLink
                 to="/"
                 className={({ isActive }) =>
-                  ` ${
-                    isActive ? "text-red-600" : "text-white "
+                  ` ${isActive ? "text-red-600" : "text-white "
                   } text-lg px-2 rounded-lg text-white`
                 }
               >
@@ -38,8 +37,7 @@ const Navbar = () => {
               <NavLink
                 to="/live"
                 className={({ isActive }) =>
-                  ` ${
-                    isActive ? "text-red-600" : "text-white "
+                  ` ${isActive ? "text-red-600" : "text-white "
                   } text-lg px-2 rounded-lg text-white`
                 }
               >
@@ -51,8 +49,7 @@ const Navbar = () => {
             <NavLink
               to="/all-alerts"
               className={({ isActive }) =>
-                ` ${
-                  isActive ? "text-red-600" : "text-white "
+                ` ${isActive ? "text-red-600" : "text-white "
                 } text-lg px-2 rounded-lg text-white`
               }
             >
@@ -64,8 +61,7 @@ const Navbar = () => {
             <NavLink
               to="/contact"
               className={({ isActive }) =>
-                ` ${
-                  isActive ? "text-red-600" : "text-white "
+                ` ${isActive ? "text-red-600" : "text-white "
                 } text-lg px-2 rounded-lg text-white`
               }
             >

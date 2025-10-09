@@ -25,11 +25,11 @@ const AllAlerts = () => {
   const [unavailableImages, setUnavailableImages] = useState(new Set());
 
   // Process screenshots data, filtering out unavailable images
-  const screenshotsData = useMemo(() => 
-    screenshots ? screenshots.filter(alert => 
+  const screenshotsData = useMemo(() =>
+    screenshots ? screenshots.filter(alert =>
       !unavailableImages.has(alert.id)
     ) : []
-  , [screenshots, unavailableImages]);
+    , [screenshots, unavailableImages]);
 
   useEffect(() => {
     const sourceData = viewMode === "screenshots" ? screenshotsData : alerts;
@@ -123,44 +123,42 @@ const AllAlerts = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <FontAwesomeIcon 
-                icon={viewMode === "screenshots" ? faImages : faExclamationTriangle} 
-                className="text-blue-500 text-3xl" 
+              <FontAwesomeIcon
+                icon={viewMode === "screenshots" ? faImages : faExclamationTriangle}
+                className="text-blue-500 text-3xl"
               />
               <h1 className="text-4xl font-bold text-white">
                 {viewMode === "screenshots" ? "Captured Screenshots" : "Recent Alerts"}
               </h1>
             </div>
-            
+
             {/* View Mode Toggle */}
             <div className="flex bg-gray-800 rounded-lg p-1">
               <button
                 onClick={() => setViewMode("alerts")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${
-                  viewMode === "alerts" 
-                    ? "bg-blue-600 text-white" 
+                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${viewMode === "alerts"
+                    ? "bg-blue-600 text-white"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <FontAwesomeIcon icon={faExclamationTriangle} />
                 <span>Alerts</span>
               </button>
               <button
                 onClick={() => setViewMode("screenshots")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${
-                  viewMode === "screenshots" 
-                    ? "bg-blue-600 text-white" 
+                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${viewMode === "screenshots"
+                    ? "bg-blue-600 text-white"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <FontAwesomeIcon icon={faImages} />
                 <span>Screenshots</span>
               </button>
             </div>
           </div>
-          
+
           <p className="text-gray-400">
-            {viewMode === "screenshots" 
+            {viewMode === "screenshots"
               ? `Showing top 10 recent screenshots • Available: ${filteredAlerts.length} screenshot${filteredAlerts.length !== 1 ? 's' : ''}`
               : `Showing recent alerts • Total: ${filteredAlerts.length} alert${filteredAlerts.length !== 1 ? 's' : ''}`
             }
@@ -234,17 +232,17 @@ const AllAlerts = () => {
 
         {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
-          <EmptyState 
-            type={searchTerm || filterType !== "all" ? "filtered" : 
-                 (viewMode === "screenshots" ? "screenshots" : 
-                  (alerts && alerts.length === 0 ? "safe" : "alerts"))} 
+          <EmptyState
+            type={searchTerm || filterType !== "all" ? "filtered" :
+              (viewMode === "screenshots" ? "screenshots" :
+                (alerts && alerts.length === 0 ? "safe" : "alerts"))}
           />
         ) : viewMode === "screenshots" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredAlerts.map((alert) => (
-              <ScreenshotCard 
-                key={alert.id} 
-                alert={alert} 
+              <ScreenshotCard
+                key={alert.id}
+                alert={alert}
                 onImageError={handleImageError}
               />
             ))}
