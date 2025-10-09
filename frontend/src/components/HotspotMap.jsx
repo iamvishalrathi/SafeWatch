@@ -35,18 +35,26 @@ const HotspotMap = ({ Alerts }) => {
 
         {/* Danger Zone - Red Circle */}
         {Alerts.map((zone, index) => (
-          <Circle
-            key={index}
-            center={[zone.lat, zone.lng]}
-            radius={50} // radius in meters
-            pathOptions={{
-              color: "red",
-              fillColor: "red",
-              fillOpacity: 0.4,
-            }}
-          >
-            <Popup>Danger Zone - High Alert</Popup>
-          </Circle>
+          zone.latitude && zone.longitude ? (
+            <Circle
+              key={index}
+              center={[zone.latitude, zone.longitude]}
+              radius={50} // radius in meters
+              pathOptions={{
+                color: "red",
+                fillColor: "red",
+                fillOpacity: 0.4,
+              }}
+            >
+              <Popup>
+                <div>
+                  <strong>Alert: {zone.alert_type}</strong><br />
+                  Timestamp: {new Date(zone.timestamp).toLocaleString()}<br />
+                  {zone.gesture && `Gesture: ${zone.gesture}`}
+                </div>
+              </Popup>
+            </Circle>
+          ) : null
         ))}
       </MapContainer>
     </div>

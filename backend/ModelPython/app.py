@@ -59,6 +59,14 @@ def get_alerts():
     alerts = DBAlert.query.order_by(DBAlert.timestamp.desc()).limit(10).all()
     return jsonify([a.to_dict() for a in alerts])
 
+@app.route('/gender_count')
+def get_gender_count():
+    """Returns the current gender count from the detector"""
+    return jsonify({
+        'male': detector.current_counts.get('male', 0),
+        'female': detector.current_counts.get('female', 0)
+    })
+
 @app.route('/alert_image/<int:alert_id>')
 def get_alert_image(alert_id):
     alert = DBAlert.query.get_or_404(alert_id)
