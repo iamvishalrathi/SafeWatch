@@ -1,188 +1,55 @@
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import HotspotMap from "../components/HotspotMap";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-
+import { useState } from "react";
 import CameraGrid from "../components/CameraGrid.jsx";
-import Piegraph from "../components/Piegraph.jsx";
-import AlertCard from "../components/AlertCard.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faVideo,
-  faBell,
-  faCamera,
-  faTrash,
-  faDownload,
-  faArrowRight,
+  faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useApi";
-import API from "../utils/api";
 
 const Live = () => {
-  const navigate = useNavigate();
-  
-  // Use custom hooks for API data
-  const { alerts, error: alertsError } = useAlerts(1000);
-  const { totalCount, maleCount, femaleCount } = usePersonCount(1000);
-  const { downloadImage } = useDownloadAlertImage();
+  const [selectedLocation, setSelectedLocation] = useState("All");
 
-  const [screenshots, setScreenshots] = useState([]);
-  const galleryRef = useRef(null);
-
-  // Get top 10 alerts
-  const topAlerts = alerts.slice(0, 10);
-
-  // Update screenshots from alerts
-  useEffect(() => {
-    if (alerts.length > 0) {
-      const alertImages = alerts.map(alert => ({
-        id: alert.id,
-        url: API.getAlertImageUrl(alert.id)
-      }));
-      setScreenshots(alertImages);
-    }
-  }, [alerts]);
-
-  // Scroll to bottom when new screenshot added
-  useEffect(() => {
-    if (galleryRef.current) {
-      galleryRef.current.scrollTop = galleryRef.current.scrollHeight;
-    }
-  }, [screenshots]);
-
-  const handleDeleteScreenshot = (index) => {
-    const updated = [...screenshots];
-    updated.splice(index, 1);
-    setScreenshots(updated);
-  };
-
-  const handleDownload = async (alertId) => {
-    try {
-      await downloadImage(alertId, `alert_${alertId}.jpg`);
-    } catch (error) {
-      console.error('Failed to download image:', error);
-    }
-  };
+  // Get unique locations from cameras
+  const locations = [
+    "All",
+    "Main Entrance",
+    "Parking Lot",
+    "Corridor A",
+    "Corridor B",
+    "Reception Area",
+    "Emergency Exit",
+  ];
 
   return (
     <div className="min-h-screen w-full bg-[#2C2C2C] p-6 flex flex-col gap-6 text-white">
-      {/* Show error messages if any */}
-      {alertsError && (
-        <div className="bg-red-600 p-4 rounded-lg">
-          Error loading alerts: {alertsError}
-        </div>
-      )}
-
-      {/* Header */}
+      {/* Header with Location Filter */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <FontAwesomeIcon icon={faVideo} className="text-blue-500" />
           Live Camera Monitoring
         </h1>
-      </div>
 
-      {/* Top Row: Camera Grid and Side Panels */}
-      <div className="flex gap-4">
-        {/* Camera Grid - Takes up 2/3 of the width */}
-        <div className="flex flex-col w-2/3 bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-          <div className="w-full mb-4 text-xl font-semibold flex items-center gap-2">
-            <FontAwesomeIcon icon={faVideo} />
-            <span>Camera Feeds</span>
-          </div>
-          <CameraGrid />
-        </div>
-
-        {/* Right Side Panels */}
-        <div className="flex flex-col w-1/3 gap-4">
-          {/* Stats */}
-          <div className="flex flex-col items-center bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">Gender Distribution</h2>
-            <div className="bg-[#4A4A4A] rounded-lg w-full p-4 text-lg flex flex-col gap-2">
-              <div>Total People: {totalCount}</div>
-              <div>Men: {maleCount}</div>
-              <div>Women: {femaleCount}</div>
-            </div>
-            <div className="mt-6 w-[200px] h-[200px] bg-white rounded-lg p-2">
-              <Piegraph male={maleCount} female={femaleCount} />
-            </div>
-          </div>
-
-          {/* Alerts */}
-          <div className="flex flex-col items-center bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-            <div className="w-full mb-4 text-xl font-semibold flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faBell} />
-                <span>Recent Alerts</span>
-              </div>
-              <span className="text-sm font-normal text-gray-400">
-                {alerts.length} total
-              </span>
-            </div>
-            <div className="flex flex-col gap-3 w-full overflow-y-auto h-[300px] pr-2">
-              {topAlerts.map((alert) => (
-                <AlertCard key={alert.id} alert={alert} compact={true} />
-              ))}
-            </div>
-            {alerts.length > 10 && (
-              <button
-                onClick={() => navigate("/all-alerts")}
-                className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <span>Show All Alerts</span>
-                <FontAwesomeIcon icon={faArrowRight} />
-              </button>
-            )}
-          </div>
+        {/* Location Filter */}
+        <div className="flex items-center gap-3 bg-[#3A3A3A] px-4 py-2 rounded-lg shadow-lg">
+          <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-500" />
+          <span className="text-sm font-semibold">Filter by Location:</span>
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="bg-[#4A4A4A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+          >
+            {locations.map((location) => (
+              <option key={location} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Screenshot Gallery Below */}
-      <div className="w-full bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-        <div className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <FontAwesomeIcon icon={faCamera} />
-          <span>Captured Screenshots</span>
-        </div>
-        <div
-          className="flex gap-4 overflow-x-auto max-w-full scrollbar-hide"
-          ref={galleryRef}
-        >
-          {screenshots.map((screenshot, index) => (
-            <div
-              key={index}
-              className="relative bg-white rounded-lg w-[300px] h-[150px] overflow-hidden group"
-            >
-              <img
-                src={screenshot.url}
-                alt={`screenshot-${index}`}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                onClick={() => window.open(screenshot.url, "_blank")}
-              />
-              <div className="absolute top-1 right-1 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                <button
-                  className="bg-black bg-opacity-60 p-1 rounded"
-                  onClick={() => handleDownload(screenshot.id)}
-                >
-                  <FontAwesomeIcon icon={faDownload} className="text-white" />
-                </button>
-                <button
-                  className="bg-black bg-opacity-60 p-1 rounded"
-                  onClick={() => handleDeleteScreenshot(index)}
-                >
-                  <FontAwesomeIcon icon={faTrash} className="text-white" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Hotspot Map Section */}
-      <div className="w-full bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-        <div className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <FontAwesomeIcon icon={faMapMarkerAlt} />
-          <span>Hotspot Locations Map</span>
-        </div>
-        <HotspotMap Alerts={alerts} />
+      {/* Camera Grid - Full Width */}
+      <div className="flex flex-col w-full bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
+        <CameraGrid selectedLocation={selectedLocation} />
       </div>
     </div>
   );

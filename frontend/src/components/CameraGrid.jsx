@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faVideo, faExclamationTriangle, faExpand } from "@fortawesome/free-solid-svg-icons";
+import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
 // Dummy camera to show when camera is not available
-const DummyCamera = ({ cameraId, cameraName }) => {
+const DummyCamera = ({ cameraId, cameraName, location }) => {
   const navigate = useNavigate();
   
   return (
@@ -16,9 +16,15 @@ const DummyCamera = ({ cameraId, cameraName }) => {
       {/* Camera Header */}
       <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-3 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faVideo} className="text-gray-400" />
-            <span className="text-white font-medium">{cameraName}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faVideo} className="text-gray-400" />
+              <span className="text-white font-medium">{cameraName}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-300 text-xs ml-5">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
+              <span>{location}</span>
+            </div>
           </div>
           <div className="flex items-center gap-2 bg-red-600/80 px-2 py-1 rounded">
             <FontAwesomeIcon icon={faExclamationTriangle} className="text-white text-xs" />
@@ -47,15 +53,16 @@ const DummyCamera = ({ cameraId, cameraName }) => {
 DummyCamera.propTypes = {
   cameraId: PropTypes.number.isRequired,
   cameraName: PropTypes.string.isRequired,
+  location: PropTypes.string.isRequired,
 };
 
 // Live camera feed component
-const LiveCamera = ({ cameraId, cameraName, videoFeedUrl, isOnline = true }) => {
+const LiveCamera = ({ cameraId, cameraName, location, videoFeedUrl, isOnline = true }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
   if (imageError || !isOnline) {
-    return <DummyCamera cameraId={cameraId} cameraName={cameraName} />;
+    return <DummyCamera cameraId={cameraId} cameraName={cameraName} location={location} />;
   }
 
   return (
@@ -66,9 +73,15 @@ const LiveCamera = ({ cameraId, cameraName, videoFeedUrl, isOnline = true }) => 
       {/* Camera Header */}
       <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-3 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faVideo} className="text-green-400" />
-            <span className="text-white font-medium">{cameraName}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faVideo} className="text-green-400" />
+              <span className="text-white font-medium">{cameraName}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-300 text-xs ml-5">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
+              <span>{location}</span>
+            </div>
           </div>
           <div className="flex items-center gap-1 bg-green-600/80 px-2 py-1 rounded">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -98,23 +111,30 @@ const LiveCamera = ({ cameraId, cameraName, videoFeedUrl, isOnline = true }) => 
 LiveCamera.propTypes = {
   cameraId: PropTypes.number.isRequired,
   cameraName: PropTypes.string.isRequired,
+  location: PropTypes.string.isRequired,
   videoFeedUrl: PropTypes.string.isRequired,
   isOnline: PropTypes.bool,
 };
 
 // Main CameraGrid component
-const CameraGrid = () => {
+const CameraGrid = ({ selectedLocation = "All" }) => {
   // Define cameras - you can modify this to fetch from API
   const cameras = [
-    { id: 1, name: "Main Entrance", url: "http://localhost:5000/video_feed", isOnline: true },
-    { id: 2, name: "Parking Area", url: "http://localhost:5000/video_feed", isOnline: false },
-    { id: 3, name: "Corridor A", url: "http://localhost:5000/video_feed", isOnline: false },
-    { id: 4, name: "Emergency Exit", url: "http://localhost:5000/video_feed", isOnline: false },
-    { id: 5, name: "Lobby", url: "http://localhost:5000/video_feed", isOnline: false },
-    { id: 6, name: "Stairwell B", url: "http://localhost:5000/video_feed", isOnline: false },
+    { id: 1, name: "Main Entrance", location: "Main Entrance", url: "http://localhost:5000/video_feed", isOnline: true },
+    { id: 2, name: "Parking Area", location: "Parking Lot", url: "http://localhost:5000/video_feed", isOnline: false },
+    { id: 3, name: "Corridor A", location: "Corridor A", url: "http://localhost:5000/video_feed", isOnline: false },
+    { id: 4, name: "Corridor B", location: "Corridor B", url: "http://localhost:5000/video_feed", isOnline: false },
+    { id: 5, name: "Lobby", location: "Reception Area", url: "http://localhost:5000/video_feed", isOnline: false },
+    { id: 6, name: "Stairwell B", location: "Emergency Exit", url: "http://localhost:5000/video_feed", isOnline: false },
   ];
 
-  const onlineCameras = cameras.filter(cam => cam.isOnline).length;
+  // Filter cameras based on selected location
+  const filteredCameras =
+    selectedLocation === "All"
+      ? cameras
+      : cameras.filter((camera) => camera.location === selectedLocation);
+
+  const onlineCameras = filteredCameras.filter(cam => cam.isOnline).length;
 
   return (
     <div className="w-full">
@@ -124,34 +144,48 @@ const CameraGrid = () => {
           <div className="flex items-center gap-2">
             <FontAwesomeIcon icon={faVideo} className="text-green-400" />
             <span className="text-lg font-medium">
-              {onlineCameras} / {cameras.length} Cameras Online
+              {onlineCameras} / {filteredCameras.length} Cameras Online
+              {selectedLocation !== "All" && ` in ${selectedLocation}`}
             </span>
           </div>
         </div>
       </div>
 
       {/* Camera Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cameras.map((camera) => (
-          camera.isOnline ? (
-            <LiveCamera
-              key={camera.id}
-              cameraId={camera.id}
-              cameraName={camera.name}
-              videoFeedUrl={camera.url}
-              isOnline={camera.isOnline}
-            />
-          ) : (
-            <DummyCamera
-              key={camera.id}
-              cameraId={camera.id}
-              cameraName={camera.name}
-            />
-          )
-        ))}
-      </div>
+      {filteredCameras.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCameras.map((camera) => (
+            camera.isOnline ? (
+              <LiveCamera
+                key={camera.id}
+                cameraId={camera.id}
+                cameraName={camera.name}
+                location={camera.location}
+                videoFeedUrl={camera.url}
+                isOnline={camera.isOnline}
+              />
+            ) : (
+              <DummyCamera
+                key={camera.id}
+                cameraId={camera.id}
+                cameraName={camera.name}
+                location={camera.location}
+              />
+            )
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-gray-400">
+          <FontAwesomeIcon icon={faVideo} className="text-6xl mb-4" />
+          <p className="text-xl">No cameras found for {selectedLocation}</p>
+        </div>
+      )}
     </div>
   );
+};
+
+CameraGrid.propTypes = {
+  selectedLocation: PropTypes.string,
 };
 
 export default CameraGrid;
