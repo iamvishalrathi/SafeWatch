@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
+import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt, faDoorOpen, faToggleOn, faToggleOff } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
 // Dummy camera to show when camera is not available
@@ -130,8 +130,8 @@ LiveCamera.propTypes = {
 
 // Main CameraGrid component
 const CameraGrid = ({ selectedLocation = "All" }) => {
-    // Define cameras with id, position (specific place), and location (area)
-    const cameras = [
+    // Define initial cameras with id, position (specific place), and location (area)
+    const initialCameras = [
         { 
             id: 1, 
             position: "Main Entrance", 
@@ -176,6 +176,20 @@ const CameraGrid = ({ selectedLocation = "All" }) => {
         },
     ];
 
+    // State to manage camera on/off status
+    const [cameras, setCameras] = useState(initialCameras);
+
+    // Toggle camera on/off
+    const toggleCamera = (cameraId) => {
+        setCameras(prevCameras =>
+            prevCameras.map(camera =>
+                camera.id === cameraId
+                    ? { ...camera, isOnline: !camera.isOnline }
+                    : camera
+            )
+        );
+    };
+
     // Filter cameras based on selected location
     const filteredCameras =
         selectedLocation === "All"
@@ -203,23 +217,50 @@ const CameraGrid = ({ selectedLocation = "All" }) => {
             {filteredCameras.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredCameras.map((camera) => (
-                        camera.isOnline ? (
-                            <LiveCamera
-                                key={camera.id}
-                                cameraId={camera.id}
-                                position={camera.position}
-                                location={camera.location}
-                                videoFeedUrl={camera.url}
-                                isOnline={camera.isOnline}
-                            />
-                        ) : (
-                            <DummyCamera
-                                key={camera.id}
-                                cameraId={camera.id}
-                                position={camera.position}
-                                location={camera.location}
-                            />
-                        )
+                        <div key={camera.id} className="flex flex-col gap-2">
+                            {/* Toggle Button */}
+                            <div className="flex items-center justify-between bg-[#3A3A3A] px-4 py-2 rounded-lg shadow">
+                                <div className="flex items-center gap-2">
+                                    <FontAwesomeIcon 
+                                        icon={camera.isOnline ? faToggleOn : faToggleOff} 
+                                        className={`text-2xl ${camera.isOnline ? 'text-green-500' : 'text-gray-500'}`}
+                                    />
+                                    <span className="text-white text-sm font-medium">
+                                        Camera #{camera.id} - {camera.isOnline ? 'ON' : 'OFF'}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleCamera(camera.id);
+                                    }}
+                                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                                        camera.isOnline
+                                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                                            : 'bg-green-600 hover:bg-green-700 text-white'
+                                    }`}
+                                >
+                                    {camera.isOnline ? 'Turn OFF' : 'Turn ON'}
+                                </button>
+                            </div>
+                            
+                            {/* Camera Feed */}
+                            {camera.isOnline ? (
+                                <LiveCamera
+                                    cameraId={camera.id}
+                                    position={camera.position}
+                                    location={camera.location}
+                                    videoFeedUrl={camera.url}
+                                    isOnline={camera.isOnline}
+                                />
+                            ) : (
+                                <DummyCamera
+                                    cameraId={camera.id}
+                                    position={camera.position}
+                                    location={camera.location}
+                                />
+                            )}
+                        </div>
                     ))}
                 </div>
             ) : (

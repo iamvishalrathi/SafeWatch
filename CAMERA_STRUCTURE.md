@@ -1,7 +1,7 @@
 # Camera Structure Documentation
 
 ## Overview
-Each camera in the SafeWatch system now has three distinct properties for better organization and filtering.
+Each camera in the SafeWatch system now has three distinct properties for better organization and filtering. Additionally, cameras can be toggled on/off directly from the Live page for better control.
 
 ## Camera Properties
 
@@ -33,6 +33,20 @@ Each camera in the SafeWatch system now has three distinct properties for better
   - Dwarka
 - **Usage**: Used for location-based filtering
 - **Display**: Shows with map marker icon (📍)
+
+## New Features
+
+### Camera Toggle Control
+Each camera can be turned ON or OFF directly from the Live page:
+- **Toggle Switch Icon**: Visual indicator showing current camera status (green for ON, gray for OFF)
+- **Turn ON/OFF Button**: Click to toggle camera status
+- **Status Display**: Shows "Camera #X - ON/OFF" with corresponding colored toggle icon
+- **Real-time Updates**: Camera feed updates immediately when toggled
+
+### Toggle Button Styling
+- **ON State**: Red "Turn OFF" button with green toggle icon
+- **OFF State**: Green "Turn ON" button with gray toggle icon
+- **Hover Effects**: Smooth color transitions on hover
 
 ## Current Camera Configuration
 
@@ -85,6 +99,15 @@ const cameras = [
 
 ## Display Format
 
+### Camera Toggle Control Bar
+```
+🔘 Camera #1 - ON          [Turn OFF]
+```
+or
+```
+⚪ Camera #1 - OFF         [Turn ON]
+```
+
 ### Camera Tile Header
 ```
 Camera #1                    [Online/Offline Badge]
@@ -112,6 +135,8 @@ Camera #1                    [Online/Offline Badge]
    - Updated DummyCamera component props
    - Modified camera data structure
    - Added location filtering logic
+   - **NEW**: Added camera toggle on/off functionality
+   - **NEW**: Added toggle control UI above each camera feed
 
 2. `frontend/src/pages/Live.jsx`
    - Updated location filter options to match areas
@@ -122,6 +147,12 @@ Camera #1                    [Online/Offline Badge]
    - Modified display to show Camera ID, position, and location
    - Updated video feed alt text
 
+4. `frontend/src/components/Navbar.jsx`
+   - **NEW**: Added underline styling for active navigation links
+   - **NEW**: Active links show red text with underline
+   - **NEW**: Hover state matches active state styling (underline effect)
+   - **NEW**: Smooth transitions between states
+
 ## Benefits of This Structure
 
 1. **Hierarchical Organization**: Location (area) → Position (specific place) → Camera ID
@@ -129,6 +160,8 @@ Camera #1                    [Online/Offline Badge]
 3. **Clear Identification**: Each camera has a unique ID and clear position
 4. **Scalability**: Easy to add new locations and positions
 5. **User-Friendly**: Icons help distinguish between position and location
+6. **Control**: Easy toggle on/off for each camera feed
+7. **Visual Feedback**: Clear navigation with underlined active links
 
 ## Adding New Cameras
 
