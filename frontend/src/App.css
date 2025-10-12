@@ -75,21 +75,7 @@ nav {
           text-decoration: none;
           color: white;
         }
-        &::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          width: 0;
-          height: 2px;
-          /* border-radius:100%; */
-          background-color: #ff0000;
-          transition: width 0.3s ease;
-        }
-
-        &:hover::after {
-          width: 100%;
-        }
+        /* Hover underline removed - now controlled by Navbar.jsx for active state only */
       }
     }
   }
