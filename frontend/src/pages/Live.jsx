@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import HotspotMap from "../components/HotspotMap";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 
-import VideoFeed from "../components/VideoFeed.jsx";
+import CameraGrid from "../components/CameraGrid.jsx";
 import Piegraph from "../components/Piegraph.jsx";
 import AlertCard from "../components/AlertCard.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -72,63 +72,67 @@ const Live = () => {
           Error loading alerts: {alertsError}
         </div>
       )}
-      {/* Top 3 Columns */}
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <FontAwesomeIcon icon={faVideo} className="text-blue-500" />
+          Live Camera Monitoring
+        </h1>
+      </div>
+
+      {/* Top Row: Camera Grid and Side Panels */}
       <div className="flex gap-4">
-        {/* Video */}
-        <div className="flex flex-col items-center w-1/3 bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
+        {/* Camera Grid - Takes up 2/3 of the width */}
+        <div className="flex flex-col w-2/3 bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
           <div className="w-full mb-4 text-xl font-semibold flex items-center gap-2">
             <FontAwesomeIcon icon={faVideo} />
-            <span>Live Camera Feed</span>
+            <span>Camera Feeds</span>
           </div>
-          <VideoFeed />
-          <div className="flex gap-4 mt-6">
-            <button className="px-4 py-2 rounded-md bg-red-600 font-medium hover:bg-red-700">
-              Camera List
-            </button>
-            <button className="px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-900">
-              Events
-            </button>
-          </div>
+          <CameraGrid />
         </div>
 
-        {/* Stats */}
-        <div className="flex flex-col items-center w-1/3 bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">Gender Distribution</h2>
-          <div className="bg-[#4A4A4A] rounded-lg w-full p-4 text-lg flex flex-col gap-2">
-            <div>Total People: {totalCount}</div>
-            <div>Men: {maleCount}</div>
-            <div>Women: {femaleCount}</div>
-          </div>
-          <div className="mt-6 w-[250px] h-[250px] bg-white rounded-lg p-2">
-            <Piegraph male={maleCount} female={femaleCount} />
-          </div>
-        </div>
-
-        {/* Alerts */}
-        <div className="flex flex-col items-center w-[20%] bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-          <div className="w-full mb-4 text-xl font-semibold flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faBell} />
-              <span>Recent Alerts</span>
+        {/* Right Side Panels */}
+        <div className="flex flex-col w-1/3 gap-4">
+          {/* Stats */}
+          <div className="flex flex-col items-center bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4">Gender Distribution</h2>
+            <div className="bg-[#4A4A4A] rounded-lg w-full p-4 text-lg flex flex-col gap-2">
+              <div>Total People: {totalCount}</div>
+              <div>Men: {maleCount}</div>
+              <div>Women: {femaleCount}</div>
             </div>
-            <span className="text-sm font-normal text-gray-400">
-              {alerts.length} total
-            </span>
+            <div className="mt-6 w-[200px] h-[200px] bg-white rounded-lg p-2">
+              <Piegraph male={maleCount} female={femaleCount} />
+            </div>
           </div>
-          <div className="flex flex-col gap-3 w-full overflow-y-auto h-[400px] pr-2">
-            {topAlerts.map((alert) => (
-              <AlertCard key={alert.id} alert={alert} compact={true} />
-            ))}
+
+          {/* Alerts */}
+          <div className="flex flex-col items-center bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
+            <div className="w-full mb-4 text-xl font-semibold flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faBell} />
+                <span>Recent Alerts</span>
+              </div>
+              <span className="text-sm font-normal text-gray-400">
+                {alerts.length} total
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 w-full overflow-y-auto h-[300px] pr-2">
+              {topAlerts.map((alert) => (
+                <AlertCard key={alert.id} alert={alert} compact={true} />
+              ))}
+            </div>
+            {alerts.length > 10 && (
+              <button
+                onClick={() => navigate("/all-alerts")}
+                className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <span>Show All Alerts</span>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </button>
+            )}
           </div>
-          {alerts.length > 10 && (
-            <button
-              onClick={() => navigate("/all-alerts")}
-              className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <span>Show All Alerts</span>
-              <FontAwesomeIcon icon={faArrowRight} />
-            </button>
-          )}
         </div>
       </div>
 
