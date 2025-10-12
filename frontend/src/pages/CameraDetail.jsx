@@ -30,6 +30,7 @@ const CameraDetail = () => {
   const [screenshots, setScreenshots] = useState([]);
   const [cameraInfo, setCameraInfo] = useState(null);
   const [videoError, setVideoError] = useState(false);
+  const [isCameraEnabled, setIsCameraEnabled] = useState(true);
   const galleryRef = useRef(null);
 
   // Get camera info based on ID
@@ -169,32 +170,61 @@ const CameraDetail = () => {
       <div className="flex gap-4">
         {/* Video */}
         <div className="flex flex-col items-center w-1/3 bg-[#3A3A3A] rounded-xl p-4 shadow-lg">
-          <div className="w-full mb-4 text-xl font-semibold flex items-center gap-2">
-            <FontAwesomeIcon icon={faVideo} />
-            <span>Live Camera Feed</span>
+          <div className="w-full mb-4 flex items-center justify-between">
+            <div className="text-xl font-semibold flex items-center gap-2">
+              <FontAwesomeIcon icon={faVideo} />
+              <span>Live Camera Feed</span>
+            </div>
+            
+            {/* Toggle Switch */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-300">
+                {isCameraEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isCameraEnabled}
+                  onChange={() => setIsCameraEnabled(!isCameraEnabled)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
           </div>
           
           {/* Video Feed or Dummy */}
-          {cameraInfo.isOnline && !videoError ? (
-            <img
-              src={cameraInfo.url}
-              alt={`Camera ${cameraInfo.id} Feed`}
-              style={{
-                width: "664px",
-                height: "450px",
-                borderRadius: "8px",
-                boxShadow: "0px 0px 10px rgba(0,0,0,0.5)",
-              }}
-              onError={() => setVideoError(true)}
-            />
+          {isCameraEnabled ? (
+            cameraInfo.isOnline && !videoError ? (
+              <img
+                src={cameraInfo.url}
+                alt={`Camera ${cameraInfo.id} Feed`}
+                style={{
+                  width: "664px",
+                  height: "450px",
+                  borderRadius: "8px",
+                  boxShadow: "0px 0px 10px rgba(0,0,0,0.5)",
+                }}
+                onError={() => setVideoError(true)}
+              />
+            ) : (
+              <div 
+                className="w-[664px] h-[450px] bg-[#4A4A4A] rounded-lg flex flex-col items-center justify-center"
+                style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.5)" }}
+              >
+                <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-6xl mb-4" />
+                <p className="text-gray-400 text-lg">Camera Unavailable</p>
+                <p className="text-gray-500 text-sm mt-2">Feed currently offline</p>
+              </div>
+            )
           ) : (
             <div 
               className="w-[664px] h-[450px] bg-[#4A4A4A] rounded-lg flex flex-col items-center justify-center"
               style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.5)" }}
             >
               <FontAwesomeIcon icon={faVideo} className="text-gray-600 text-6xl mb-4" />
-              <p className="text-gray-500 text-lg">Camera Unavailable</p>
-              <p className="text-gray-600 text-sm mt-2">Feed currently offline</p>
+              <p className="text-gray-400 text-lg">Camera Disabled</p>
+              <p className="text-gray-500 text-sm mt-2">Turn on to view feed</p>
             </div>
           )}
 

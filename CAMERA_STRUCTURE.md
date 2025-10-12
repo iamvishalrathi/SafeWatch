@@ -1,7 +1,7 @@
 # Camera Structure Documentation
 
 ## Overview
-Each camera in the SafeWatch system now has three distinct properties for better organization and filtering. Additionally, cameras can be toggled on/off directly from the Live page for better control.
+Each camera in the SafeWatch system now has three distinct properties for better organization and filtering. Additionally, cameras can be enabled/disabled using a toggle switch directly on each camera feed for better control.
 
 ## Camera Properties
 
@@ -34,19 +34,51 @@ Each camera in the SafeWatch system now has three distinct properties for better
 - **Usage**: Used for location-based filtering
 - **Display**: Shows with map marker icon (📍)
 
+### 4. **Enabled Status** (`isEnabled`)
+- **Type**: Boolean
+- **Description**: Controls whether the camera feed is active or disabled
+- **Usage**: User can toggle this to enable/disable camera input
+- **Default**: true (enabled)
+- **Display**: Toggle switch on camera header
+
 ## New Features
 
 ### Camera Toggle Control
-Each camera can be turned ON or OFF directly from the Live page:
-- **Toggle Switch Icon**: Visual indicator showing current camera status (green for ON, gray for OFF)
-- **Turn ON/OFF Button**: Click to toggle camera status
-- **Status Display**: Shows "Camera #X - ON/OFF" with corresponding colored toggle icon
-- **Real-time Updates**: Camera feed updates immediately when toggled
+Each camera has a toggle switch directly on its feed for instant enable/disable control:
 
-### Toggle Button Styling
-- **ON State**: Red "Turn OFF" button with green toggle icon
-- **OFF State**: Green "Turn ON" button with gray toggle icon
-- **Hover Effects**: Smooth color transitions on hover
+#### Live Page (Camera Grid)
+- **Location**: Top-right corner of each camera tile header
+- **Toggle Switch**: Modern iOS-style toggle switch
+  - **Enabled (ON)**: Green background, switch on right
+  - **Disabled (OFF)**: Gray background, switch on left
+- **Visual Feedback**: 
+  - Camera icon color changes (green when enabled, gray when disabled)
+  - Feed shows different content based on state
+- **Click Behavior**: Toggle doesn't interfere with camera navigation
+- **Feed States**:
+  - **Enabled + Online**: Shows live video feed
+  - **Enabled + Feed Error**: Shows error message with warning icon
+  - **Disabled**: Shows "Camera Disabled" message
+
+#### Camera Detail Page
+- **Location**: Top-right of "Live Camera Feed" header
+- **Toggle Switch**: Same iOS-style toggle as grid view
+- **Status Label**: Shows "Enabled" or "Disabled" next to toggle
+- **Feed States**:
+  - **Enabled + Online**: Shows full-size live video feed (664x450px)
+  - **Enabled + Offline**: Shows "Camera Unavailable" with error icon
+  - **Disabled**: Shows "Camera Disabled" message
+
+### Toggle Switch Design
+```css
+- Width: 44px (11 units)
+- Height: 24px (6 units)
+- Border Radius: Fully rounded
+- Background (OFF): Gray (#4B5563)
+- Background (ON): Green (#16A34A)
+- Switch Circle: White, 20px diameter
+- Transition: Smooth slide animation
+```
 
 ## Current Camera Configuration
 
@@ -57,69 +89,74 @@ const cameras = [
     position: "Main Entrance", 
     location: "Rohini", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: true 
+    isOnline: true,
+    isEnabled: true  // Can be toggled by user
   },
   { 
     id: 2, 
     position: "Parking Area", 
     location: "Rohini", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: false 
+    isOnline: false,
+    isEnabled: true
   },
   { 
     id: 3, 
     position: "Hall", 
     location: "Narela", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: false 
+    isOnline: false,
+    isEnabled: true
   },
   { 
     id: 4, 
     position: "Main Door", 
     location: "Narela", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: false 
+    isOnline: false,
+    isEnabled: true
   },
   { 
     id: 5, 
     position: "Reception", 
     location: "Dwarka", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: false 
+    isOnline: false,
+    isEnabled: true
   },
   { 
     id: 6, 
     position: "Emergency Exit", 
     location: "Dwarka", 
     url: "http://localhost:5000/video_feed", 
-    isOnline: false 
+    isOnline: false,
+    isEnabled: true
   },
 ];
 ```
 
 ## Display Format
 
-### Camera Toggle Control Bar
+### Camera Tile Header (Live Page Grid)
 ```
-🔘 Camera #1 - ON          [Turn OFF]
-```
-or
-```
-⚪ Camera #1 - OFF         [Turn ON]
-```
-
-### Camera Tile Header
-```
-Camera #1                    [Online/Offline Badge]
+Camera #1                    [Toggle Switch 🟢]
 🚪 Main Entrance
 📍 Rohini
+```
+
+When disabled:
+```
+Camera #1                    [Toggle Switch ⚪]
+🚪 Main Entrance
+📍 Rohini
+[Camera Disabled - Turn on to view feed]
 ```
 
 ### Camera Detail Page Header
 ```
 ← Back to Camera Grid
 
-🎥 Camera #1                 [Online]
+🎥 Camera #1       Enabled [Toggle Switch 🟢]
    Main Entrance • Rohini
 ```
 
@@ -130,24 +167,32 @@ Camera #1                    [Online/Offline Badge]
 - **Dwarka** - Shows cameras in Dwarka area (Camera #5, #6)
 
 ## Files Updated
-1. `frontend/src/components/CameraGrid.jsx`
-   - Updated LiveCamera component props
-   - Updated DummyCamera component props
-   - Modified camera data structure
-   - Added location filtering logic
-   - **NEW**: Added camera toggle on/off functionality
-   - **NEW**: Added toggle control UI above each camera feed
 
-2. `frontend/src/pages/Live.jsx`
-   - Updated location filter options to match areas
+### 1. `frontend/src/components/CameraGrid.jsx`
+   - Updated LiveCamera component with toggle switch
+   - Added `isEnabled` prop and `onToggle` callback
+   - Toggle switch integrated directly in camera header
+   - Click event handling to prevent navigation when toggling
+   - Modified camera data structure to include `isEnabled` property
+   - Added location filtering logic
+   - Shows different states: Enabled+Live, Enabled+Error, Disabled
+   - Updated stats to show "Cameras Enabled" instead of "Online"
+
+### 2. `frontend/src/pages/Live.jsx`
+   - Updated location filter options to match areas (Rohini, Narela, Dwarka)
    - Changed from position-based to location-based filtering
+
+### 3. `frontend/src/pages/CameraDetail.jsx`
+   - **NEW**: Added toggle switch in video feed header
+   - **NEW**: Added `isCameraEnabled` state management
+   - Toggle switch with "Enabled/Disabled" label
+   - Conditional rendering based on enabled status
+   - Shows "Camera Disabled" message when toggled off
+   - Maintains all original functionality (alerts, screenshots, maps)
 
 3. `frontend/src/pages/CameraDetail.jsx`
    - Updated camera data structure
-   - Modified display to show Camera ID, position, and location
-   - Updated video feed alt text
-
-4. `frontend/src/components/Navbar.jsx`
+### 4. `frontend/src/components/Navbar.jsx`
    - **NEW**: Added underline styling for active navigation links
    - **NEW**: Active links show red text with underline
    - **NEW**: Hover state matches active state styling (underline effect)
@@ -160,8 +205,22 @@ Camera #1                    [Online/Offline Badge]
 3. **Clear Identification**: Each camera has a unique ID and clear position
 4. **Scalability**: Easy to add new locations and positions
 5. **User-Friendly**: Icons help distinguish between position and location
-6. **Control**: Easy toggle on/off for each camera feed
-7. **Visual Feedback**: Clear navigation with underlined active links
+6. **Instant Control**: Toggle switch on each camera for instant enable/disable
+7. **Visual Feedback**: 
+   - Clear navigation with underlined active links
+   - Toggle switch shows enabled/disabled state
+   - Camera icon color indicates status
+8. **Privacy Control**: Users can disable camera feeds they don't want to monitor
+9. **Resource Management**: Disabling cameras can reduce bandwidth/processing
+
+## Toggle Feature Benefits
+
+1. **User Control**: Direct control over which cameras are active
+2. **Privacy**: Can temporarily disable cameras
+3. **Focus**: Disable unneeded cameras to focus on important feeds
+4. **Non-Destructive**: Toggle is temporary, doesn't affect camera configuration
+5. **Instant Feedback**: Immediate visual response when toggling
+6. **Accessible**: Works on both grid view and detail pages
 
 ## Adding New Cameras
 
@@ -173,7 +232,8 @@ To add a new camera:
   position: "Back Gate",        // Specific position
   location: "Rohini",           // Area/region
   url: "http://localhost:5000/video_feed",
-  isOnline: true
+  isOnline: true,               // Physical camera status
+  isEnabled: true               // User control toggle
 }
 ```
 
