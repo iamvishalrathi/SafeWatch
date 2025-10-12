@@ -9,15 +9,12 @@ import {
 const Live = () => {
   const [selectedLocation, setSelectedLocation] = useState("All");
 
-  // Get unique locations from cameras
+  // Get unique locations from cameras (area-based locations)
   const locations = [
     "All",
-    "Main Entrance",
-    "Parking Lot",
-    "Corridor A",
-    "Corridor B",
-    "Reception Area",
-    "Emergency Exit",
+    "Rohini",
+    "Narela",
+    "Dwarka",
   ];
 
   return (

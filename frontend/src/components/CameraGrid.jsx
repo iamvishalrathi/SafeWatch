@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
 // Dummy camera to show when camera is not available
-const DummyCamera = ({ cameraId, cameraName, location }) => {
+const DummyCamera = ({ cameraId, position, location }) => {
     const navigate = useNavigate();
 
     return (
@@ -19,11 +19,17 @@ const DummyCamera = ({ cameraId, cameraName, location }) => {
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                             <FontAwesomeIcon icon={faVideo} className="text-gray-400" />
-                            <span className="text-white font-medium">{cameraName}</span>
+                            <span className="text-white font-medium">Camera #{cameraId}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-gray-300 text-xs ml-5">
-                            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
-                            <span>{location}</span>
+                        <div className="flex flex-col gap-0.5 text-gray-300 text-xs ml-5">
+                            <div className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faDoorOpen} className="text-xs" />
+                                <span>{position}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
+                                <span>{location}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 bg-red-600/80 px-2 py-1 rounded">
@@ -52,17 +58,17 @@ const DummyCamera = ({ cameraId, cameraName, location }) => {
 
 DummyCamera.propTypes = {
     cameraId: PropTypes.number.isRequired,
-    cameraName: PropTypes.string.isRequired,
+    position: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
 };
 
 // Live camera feed component
-const LiveCamera = ({ cameraId, cameraName, location, videoFeedUrl, isOnline = true }) => {
+const LiveCamera = ({ cameraId, position, location, videoFeedUrl, isOnline = true }) => {
     const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);
 
     if (imageError || !isOnline) {
-        return <DummyCamera cameraId={cameraId} cameraName={cameraName} location={location} />;
+        return <DummyCamera cameraId={cameraId} position={position} location={location} />;
     }
 
     return (
@@ -76,11 +82,17 @@ const LiveCamera = ({ cameraId, cameraName, location, videoFeedUrl, isOnline = t
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                             <FontAwesomeIcon icon={faVideo} className="text-green-400" />
-                            <span className="text-white font-medium">{cameraName}</span>
+                            <span className="text-white font-medium">Camera #{cameraId}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-gray-300 text-xs ml-5">
-                            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
-                            <span>{location}</span>
+                        <div className="flex flex-col gap-0.5 text-gray-300 text-xs ml-5">
+                            <div className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faDoorOpen} className="text-xs" />
+                                <span>{position}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
+                                <span>{location}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-1 bg-green-600/80 px-2 py-1 rounded">
@@ -93,7 +105,7 @@ const LiveCamera = ({ cameraId, cameraName, location, videoFeedUrl, isOnline = t
             {/* Video Feed */}
             <img
                 src={videoFeedUrl}
-                alt={`${cameraName} Feed`}
+                alt={`Camera ${cameraId} Feed`}
                 className="w-full h-64 object-cover"
                 onError={() => setImageError(true)}
             />
@@ -110,7 +122,7 @@ const LiveCamera = ({ cameraId, cameraName, location, videoFeedUrl, isOnline = t
 
 LiveCamera.propTypes = {
     cameraId: PropTypes.number.isRequired,
-    cameraName: PropTypes.string.isRequired,
+    position: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
     videoFeedUrl: PropTypes.string.isRequired,
     isOnline: PropTypes.bool,
@@ -118,14 +130,50 @@ LiveCamera.propTypes = {
 
 // Main CameraGrid component
 const CameraGrid = ({ selectedLocation = "All" }) => {
-    // Define cameras - you can modify this to fetch from API
+    // Define cameras with id, position (specific place), and location (area)
     const cameras = [
-        { id: 1, name: "Main Entrance", location: "Main Entrance", url: "http://localhost:5000/video_feed", isOnline: true },
-        { id: 2, name: "Parking Area", location: "Parking Lot", url: "http://localhost:5000/video_feed", isOnline: false },
-        { id: 3, name: "Corridor A", location: "Corridor A", url: "http://localhost:5000/video_feed", isOnline: false },
-        { id: 4, name: "Corridor B", location: "Corridor B", url: "http://localhost:5000/video_feed", isOnline: false },
-        { id: 5, name: "Lobby", location: "Reception Area", url: "http://localhost:5000/video_feed", isOnline: false },
-        { id: 6, name: "Stairwell B", location: "Emergency Exit", url: "http://localhost:5000/video_feed", isOnline: false },
+        { 
+            id: 1, 
+            position: "Main Entrance", 
+            location: "Rohini", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: true 
+        },
+        { 
+            id: 2, 
+            position: "Parking Area", 
+            location: "Rohini", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: false 
+        },
+        { 
+            id: 3, 
+            position: "Hall", 
+            location: "Narela", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: false 
+        },
+        { 
+            id: 4, 
+            position: "Main Door", 
+            location: "Narela", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: false 
+        },
+        { 
+            id: 5, 
+            position: "Reception", 
+            location: "Dwarka", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: false 
+        },
+        { 
+            id: 6, 
+            position: "Emergency Exit", 
+            location: "Dwarka", 
+            url: "http://localhost:5000/video_feed", 
+            isOnline: false 
+        },
     ];
 
     // Filter cameras based on selected location
@@ -159,7 +207,7 @@ const CameraGrid = ({ selectedLocation = "All" }) => {
                             <LiveCamera
                                 key={camera.id}
                                 cameraId={camera.id}
-                                cameraName={camera.name}
+                                position={camera.position}
                                 location={camera.location}
                                 videoFeedUrl={camera.url}
                                 isOnline={camera.isOnline}
@@ -168,7 +216,7 @@ const CameraGrid = ({ selectedLocation = "All" }) => {
                             <DummyCamera
                                 key={camera.id}
                                 cameraId={camera.id}
-                                cameraName={camera.name}
+                                position={camera.position}
                                 location={camera.location}
                             />
                         )

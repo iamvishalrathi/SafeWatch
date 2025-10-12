@@ -35,12 +35,48 @@ const CameraDetail = () => {
   // Get camera info based on ID
   useEffect(() => {
     const cameras = [
-      { id: 1, name: "Main Entrance", url: "http://localhost:5000/video_feed", isOnline: true },
-      { id: 2, name: "Parking Area", url: "http://localhost:5000/video_feed", isOnline: false },
-      { id: 3, name: "Corridor A", url: "http://localhost:5000/video_feed", isOnline: false },
-      { id: 4, name: "Emergency Exit", url: "http://localhost:5000/video_feed", isOnline: false },
-      { id: 5, name: "Lobby", url: "http://localhost:5000/video_feed", isOnline: false },
-      { id: 6, name: "Stairwell B", url: "http://localhost:5000/video_feed", isOnline: false },
+      { 
+        id: 1, 
+        position: "Main Entrance", 
+        location: "Rohini", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: true 
+      },
+      { 
+        id: 2, 
+        position: "Parking Area", 
+        location: "Rohini", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: false 
+      },
+      { 
+        id: 3, 
+        position: "Hall", 
+        location: "Narela", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: false 
+      },
+      { 
+        id: 4, 
+        position: "Main Door", 
+        location: "Narela", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: false 
+      },
+      { 
+        id: 5, 
+        position: "Reception", 
+        location: "Dwarka", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: false 
+      },
+      { 
+        id: 6, 
+        position: "Emergency Exit", 
+        location: "Dwarka", 
+        url: "http://localhost:5000/video_feed", 
+        isOnline: false 
+      },
     ];
     
     const camera = cameras.find(cam => cam.id === parseInt(cameraId));
@@ -101,9 +137,16 @@ const CameraDetail = () => {
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Back to Camera Grid</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <FontAwesomeIcon icon={faVideo} className={cameraInfo.isOnline ? "text-green-400" : "text-red-400"} />
-          <h1 className="text-2xl font-bold">{cameraInfo.name}</h1>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold">Camera #{cameraInfo.id}</h1>
+            <div className="flex items-center gap-2 text-sm text-gray-300">
+              <span>{cameraInfo.position}</span>
+              <span>•</span>
+              <span>{cameraInfo.location}</span>
+            </div>
+          </div>
           {cameraInfo.isOnline ? (
             <span className="bg-green-600/80 px-3 py-1 rounded text-sm">Online</span>
           ) : (
@@ -135,7 +178,7 @@ const CameraDetail = () => {
           {cameraInfo.isOnline && !videoError ? (
             <img
               src={cameraInfo.url}
-              alt={`${cameraInfo.name} Feed`}
+              alt={`Camera ${cameraInfo.id} Feed`}
               style={{
                 width: "664px",
                 height: "450px",
