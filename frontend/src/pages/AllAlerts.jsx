@@ -1,40 +1,239 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faFilter,
   faSortAmountDown,
   faDownload,
-  faImages,
   faExclamationTriangle,
+  faClock,
+  faMapMarkerAlt,
+  faUserGroup,
+  faHand,
+  faExpand,
+  faCamera,
 } from "@fortawesome/free-solid-svg-icons";
-import AlertCard from "../components/AlertCard";
-import ScreenshotCard from "../components/ScreenshotCard";
 import EmptyState from "../components/EmptyState";
-import { useAlerts, useScreenshots } from "../hooks/useApi";
+import { useAlerts } from "../hooks/useApi";
 import API from "../utils/api";
+import { useNavigate } from "react-router-dom";
+
+// Alert Card with Screenshot Component
+const AlertCardWithScreenshot = ({ alert, onDownload }) => {
+  const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getAlertIcon = (type) => {
+    switch (type) {
+      case "distress":
+        return faExclamationTriangle;
+      case "lone_woman_night":
+        return faClock;
+      case "woman_surrounded":
+      case "woman_surrounded_spatial":
+        return faUserGroup;
+      default:
+        return faExclamationTriangle;
+    }
+  };
+
+  const getAlertColor = (type) => {
+    switch (type) {
+      case "distress":
+        return "from-red-600 to-red-700";
+      case "lone_woman_night":
+        return "from-yellow-600 to-yellow-700";
+      case "woman_surrounded":
+      case "woman_surrounded_spatial":
+        return "from-orange-600 to-orange-700";
+      default:
+        return "from-red-600 to-red-700";
+    }
+  };
+
+  const getAlertTitle = (type) => {
+    switch (type) {
+      case "distress":
+        return "Distress Signal";
+      case "lone_woman_night":
+        return "Lone Woman at Night";
+      case "woman_surrounded":
+        return "Woman Surrounded";
+      case "woman_surrounded_spatial":
+        return "Spatial Risk Detected";
+      default:
+        return "Alert";
+    }
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Unknown';
+    const date = new Date(timestamp);
+    return date.toLocaleString("en-IN", {
+      timeZone: 'Asia/Kolkata',
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short"
+    });
+  };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setImageError(true);
+  };
+
+  const handleCardClick = () => {
+    navigate(`/alert/${alert.id}`);
+  };
+
+  const handleDownload = (e) => {
+    e.stopPropagation();
+    onDownload(alert.id);
+  };
+
+  const openFullscreen = (e) => {
+    e.stopPropagation();
+    const imageUrl = API.getAlertImageUrl(alert.id);
+    window.open(imageUrl, '_blank');
+  };
+
+  return (
+    <div 
+      onClick={handleCardClick}
+      className="bg-[#3A3A3A] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+    >
+      {/* Screenshot/Image Section */}
+      <div className="relative h-48 bg-gray-800">
+        {!imageError ? (
+          <>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            )}
+            <img
+              src={API.getAlertImageUrl(alert.id)}
+              alt={`Alert ${alert.id}`}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+            />
+            {/* Image overlay buttons */}
+            <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button
+                onClick={openFullscreen}
+                className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg backdrop-blur-sm"
+                title="View fullscreen"
+              >
+                <FontAwesomeIcon icon={faExpand} />
+              </button>
+              <button
+                onClick={handleDownload}
+                className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg backdrop-blur-sm"
+                title="Download screenshot"
+              >
+                <FontAwesomeIcon icon={faDownload} />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+            <FontAwesomeIcon icon={faCamera} className="text-4xl mb-2" />
+            <p className="text-sm">Screenshot not available</p>
+          </div>
+        )}
+      </div>
+
+      {/* Alert Info Section */}
+      <div className={`p-4 bg-gradient-to-r ${getAlertColor(alert.alert_type)}`}>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="bg-white/20 p-2 rounded-full">
+            <FontAwesomeIcon
+              icon={getAlertIcon(alert.alert_type)}
+              className="text-white text-lg"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-bold text-lg">
+              {getAlertTitle(alert.alert_type)}
+            </h3>
+          </div>
+        </div>
+
+        <div className="space-y-2 text-white/90 text-sm">
+          <div className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faClock} className="text-white/70" />
+            <span>{formatDate(alert.timestamp)}</span>
+          </div>
+
+          {alert.gesture && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faHand} className="text-white/70" />
+              <span className="capitalize">{alert.gesture.replace('_', ' ')}</span>
+            </div>
+          )}
+
+          {(alert.male_count > 0 || alert.female_count > 0) && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faUserGroup} className="text-white/70" />
+              <span>
+                {alert.male_count} Male • {alert.female_count} Female
+              </span>
+            </div>
+          )}
+
+          {(alert.latitude && alert.longitude) && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70" />
+              <span className="truncate">
+                {alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 pt-3 border-t border-white/20">
+          <span className="text-white/60 text-xs">
+            Alert ID: #{alert.id}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+AlertCardWithScreenshot.propTypes = {
+  alert: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    alert_type: PropTypes.string.isRequired,
+    timestamp: PropTypes.string,
+    gesture: PropTypes.string,
+    male_count: PropTypes.number,
+    female_count: PropTypes.number,
+    latitude: PropTypes.number,
+    longitude: PropTypes.number,
+  }).isRequired,
+  onDownload: PropTypes.func.isRequired,
+};
 
 const AllAlerts = () => {
   const { alerts, loading, error } = useAlerts(5000); // Poll every 5 seconds
-  const { screenshots } = useScreenshots(5000); // Poll every 5 seconds for screenshots
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
-  const [viewMode, setViewMode] = useState("alerts"); // "alerts" or "screenshots"
-  const [unavailableImages, setUnavailableImages] = useState(new Set());
-
-  // Process screenshots data, filtering out unavailable images
-  const screenshotsData = useMemo(() =>
-    screenshots ? screenshots.filter(alert =>
-      !unavailableImages.has(alert.id)
-    ) : []
-    , [screenshots, unavailableImages]);
 
   useEffect(() => {
-    const sourceData = viewMode === "screenshots" ? screenshotsData : alerts;
-    if (sourceData && sourceData.length > 0) {
-      let filtered = [...sourceData];
+    if (alerts && alerts.length > 0) {
+      let filtered = [...alerts];
 
       // Filter by type
       if (filterType !== "all") {
@@ -58,20 +257,11 @@ const AllAlerts = () => {
         filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       }
 
-      // Limit screenshots to top 10
-      if (viewMode === "screenshots") {
-        filtered = filtered.slice(0, 10);
-      }
-
       setFilteredAlerts(filtered);
     } else {
       setFilteredAlerts([]);
     }
-  }, [alerts, screenshotsData, searchTerm, filterType, sortOrder, viewMode]);
-
-  const handleImageError = (alertId) => {
-    setUnavailableImages(prev => new Set([...prev, alertId]));
-  };
+  }, [alerts, searchTerm, filterType, sortOrder]);
 
   const downloadAlertImage = async (alertId) => {
     try {
@@ -81,19 +271,8 @@ const AllAlerts = () => {
     }
   };
 
-  const downloadAllImages = async () => {
-    try {
-      const promises = filteredAlerts.map(alert =>
-        API.downloadAlertImage(alert.id, `screenshot_${alert.id}_${alert.alert_type}.jpg`)
-      );
-      await Promise.all(promises);
-    } catch (err) {
-      console.error("Failed to download images:", err);
-    }
-  };
-
   const alertTypes = [
-    { value: "all", label: viewMode === "screenshots" ? "All Types" : "All Alerts" },
+    { value: "all", label: "All Alerts" },
     { value: "distress", label: "Distress" },
     { value: "lone_woman_night", label: "Lone Woman Night" },
     { value: "woman_surrounded", label: "Woman Surrounded" },
@@ -117,51 +296,22 @@ const AllAlerts = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6">
+    <div className="min-h-screen bg-[#2C2C2C] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <FontAwesomeIcon
-                icon={viewMode === "screenshots" ? faImages : faExclamationTriangle}
-                className="text-blue-500 text-3xl"
-              />
-              <h1 className="text-4xl font-bold text-white">
-                {viewMode === "screenshots" ? "Captured Screenshots" : "Recent Alerts"}
-              </h1>
-            </div>
-
-            {/* View Mode Toggle */}
-            <div className="flex bg-gray-800 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode("alerts")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${viewMode === "alerts"
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-400 hover:text-white"
-                  }`}
-              >
-                <FontAwesomeIcon icon={faExclamationTriangle} />
-                <span>Alerts</span>
-              </button>
-              <button
-                onClick={() => setViewMode("screenshots")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 ${viewMode === "screenshots"
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-400 hover:text-white"
-                  }`}
-              >
-                <FontAwesomeIcon icon={faImages} />
-                <span>Screenshots</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-3 mb-4">
+            <FontAwesomeIcon
+              icon={faExclamationTriangle}
+              className="text-blue-500 text-3xl"
+            />
+            <h1 className="text-4xl font-bold text-white">
+              Recent Alerts
+            </h1>
           </div>
 
           <p className="text-gray-400">
-            {viewMode === "screenshots"
-              ? `Showing top 10 recent screenshots • Available: ${filteredAlerts.length} screenshot${filteredAlerts.length !== 1 ? 's' : ''}`
-              : `Showing recent alerts • Total: ${filteredAlerts.length} alert${filteredAlerts.length !== 1 ? 's' : ''}`
-            }
+            Showing recent alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
           </p>
         </div>
 
@@ -216,76 +366,22 @@ const AllAlerts = () => {
               <option value="oldest">Oldest First</option>
             </select>
           </div>
-
-          {/* Download All Button - only show for screenshots mode */}
-          {viewMode === "screenshots" && filteredAlerts.length > 0 && (
-            <button
-              onClick={downloadAllImages}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
-              title="Download all visible screenshots"
-            >
-              <FontAwesomeIcon icon={faDownload} />
-              <span className="hidden sm:inline">Download All</span>
-            </button>
-          )}
         </div>
 
         {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
           <EmptyState
-            type={searchTerm || filterType !== "all" ? "filtered" :
-              (viewMode === "screenshots" ? "screenshots" :
-                (alerts && alerts.length === 0 ? "safe" : "alerts"))}
+            type={searchTerm || filterType !== "all" ? "filtered" : (alerts && alerts.length === 0 ? "safe" : "alerts")}
           />
-        ) : viewMode === "screenshots" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAlerts.map((alert) => (
-              <ScreenshotCard
-                key={alert.id}
+              <AlertCardWithScreenshot 
+                key={alert.id} 
                 alert={alert}
-                onImageError={handleImageError}
+                onDownload={downloadAlertImage}
               />
             ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAlerts.slice(0, 10).map((alert) => (
-              <div key={alert.id} className="relative group">
-                <AlertCard alert={alert} />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    downloadAlertImage(alert.id);
-                  }}
-                  className="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  title="Download alert image"
-                >
-                  <FontAwesomeIcon icon={faDownload} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stats Footer - show when in screenshots mode and have data */}
-        {viewMode === "screenshots" && alerts && alerts.length > 0 && (
-          <div className="mt-8 bg-gray-800 rounded-xl p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-white">{alerts.length}</div>
-                <div className="text-gray-400 text-sm">Total Alerts</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-blue-500">{screenshotsData.length}</div>
-                <div className="text-gray-400 text-sm">With Screenshots</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-green-500">
-                  {((screenshotsData.length / alerts.length) * 100).toFixed(1)}%
-                </div>
-                <div className="text-gray-400 text-sm">Capture Rate</div>
-              </div>
-            </div>
           </div>
         )}
       </div>
