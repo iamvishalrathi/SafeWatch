@@ -130,21 +130,45 @@ class SafetyDetector:
         def distance(p1, p2):
             return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2)**0.5
         
-        # 1. THUMB_PALM: Thumb touching palm (closed fist with thumb tucked inside)
-        # More strict detection - thumb must be very close to wrist AND all fingers curled tightly
+        # 1. THUMB_PALM: Enhanced detection with multiple variations for better reliability
+        # Detects thumb tucked in fist, thumb folded down, or closed fist with thumb hidden
         thumb_to_wrist = distance(thumb_tip, wrist)
         thumb_to_index_mcp = distance(thumb_tip, index_mcp)
+        thumb_to_middle_mcp = distance(thumb_tip, middle_mcp)
+        thumb_to_index_tip = distance(thumb_tip, index_tip)
         
-        # Check if all fingers are tightly curled (tips closer to knuckles than to wrist)
-        index_curled = distance(index_tip, index_mcp) < 0.05
-        middle_curled = distance(middle_tip, middle_mcp) < 0.05
-        ring_curled = distance(ring_tip, ring_mcp) < 0.05
-        pinky_curled = distance(pinky_tip, pinky_mcp) < 0.05
+        # Check if fingers are curled (relaxed thresholds for better detection)
+        index_curled = distance(index_tip, index_mcp) < 0.10
+        middle_curled = distance(middle_tip, middle_mcp) < 0.10
+        ring_curled = distance(ring_tip, ring_mcp) < 0.10
+        pinky_curled = distance(pinky_tip, pinky_mcp) < 0.10
         
-        all_fingers_curled = index_curled and middle_curled and ring_curled and pinky_curled
+        # Count how many fingers are curled (at least 3 out of 4)
+        curled_count = sum([index_curled, middle_curled, ring_curled, pinky_curled])
+        mostly_curled = curled_count >= 3
+        all_fingers_curled = curled_count == 4
         
-        # Thumb must be tucked INSIDE the fist (very close to palm/wrist)
-        if thumb_to_wrist < 0.12 and thumb_to_index_mcp < 0.08 and all_fingers_curled:
+        # VARIATION 1: Thumb tucked deep inside fist (strict)
+        thumb_inside_fist = (thumb_to_wrist < 0.15 and 
+                            thumb_to_index_mcp < 0.10 and 
+                            all_fingers_curled)
+        
+        # VARIATION 2: Thumb touching or near index finger knuckle (medium)
+        thumb_near_knuckles = (thumb_to_index_mcp < 0.12 or thumb_to_middle_mcp < 0.12) and mostly_curled
+        
+        # VARIATION 3: Thumb folded down touching index fingertip (loose)
+        thumb_touching_finger = (thumb_to_index_tip < 0.10 and mostly_curled)
+        
+        # VARIATION 4: Relaxed closed fist with thumb down (most permissive)
+        # Check if thumb is not extended outward and hand is making a fist
+        thumb_not_extended = distance(thumb_tip, wrist) < 0.20
+        fist_shape = (distance(index_tip, wrist) < distance(index_mcp, wrist) * 1.5 and
+                     distance(middle_tip, wrist) < distance(middle_mcp, wrist) * 1.5 and
+                     curled_count >= 2)
+        relaxed_thumb_palm = thumb_not_extended and fist_shape
+        
+        # Detect any variation of thumb_palm gesture
+        if thumb_inside_fist or thumb_near_knuckles or thumb_touching_finger or relaxed_thumb_palm:
             return "thumb_palm"
         
         # 2. WAVE: Open hand with fingers spread
