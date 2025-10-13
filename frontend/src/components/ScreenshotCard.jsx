@@ -9,6 +9,7 @@ import {
   faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import API from "../utils/api";
+import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
 
 const ScreenshotCard = ({ alert, onImageError = () => {} }) => {
   const [imageError, setImageError] = useState(false);
@@ -135,9 +136,10 @@ const ScreenshotCard = ({ alert, onImageError = () => {} }) => {
         {/* Alert Details */}
         <div className="space-y-1 text-xs text-gray-400">
           {alert.gesture && (
-            <p>
-              <span className="font-medium">Gesture:</span> {alert.gesture.replace('_', ' ')}
-            </p>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
+              <span className="font-medium text-yellow-400">{getGestureName(alert.gesture)}</span>
+            </div>
           )}
           
           <p>

@@ -14,6 +14,7 @@ import {
   faCamera
 } from '@fortawesome/free-solid-svg-icons';
 import API from '../utils/api';
+import { getGestureEmoji, getGestureName } from '../utils/gestureUtils';
 
 const AlertDetail = () => {
   const { id } = useParams();
@@ -239,11 +240,11 @@ const AlertDetail = () => {
 
                   {alert.gesture && (
                     <div className="flex items-start gap-3">
-                      <FontAwesomeIcon icon={faHand} className="text-yellow-400 mt-1" />
+                      <span className="text-2xl mt-1">{getGestureEmoji(alert.gesture)}</span>
                       <div>
                         <p className="text-gray-400 text-sm">Detected Gesture</p>
-                        <p className="text-white font-medium capitalize">
-                          {alert.gesture.replace('_', ' ')}
+                        <p className="text-white font-medium">
+                          {getGestureName(alert.gesture)}
                         </p>
                       </div>
                     </div>
@@ -377,10 +378,11 @@ const AlertDetail = () => {
                   </span>
                 </div>
                 {alert.gesture && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-400">Gesture</span>
-                    <span className="text-white capitalize">
-                      {alert.gesture.replace('_', ' ')}
+                    <span className="text-white flex items-center gap-2">
+                      <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
+                      <span>{getGestureName(alert.gesture)}</span>
                     </span>
                   </div>
                 )}

@@ -18,6 +18,7 @@ import EmptyState from "../components/EmptyState";
 import { useAlerts } from "../hooks/useApi";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
 
 // Alert Card with Screenshot Component
 const AlertCardWithScreenshot = ({ alert, onDownload }) => {
@@ -176,8 +177,8 @@ const AlertCardWithScreenshot = ({ alert, onDownload }) => {
 
           {alert.gesture && (
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faHand} className="text-white/70" />
-              <span className="capitalize">{alert.gesture.replace('_', ' ')}</span>
+              <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
+              <span className="capitalize font-medium">{getGestureName(alert.gesture)}</span>
             </div>
           )}
 

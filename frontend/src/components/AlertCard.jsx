@@ -7,6 +7,7 @@ import {
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from 'react-router-dom';
+import { getGestureEmoji, getGestureName } from '../utils/gestureUtils';
 
 const AlertCard = ({ alert, compact = false }) => {
   const navigate = useNavigate();
@@ -97,8 +98,8 @@ const AlertCard = ({ alert, compact = false }) => {
             </p>
             {alert.gesture && (
               <p className="text-white/90 text-xs mt-1 flex items-center">
-                <FontAwesomeIcon icon={faHand} className="mr-1" />
-                <span className="capitalize">{alert.gesture.replace('_', ' ')}</span>
+                <span className="mr-1">{getGestureEmoji(alert.gesture)}</span>
+                <span className="capitalize">{getGestureName(alert.gesture)}</span>
               </p>
             )}
           </div>
@@ -139,8 +140,8 @@ const AlertCard = ({ alert, compact = false }) => {
 
         {alert.gesture && (
           <div className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faHand} className="text-white/70" />
-            <span className="capitalize">Gesture: {alert.gesture.replace('_', ' ')}</span>
+            <span className="text-white/70 text-lg">{getGestureEmoji(alert.gesture)}</span>
+            <span className="capitalize">{getGestureName(alert.gesture)}</span>
           </div>
         )}
 

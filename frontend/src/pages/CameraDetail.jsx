@@ -17,6 +17,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useApi";
 import API from "../utils/api";
+import { getGestureEmoji } from "../utils/gestureUtils";
 
 // Fix default marker icon issue with Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -368,8 +369,8 @@ const CameraDetail = () => {
                     </div>
                     {alert.gesture && (
                       <div className="flex items-center gap-1 ml-auto">
-                        <FontAwesomeIcon icon={faHandPaper} className="text-yellow-400 text-xs" />
-                        <span className="text-yellow-400 text-xs">{alert.gesture}</span>
+                        <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
+                        <span className="text-yellow-400 text-xs capitalize">{alert.gesture.replace('_', ' ')}</span>
                       </div>
                     )}
                   </div>
