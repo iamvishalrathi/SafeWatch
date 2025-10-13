@@ -506,11 +506,11 @@ const AllAlerts = () => {
 
         {/* Alert Types Info Modal */}
         {showInfoModal && (
-          <div 
+          <div
             className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
             onClick={() => setShowInfoModal(false)}
           >
-            <div 
+            <div
               className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
@@ -535,7 +535,7 @@ const AllAlerts = () => {
                 </p>
 
                 {alertTypesInfo.map((alertInfo) => (
-                  <div 
+                  <div
                     key={alertInfo.type}
                     className="bg-gray-700/50 rounded-lg p-6 border border-gray-600 hover:border-gray-500 transition-colors"
                   >
@@ -549,13 +549,12 @@ const AllAlerts = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-bold text-white">{alertInfo.title}</h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            alertInfo.priority === 'CRITICAL' 
-                              ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${alertInfo.priority === 'CRITICAL'
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                               : alertInfo.priority === 'HIGH'
-                              ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                              : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                          }`}>
+                                ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                                : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            }`}>
                             {alertInfo.priority} PRIORITY
                           </span>
                         </div>
@@ -599,9 +598,9 @@ const AllAlerts = () => {
                     <div>
                       <h4 className="text-white font-semibold mb-2">How it works</h4>
                       <p className="text-gray-300 text-sm leading-relaxed">
-                        Our system uses advanced computer vision and AI to analyze video feeds in real-time. 
-                        It detects people, identifies gender, recognizes hand gestures, and analyzes spatial 
-                        relationships to identify potentially unsafe situations. When a risk is detected, 
+                        Our system uses advanced computer vision and AI to analyze video feeds in real-time.
+                        It detects people, identifies gender, recognizes hand gestures, and analyzes spatial
+                        relationships to identify potentially unsafe situations. When a risk is detected,
                         an alert is immediately generated with a captured frame and relevant details.
                       </p>
                     </div>
