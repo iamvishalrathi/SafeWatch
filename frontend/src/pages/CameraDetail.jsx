@@ -163,25 +163,50 @@ const CameraDetail = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#232323] p-6 flex flex-col gap-6 text-white">
-      {/* Header Card */}
-      <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          {/* Back Button and Camera Info */}
-          <div className="flex items-center gap-4 flex-1">
-            <button
-              onClick={() => navigate("/live")}
-              className="bg-[#3A3A3A] hover:bg-[#4A4A4A] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span>Back</span>
-            </button>
-            <div className="flex items-center gap-3">
+      {/* Header Card - Back and All Alerts */}
+      <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-4">
+        <div className="flex items-center justify-between">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate("/live")}
+            className="bg-[#3A3A3A] hover:bg-[#4A4A4A] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} />
+            <span>Back to Camera Grid</span>
+          </button>
+
+          {/* All Alerts Button */}
+          <button
+            onClick={() => navigate("/all-alerts")}
+            className="bg-red-600 hover:bg-red-700 px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 font-semibold"
+          >
+            <FontAwesomeIcon icon={faBell} />
+            <span>All Alerts</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Show error messages if any */}
+      {alertsError && (
+        <div className="bg-red-600/90 p-4 rounded-xl shadow-lg">
+          <FontAwesomeIcon icon={faExclamationTriangle} className="mr-2" />
+          Error loading alerts: {alertsError}
+        </div>
+      )}
+
+      {/* Main Content Grid - 3 Columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Live Video Feed */}
+        <div className="lg:col-span-5 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
+          {/* Camera Details Header */}
+          <div className="mb-4">
+            <div className="flex items-center gap-3 mb-3">
               <FontAwesomeIcon 
                 icon={faVideo} 
                 className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`} 
               />
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-bold">Camera #{cameraInfo.id}</h1>
+              <div className="flex flex-col flex-1">
+                <h2 className="text-xl font-bold">Camera #{cameraInfo.id}</h2>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="font-medium">{cameraInfo.position}</span>
                   <span>•</span>
@@ -199,41 +224,22 @@ const CameraDetail = () => {
                 </span>
               )}
             </div>
-          </div>
 
-          {/* Toggle Switch */}
-          <div className="flex items-center gap-3 bg-[#3A3A3A] px-4 py-2.5 rounded-lg">
-            <span className="text-sm font-medium text-gray-300">
-              {isCameraEnabled ? 'Camera Enabled' : 'Camera Disabled'}
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isCameraEnabled}
-                onChange={() => setIsCameraEnabled(!isCameraEnabled)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Show error messages if any */}
-      {alertsError && (
-        <div className="bg-red-600/90 p-4 rounded-xl shadow-lg">
-          <FontAwesomeIcon icon={faExclamationTriangle} className="mr-2" />
-          Error loading alerts: {alertsError}
-        </div>
-      )}
-
-      {/* Main Content Grid - 3 Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Live Video Feed */}
-        <div className="lg:col-span-5 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <FontAwesomeIcon icon={faVideo} className="text-xl text-blue-400" />
-            <h2 className="text-xl font-bold">Live Camera Feed</h2>
+            {/* Toggle Switch */}
+            <div className="flex items-center justify-between bg-[#3A3A3A] px-4 py-2.5 rounded-lg">
+              <span className="text-sm font-medium text-gray-300">
+                {isCameraEnabled ? 'Camera Enabled' : 'Camera Disabled'}
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isCameraEnabled}
+                  onChange={() => setIsCameraEnabled(!isCameraEnabled)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
           </div>
           
           <div className="w-full aspect-video bg-[#1A1A1A] rounded-xl overflow-hidden shadow-inner">
