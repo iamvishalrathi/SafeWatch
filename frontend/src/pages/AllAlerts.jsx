@@ -12,6 +12,10 @@ import {
   faUserGroup,
   faExpand,
   faCamera,
+  faInfoCircle,
+  faTrash,
+  faTrashAlt,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import EmptyState from "../components/EmptyState";
 import { useAlerts } from "../hooks/useApi";
@@ -20,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
 
 // Alert Card with Screenshot Component
-const AlertCardWithScreenshot = ({ alert, onDownload }) => {
+const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +103,13 @@ const AlertCardWithScreenshot = ({ alert, onDownload }) => {
     onDownload(alert.id);
   };
 
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete Alert #${alert.id}?`)) {
+      onDelete(alert.id);
+    }
+  };
+
   const openFullscreen = (e) => {
     e.stopPropagation();
     const imageUrl = API.getAlertImageUrl(alert.id);
@@ -141,6 +152,13 @@ const AlertCardWithScreenshot = ({ alert, onDownload }) => {
                 title="Download screenshot"
               >
                 <FontAwesomeIcon icon={faDownload} />
+              </button>
+              <button
+                onClick={handleDelete}
+                className="bg-red-600/70 hover:bg-red-700 text-white p-2 rounded-lg backdrop-blur-sm"
+                title="Delete alert"
+              >
+                <FontAwesomeIcon icon={faTrash} />
               </button>
             </div>
           </>
@@ -222,6 +240,7 @@ AlertCardWithScreenshot.propTypes = {
     longitude: PropTypes.number,
   }).isRequired,
   onDownload: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 const AllAlerts = () => {
@@ -230,10 +249,19 @@ const AllAlerts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [localAlerts, setLocalAlerts] = useState([]);
+
+  // Update local alerts when API alerts change
+  useEffect(() => {
+    if (alerts) {
+      setLocalAlerts(alerts);
+    }
+  }, [alerts]);
 
   useEffect(() => {
-    if (alerts && alerts.length > 0) {
-      let filtered = [...alerts];
+    if (localAlerts && localAlerts.length > 0) {
+      let filtered = [...localAlerts];
 
       // Filter by type
       if (filterType !== "all") {
@@ -261,7 +289,7 @@ const AllAlerts = () => {
     } else {
       setFilteredAlerts([]);
     }
-  }, [alerts, searchTerm, filterType, sortOrder]);
+  }, [localAlerts, searchTerm, filterType, sortOrder]);
 
   const downloadAlertImage = async (alertId) => {
     try {
@@ -270,6 +298,55 @@ const AllAlerts = () => {
       console.error("Failed to download alert image:", err);
     }
   };
+
+  const deleteAlert = (alertId) => {
+    setLocalAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== alertId));
+  };
+
+  const deleteAllAlerts = () => {
+    if (window.confirm(`Are you sure you want to delete ALL ${localAlerts.length} alerts? This action cannot be undone.`)) {
+      setLocalAlerts([]);
+    }
+  };
+
+  const alertTypesInfo = [
+    {
+      type: "distress",
+      icon: faExclamationTriangle,
+      color: "text-red-500",
+      title: "Distress Signal",
+      description: "Detected when a person makes a distress hand gesture (thumb inside palm/fist). This indicates someone may need immediate help.",
+      priority: "CRITICAL",
+      priorityColor: "text-red-500"
+    },
+    {
+      type: "lone_woman_night",
+      icon: faClock,
+      color: "text-yellow-500",
+      title: "Lone Woman at Night",
+      description: "Triggered when a woman is detected alone during nighttime hours (after 8 PM), which may pose safety risks.",
+      priority: "MEDIUM",
+      priorityColor: "text-yellow-500"
+    },
+    {
+      type: "woman_surrounded",
+      icon: faUserGroup,
+      color: "text-orange-500",
+      title: "Woman Surrounded by Men",
+      description: "Alert triggered when a woman is detected surrounded by multiple men in close proximity, indicating a potentially unsafe situation.",
+      priority: "HIGH",
+      priorityColor: "text-orange-500"
+    },
+    {
+      type: "woman_surrounded_spatial",
+      icon: faUserGroup,
+      color: "text-orange-500",
+      title: "Spatial Risk Detection",
+      description: "Advanced spatial analysis detected a woman in close proximity to men based on position and movement patterns, indicating potential risk.",
+      priority: "HIGH",
+      priorityColor: "text-orange-500"
+    },
+  ];
 
   const alertTypes = [
     { value: "all", label: "All Alerts" },
@@ -300,18 +377,38 @@ const AllAlerts = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <FontAwesomeIcon
-              icon={faExclamationTriangle}
-              className="text-blue-500 text-3xl"
-            />
-            <h1 className="text-4xl font-bold text-white">
-              Recent Alerts
-            </h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                className="text-blue-500 text-3xl"
+              />
+              <h1 className="text-4xl font-bold text-white">
+                All Alerts
+              </h1>
+              <button
+                onClick={() => setShowInfoModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
+                title="Alert Types Information"
+              >
+                <FontAwesomeIcon icon={faInfoCircle} />
+              </button>
+            </div>
+
+            {localAlerts.length > 0 && (
+              <button
+                onClick={deleteAllAlerts}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                title="Delete all alerts"
+              >
+                <FontAwesomeIcon icon={faTrashAlt} />
+                <span>Delete All</span>
+              </button>
+            )}
           </div>
 
           <p className="text-gray-400">
-            Showing recent alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
+            Showing all alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
           </p>
         </div>
 
@@ -371,7 +468,7 @@ const AllAlerts = () => {
         {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
           <EmptyState
-            type={searchTerm || filterType !== "all" ? "filtered" : (alerts && alerts.length === 0 ? "safe" : "alerts")}
+            type={searchTerm || filterType !== "all" ? "filtered" : (localAlerts && localAlerts.length === 0 ? "safe" : "alerts")}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -380,8 +477,127 @@ const AllAlerts = () => {
                 key={alert.id}
                 alert={alert}
                 onDownload={downloadAlertImage}
+                onDelete={deleteAlert}
               />
             ))}
+          </div>
+        )}
+
+        {/* Alert Types Info Modal */}
+        {showInfoModal && (
+          <div 
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            onClick={() => setShowInfoModal(false)}
+          >
+            <div 
+              className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-6 flex items-center justify-between z-10">
+                <div className="flex items-center gap-3">
+                  <FontAwesomeIcon icon={faInfoCircle} className="text-blue-500 text-2xl" />
+                  <h2 className="text-2xl font-bold text-white">Alert Types Information</h2>
+                </div>
+                <button
+                  onClick={() => setShowInfoModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors p-2"
+                >
+                  <FontAwesomeIcon icon={faTimes} size="lg" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                <p className="text-gray-300 text-lg">
+                  Our AI-powered system monitors for various safety scenarios. Here&apos;s what each alert type means:
+                </p>
+
+                {alertTypesInfo.map((alertInfo) => (
+                  <div 
+                    key={alertInfo.type}
+                    className="bg-gray-700/50 rounded-lg p-6 border border-gray-600 hover:border-gray-500 transition-colors"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Icon */}
+                      <div className={`${alertInfo.color} bg-gray-800 p-4 rounded-xl`}>
+                        <FontAwesomeIcon icon={alertInfo.icon} className="text-2xl" />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-white">{alertInfo.title}</h3>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            alertInfo.priority === 'CRITICAL' 
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                              : alertInfo.priority === 'HIGH'
+                              ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                              : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                          }`}>
+                            {alertInfo.priority} PRIORITY
+                          </span>
+                        </div>
+                        <p className="text-gray-300 leading-relaxed">{alertInfo.description}</p>
+
+                        {/* Example indicators */}
+                        <div className="mt-4 pt-4 border-t border-gray-600">
+                          <div className="flex flex-wrap gap-2 text-sm">
+                            <span className="text-gray-400">Detected by:</span>
+                            {alertInfo.type === 'distress' && (
+                              <>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Hand Gesture Detection</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Real-time Monitoring</span>
+                              </>
+                            )}
+                            {alertInfo.type === 'lone_woman_night' && (
+                              <>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Gender Detection</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Time Analysis</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Person Count</span>
+                              </>
+                            )}
+                            {(alertInfo.type === 'woman_surrounded' || alertInfo.type === 'woman_surrounded_spatial') && (
+                              <>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-orange-400">Gender Detection</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-orange-400">Spatial Analysis</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-orange-400">Proximity Detection</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Additional Info */}
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400 text-xl mt-1" />
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">How it works</h4>
+                      <p className="text-gray-300 text-sm leading-relaxed">
+                        Our system uses advanced computer vision and AI to analyze video feeds in real-time. 
+                        It detects people, identifies gender, recognizes hand gestures, and analyzes spatial 
+                        relationships to identify potentially unsafe situations. When a risk is detected, 
+                        an alert is immediately generated with a captured frame and relevant details.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="sticky bottom-0 bg-gray-800 border-t border-gray-700 p-6">
+                <button
+                  onClick={() => setShowInfoModal(false)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
