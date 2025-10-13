@@ -125,7 +125,7 @@ const GestureDetection = () => {
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-500 text-[9px] mt-2 italic">Use your left hand for gestures</p>
+                  <p className="text-gray-500 text-[9px] mt-2 italic">Works with both hands</p>
                 </div>
               </div>
             </button>

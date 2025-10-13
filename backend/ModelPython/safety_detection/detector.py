@@ -110,30 +110,68 @@ class SafetyDetector:
         self.current_counts = {'male': male_count, 'female': female_count}
         return frame
 
-    def _check_left_hand_gestures(self, landmarks) -> Optional[str]:
-        """Check for specific distress gestures in left hand"""
+    def _check_hand_gestures(self, landmarks) -> Optional[str]:
+        """Check for specific distress gestures - works for both hands"""
         thumb_tip = landmarks[self.mp_hands.HandLandmark.THUMB_TIP]
+        thumb_ip = landmarks[self.mp_hands.HandLandmark.THUMB_IP]
+        thumb_mcp = landmarks[self.mp_hands.HandLandmark.THUMB_MCP]
         index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+        index_mcp = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_MCP]
+        middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+        middle_mcp = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
+        ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
+        ring_mcp = landmarks[self.mp_hands.HandLandmark.RING_FINGER_MCP]
         pinky_tip = landmarks[self.mp_hands.HandLandmark.PINKY_TIP]
+        pinky_mcp = landmarks[self.mp_hands.HandLandmark.PINKY_MCP]
         wrist = landmarks[self.mp_hands.HandLandmark.WRIST]
         
-        # 1. Thumb touching palm (closed fist)
-        if ((thumb_tip.x - wrist.x)**2 + (thumb_tip.y - wrist.y)**2)**0.5 < self.config.gesture_thresholds['thumb_palm']:
+        # Calculate distances
+        def distance(p1, p2):
+            return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2)**0.5
+        
+        # 1. THUMB_PALM: Thumb touching palm (closed fist with thumb in)
+        # Check if thumb tip is close to palm (wrist) and other fingers are curled
+        thumb_to_wrist = distance(thumb_tip, wrist)
+        fingers_curled = (
+            distance(index_tip, index_mcp) < distance(index_tip, wrist) and
+            distance(middle_tip, middle_mcp) < distance(middle_tip, wrist) and
+            distance(ring_tip, ring_mcp) < distance(ring_tip, wrist) and
+            distance(pinky_tip, pinky_mcp) < distance(pinky_tip, wrist)
+        )
+        
+        if thumb_to_wrist < 0.15 and fingers_curled:
             return "thumb_palm"
         
-        # 2. Waving gesture (fingers spread)
-        if ((index_tip.x - pinky_tip.x)**2 + (index_tip.y - pinky_tip.y)**2)**0.5 > self.config.gesture_thresholds['wave']:
+        # 2. WAVE: Open hand with fingers spread
+        # Check if all fingers are extended and spread apart
+        index_extended = distance(index_tip, wrist) > distance(index_mcp, wrist)
+        middle_extended = distance(middle_tip, wrist) > distance(middle_mcp, wrist)
+        ring_extended = distance(ring_tip, wrist) > distance(ring_mcp, wrist)
+        pinky_extended = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist)
+        thumb_extended = distance(thumb_tip, wrist) > distance(thumb_mcp, wrist)
+        
+        # Check finger spread
+        fingers_spread = distance(index_tip, pinky_tip) > 0.15
+        
+        if (index_extended and middle_extended and ring_extended and 
+            pinky_extended and thumb_extended and fingers_spread):
             return "wave"
         
-        # 3. Thumb folded across palm
-        if (thumb_tip.x < wrist.x and 
-            abs(thumb_tip.y - wrist.y) < self.config.gesture_thresholds['thumb_folded']):
+        # 3. THUMB_FOLDED: Thumb folded across palm with other fingers extended
+        # Thumb is folded but other fingers are open
+        thumb_folded = distance(thumb_tip, index_mcp) < 0.1 or thumb_tip.x < thumb_mcp.x
+        other_fingers_extended = (
+            distance(index_tip, wrist) > distance(index_mcp, wrist) and
+            distance(middle_tip, wrist) > distance(middle_mcp, wrist)
+        )
+        
+        if thumb_folded and other_fingers_extended:
             return "thumb_folded"
         
         return None
 
     def detect_gestures(self, frame: np.ndarray) -> Tuple[Optional[str], np.ndarray]:
-        """Detect hand gestures, draw them on frame, and return distress type if found"""
+        """Detect hand gestures on BOTH hands, draw them on frame, and return distress type if found"""
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.hands.process(rgb_frame)
         
@@ -164,31 +202,40 @@ class SafetyDetector:
                 if confidence > max_confidence:
                     max_confidence = confidence
                 
-                # Check gestures on left hand only (which appears as "Right" in camera)
-                if hand_label == "Right":  # This is actually the user's left hand
-                    gesture = self._check_left_hand_gestures(hand_landmarks.landmark)
-                    if gesture:
-                        detected_gesture = gesture
-                        
-                        # Draw gesture label on frame
-                        # Get wrist position for label placement
-                        h, w, c = frame.shape
-                        wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
-                        cx, cy = int(wrist.x * w), int(wrist.y * h)
-                        
-                        # Display gesture name with background
-                        gesture_text = f"GESTURE: {gesture.upper()}"
-                        text_size = cv2.getTextSize(gesture_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
-                        
-                        # Draw background rectangle
-                        cv2.rectangle(frame, 
-                                    (cx - 10, cy - text_size[1] - 15), 
-                                    (cx + text_size[0] + 10, cy - 5), 
-                                    (0, 0, 255), -1)
-                        
-                        # Draw text
-                        cv2.putText(frame, gesture_text, (cx, cy - 10), 
-                                  cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                # Check gestures on BOTH hands (removed single-hand restriction)
+                gesture = self._check_hand_gestures(hand_landmarks.landmark)
+                if gesture:
+                    detected_gesture = gesture
+                    
+                    # Draw gesture label on frame
+                    # Get wrist position for label placement
+                    h, w, c = frame.shape
+                    wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                    cx, cy = int(wrist.x * w), int(wrist.y * h)
+                    
+                    # Display gesture name with background
+                    gesture_text = f"GESTURE: {gesture.upper()}"
+                    text_size = cv2.getTextSize(gesture_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+                    
+                    # Determine color based on gesture type
+                    if gesture == "thumb_palm":
+                        color = (0, 0, 255)  # Red - Emergency
+                    elif gesture == "wave":
+                        color = (0, 255, 255)  # Yellow - Attention
+                    elif gesture == "thumb_folded":
+                        color = (0, 165, 255)  # Orange - Help
+                    else:
+                        color = (0, 0, 255)  # Default red
+                    
+                    # Draw background rectangle
+                    cv2.rectangle(frame, 
+                                (cx - 10, cy - text_size[1] - 15), 
+                                (cx + text_size[0] + 10, cy - 5), 
+                                color, -1)
+                    
+                    # Draw text
+                    cv2.putText(frame, gesture_text, (cx, cy - 10), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
                 
                 # Show actual hand label (corrected for mirror image)
                 h, w, c = frame.shape
