@@ -117,6 +117,7 @@ class SafetyDetector:
         thumb_mcp = landmarks[self.mp_hands.HandLandmark.THUMB_MCP]
         index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
         index_mcp = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_MCP]
+        index_pip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_PIP]
         middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
         middle_mcp = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
         ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
@@ -129,44 +130,53 @@ class SafetyDetector:
         def distance(p1, p2):
             return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2)**0.5
         
-        # 1. THUMB_PALM: Thumb touching palm (closed fist with thumb in)
-        # Check if thumb tip is close to palm (wrist) and other fingers are curled
+        # 1. THUMB_PALM: Thumb touching palm (closed fist with thumb tucked inside)
+        # More strict detection - thumb must be very close to wrist AND all fingers curled tightly
         thumb_to_wrist = distance(thumb_tip, wrist)
-        fingers_curled = (
-            distance(index_tip, index_mcp) < distance(index_tip, wrist) and
-            distance(middle_tip, middle_mcp) < distance(middle_tip, wrist) and
-            distance(ring_tip, ring_mcp) < distance(ring_tip, wrist) and
-            distance(pinky_tip, pinky_mcp) < distance(pinky_tip, wrist)
-        )
+        thumb_to_index_mcp = distance(thumb_tip, index_mcp)
         
-        if thumb_to_wrist < 0.15 and fingers_curled:
+        # Check if all fingers are tightly curled (tips closer to knuckles than to wrist)
+        index_curled = distance(index_tip, index_mcp) < 0.05
+        middle_curled = distance(middle_tip, middle_mcp) < 0.05
+        ring_curled = distance(ring_tip, ring_mcp) < 0.05
+        pinky_curled = distance(pinky_tip, pinky_mcp) < 0.05
+        
+        all_fingers_curled = index_curled and middle_curled and ring_curled and pinky_curled
+        
+        # Thumb must be tucked INSIDE the fist (very close to palm/wrist)
+        if thumb_to_wrist < 0.12 and thumb_to_index_mcp < 0.08 and all_fingers_curled:
             return "thumb_palm"
         
         # 2. WAVE: Open hand with fingers spread
         # Check if all fingers are extended and spread apart
-        index_extended = distance(index_tip, wrist) > distance(index_mcp, wrist)
-        middle_extended = distance(middle_tip, wrist) > distance(middle_mcp, wrist)
-        ring_extended = distance(ring_tip, wrist) > distance(ring_mcp, wrist)
-        pinky_extended = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist)
-        thumb_extended = distance(thumb_tip, wrist) > distance(thumb_mcp, wrist)
+        index_extended = distance(index_tip, wrist) > distance(index_mcp, wrist) * 1.2
+        middle_extended = distance(middle_tip, wrist) > distance(middle_mcp, wrist) * 1.2
+        ring_extended = distance(ring_tip, wrist) > distance(ring_mcp, wrist) * 1.2
+        pinky_extended = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist) * 1.2
+        thumb_extended = distance(thumb_tip, wrist) > distance(thumb_mcp, wrist) * 1.2
         
         # Check finger spread
         fingers_spread = distance(index_tip, pinky_tip) > 0.15
         
-        if (index_extended and middle_extended and ring_extended and 
-            pinky_extended and thumb_extended and fingers_spread):
+        all_extended = (index_extended and middle_extended and ring_extended and 
+                       pinky_extended and thumb_extended and fingers_spread)
+        
+        if all_extended:
             return "wave"
         
-        # 3. THUMB_FOLDED: Thumb folded across palm with other fingers extended
-        # Thumb is folded but other fingers are open
-        thumb_folded = distance(thumb_tip, index_mcp) < 0.1 or thumb_tip.x < thumb_mcp.x
-        other_fingers_extended = (
-            distance(index_tip, wrist) > distance(index_mcp, wrist) and
-            distance(middle_tip, wrist) > distance(middle_mcp, wrist)
-        )
+        # 3. OK_SIGN: Thumb and index finger forming a circle (distress signal)
+        # Thumb tip touches index tip, other fingers extended
+        thumb_index_distance = distance(thumb_tip, index_tip)
         
-        if thumb_folded and other_fingers_extended:
-            return "thumb_folded"
+        # Check if middle, ring, and pinky are extended
+        middle_extended_ok = distance(middle_tip, wrist) > distance(middle_mcp, wrist)
+        ring_extended_ok = distance(ring_tip, wrist) > distance(ring_mcp, wrist)
+        pinky_extended_ok = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist)
+        
+        # Thumb and index should form a small circle
+        if (thumb_index_distance < 0.05 and 
+            middle_extended_ok and ring_extended_ok and pinky_extended_ok):
+            return "ok_sign"
         
         return None
 
@@ -222,8 +232,8 @@ class SafetyDetector:
                         color = (0, 0, 255)  # Red - Emergency
                     elif gesture == "wave":
                         color = (0, 255, 255)  # Yellow - Attention
-                    elif gesture == "thumb_folded":
-                        color = (0, 165, 255)  # Orange - Help
+                    elif gesture == "ok_sign":
+                        color = (0, 165, 255)  # Orange - Distress Signal
                     else:
                         color = (0, 0, 255)  # Default red
                     

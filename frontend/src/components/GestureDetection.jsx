@@ -48,7 +48,7 @@ const GestureDetection = () => {
         return "text-red-400";
       case "wave":
         return "text-yellow-400";
-      case "thumb_folded":
+      case "ok_sign":
         return "text-orange-400";
       default:
         return "text-gray-400";
@@ -58,11 +58,11 @@ const GestureDetection = () => {
   const getGestureName = (type) => {
     switch (type) {
       case "thumb_palm":
-        return "Thumb-Palm (Distress)";
+        return "Thumb-Palm (Emergency)";
       case "wave":
         return "Wave Gesture";
-      case "thumb_folded":
-        return "Thumb Folded";
+      case "ok_sign":
+        return "OK Sign (Distress)";
       default:
         return "Unknown";
     }
@@ -74,8 +74,8 @@ const GestureDetection = () => {
         return "✊";
       case "wave":
         return "👋";
-      case "thumb_folded":
-        return "👍";
+      case "ok_sign":
+        return "�";
       default:
         return "🤚";
     }
@@ -118,10 +118,10 @@ const GestureDetection = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">👍</span>
+                      <span className="text-xl">�</span>
                       <div>
-                        <p className="font-medium text-orange-400">Thumb Folded</p>
-                        <p className="text-gray-400 text-[10px]">Help signal</p>
+                        <p className="font-medium text-orange-400">OK Sign</p>
+                        <p className="text-gray-400 text-[10px]">Distress signal</p>
                       </div>
                     </div>
                   </div>
