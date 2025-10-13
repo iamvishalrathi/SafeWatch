@@ -29,6 +29,8 @@ class SafetyDetector:
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5
         )
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
         
         # Initialize gender detection with proper path handling
         model_dir = os.path.join(os.path.dirname(__file__), 'models')
@@ -122,29 +124,75 @@ class SafetyDetector:
         
         return None
 
-    def detect_gestures(self, frame: np.ndarray) -> Optional[str]:
-        """Detect hand gestures and return distress type if found"""
+    def detect_gestures(self, frame: np.ndarray) -> Tuple[Optional[str], np.ndarray]:
+        """Detect hand gestures, draw them on frame, and return distress type if found"""
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.hands.process(rgb_frame)
         
+        detected_gesture = None
+        
         if results.multi_hand_landmarks:
             for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # Draw hand landmarks on the frame
+                self.mp_drawing.draw_landmarks(
+                    frame,
+                    hand_landmarks,
+                    self.mp_hands.HAND_CONNECTIONS,
+                    self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                    self.mp_drawing_styles.get_default_hand_connections_style()
+                )
+                
+                # Check for distress gestures
                 handedness = results.multi_handedness[i]
-                if handedness.classification[0].label == "Left":
+                hand_label = handedness.classification[0].label
+                
+                if hand_label == "Left":
                     gesture = self._check_left_hand_gestures(hand_landmarks.landmark)
                     if gesture:
-                        return gesture
-        return None
+                        detected_gesture = gesture
+                        
+                        # Draw gesture label on frame
+                        # Get wrist position for label placement
+                        h, w, c = frame.shape
+                        wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                        cx, cy = int(wrist.x * w), int(wrist.y * h)
+                        
+                        # Display gesture name with background
+                        gesture_text = f"GESTURE: {gesture.upper()}"
+                        text_size = cv2.getTextSize(gesture_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+                        
+                        # Draw background rectangle
+                        cv2.rectangle(frame, 
+                                    (cx - 10, cy - text_size[1] - 15), 
+                                    (cx + text_size[0] + 10, cy - 5), 
+                                    (0, 0, 255), -1)
+                        
+                        # Draw text
+                        cv2.putText(frame, gesture_text, (cx, cy - 10), 
+                                  cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                
+                # Also show hand label (Left/Right) for all detected hands
+                h, w, c = frame.shape
+                wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                cx, cy = int(wrist.x * w), int(wrist.y * h)
+                
+                # Draw hand label
+                cv2.putText(frame, f"{hand_label} Hand", (cx + 10, cy + 20), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        
+        return detected_gesture, frame
 
     def process_frame(self, frame: np.ndarray) -> Tuple[np.ndarray, Optional[Alert]]:
         """Process a frame and return (annotated_frame, alert_if_triggered)"""
         # Detect genders and update counts
         frame = self.detect_genders(frame)
         
+        # Detect and draw hand gestures on frame
+        gesture, frame = self.detect_gestures(frame)
+        
         # Check for distress gestures
         current_time = time.time()
         if current_time - self.last_alert_time > self.config.alert_cooldown:
-            gesture = self.detect_gestures(frame)
             female_count = self.current_counts['female']
             male_count = self.current_counts['male']
             
