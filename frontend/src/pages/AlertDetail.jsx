@@ -8,7 +8,6 @@ import {
   faMapMarkerAlt,
   faUserGroup,
   faDownload,
-  faEye,
   faInfoCircle,
   faCamera,
   faVideo,
@@ -281,14 +280,50 @@ const AlertDetail = () => {
               </div>
             </div>
 
-            {/* Detailed Information */}
+            {/* Alert Information & Statistics */}
             <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                 <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400" />
-                Detailed Information
+                Alert Information & Statistics
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-5">
+
+              {/* Quick Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 pb-6 border-b border-gray-700">
+                <div className="flex flex-col p-4 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-lg hover:border-blue-500/40 transition-colors">
+                  <span className="text-blue-400 font-medium text-xs uppercase tracking-wide mb-2">Alert Type</span>
+                  <span className="text-white font-bold text-lg capitalize">
+                    {alert.alert_type.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="flex flex-col p-4 bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-lg hover:border-purple-500/40 transition-colors">
+                  <span className="text-purple-400 font-medium text-xs uppercase tracking-wide mb-2">Priority Level</span>
+                  <span className={`font-bold text-lg ${priority.level === 'CRITICAL' ? 'text-red-400' : priority.level === 'HIGH' ? 'text-orange-400' : priority.level === 'MEDIUM' ? 'text-yellow-400' : 'text-blue-400'}`}>
+                    {priority.level}
+                  </span>
+                </div>
+                <div className="flex flex-col p-4 bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-lg hover:border-green-500/40 transition-colors">
+                  <span className="text-green-400 font-medium text-xs uppercase tracking-wide mb-2">Total People</span>
+                  <span className="text-white font-bold text-lg">
+                    {alert.male_count + alert.female_count}
+                  </span>
+                </div>
+                {alert.confidence && (
+                  <div className="flex flex-col p-4 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-lg hover:border-yellow-500/40 transition-colors">
+                    <span className="text-yellow-400 font-medium text-xs uppercase tracking-wide mb-2">Confidence</span>
+                    <span className="text-white font-bold text-lg">
+                      {(alert.confidence * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Detailed Information Grid */}
+              <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400 text-sm" />
+                Detailed Information
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-4">
                   <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                     <FontAwesomeIcon icon={faClock} className="text-blue-400 mt-1 text-lg" />
                     <div>
@@ -314,7 +349,7 @@ const AlertDetail = () => {
                   <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                     <FontAwesomeIcon icon={faUserGroup} className="text-green-400 mt-1 text-lg" />
                     <div>
-                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">People Detected</p>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">People Breakdown</p>
                       <p className="text-white font-medium text-sm">
                         {alert.male_count} Male{alert.male_count !== 1 ? 's' : ''}, {alert.female_count} Female{alert.female_count !== 1 ? 's' : ''}
                       </p>
@@ -322,30 +357,38 @@ const AlertDetail = () => {
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  {alert.confidence && (
-                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                      <FontAwesomeIcon icon={faEye} className="text-purple-400 mt-1 text-lg" />
-                      <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Detection Confidence</p>
-                        <p className="text-white font-medium text-sm">
-                          {(alert.confidence * 100).toFixed(1)}%
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
+                <div className="space-y-4">
                   {alert.latitude && alert.longitude && (
                     <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                       <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mt-1 text-lg" />
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Location</p>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Location Coordinates</p>
                         <p className="text-white font-medium text-sm">
                           {alert.latitude.toFixed(6)}, {alert.longitude.toFixed(6)}
                         </p>
                       </div>
                     </div>
                   )}
+
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="text-orange-400 mt-1 text-lg" />
+                    <div>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Alert Status</p>
+                      <p className="text-white font-medium text-sm">
+                        Active & Monitoring
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faCamera} className="text-cyan-400 mt-1 text-lg" />
+                    <div>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Evidence Captured</p>
+                      <p className="text-white font-medium text-sm">
+                        {alert.frame_path ? 'Yes - Image Available' : 'No Image'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -449,11 +492,10 @@ const AlertDetail = () => {
                         <p className="text-white font-semibold text-lg">{cameraInfo.name}</p>
                         <p className="text-gray-400 text-sm mt-1">{cameraInfo.position}</p>
                       </div>
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-md ${
-                        cameraInfo.status === 'Online' 
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-md ${cameraInfo.status === 'Online'
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                           : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                      }`}>
+                        }`}>
                         {cameraInfo.status}
                       </span>
                     </div>
@@ -472,14 +514,6 @@ const AlertDetail = () => {
                         <span className="text-gray-400 text-sm">Camera Type</span>
                         <span className="text-white font-medium">{cameraInfo.type}</span>
                       </div>
-                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
-                        <span className="text-gray-400 text-sm">Resolution</span>
-                        <span className="text-white font-medium">{cameraInfo.resolution}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
-                        <span className="text-gray-400 text-sm">Field of View</span>
-                        <span className="text-white font-medium">{cameraInfo.fieldOfView}</span>
-                      </div>
                     </div>
 
                     {/* View Camera Button */}
@@ -496,47 +530,13 @@ const AlertDetail = () => {
                 );
               })()}
             </div>
-
-            {/* Quick Stats */}
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h3 className="text-white font-bold text-xl mb-4">Quick Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                  <span className="text-gray-400 font-medium">Alert Type</span>
-                  <span className="text-white font-semibold capitalize">
-                    {alert.alert_type.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                  <span className="text-gray-400 font-medium">Priority</span>
-                  <span className={`font-bold ${priority.level === 'CRITICAL' ? 'text-red-400' : priority.level === 'HIGH' ? 'text-orange-400' : priority.level === 'MEDIUM' ? 'text-yellow-400' : 'text-blue-400'}`}>
-                    {priority.level}
-                  </span>
-                </div>
-                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                  <span className="text-gray-400 font-medium">People Count</span>
-                  <span className="text-white font-semibold">
-                    {alert.male_count + alert.female_count} total
-                  </span>
-                </div>
-                {alert.gesture && (
-                  <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                    <span className="text-gray-400 font-medium">Gesture</span>
-                    <span className="text-white flex items-center gap-2 font-semibold">
-                      <span className="text-xl">{getGestureEmoji(alert.gesture)}</span>
-                      <span>{getGestureName(alert.gesture)}</span>
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Full Screen Image Modal */}
       {isFullScreen && !imageError && alert.frame_path && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={closeFullScreen}
         >
@@ -603,7 +603,7 @@ const AlertDetail = () => {
             </button>
 
             {/* Image Container with Zoom */}
-            <div 
+            <div
               className="overflow-auto max-w-full max-h-full"
               onClick={(e) => e.stopPropagation()}
             >
@@ -611,7 +611,7 @@ const AlertDetail = () => {
                 src={`http://localhost:5000/alert_image/${alert.id}`}
                 alt="Alert frame - Full screen"
                 className="max-w-none transition-transform duration-200"
-                style={{ 
+                style={{
                   transform: `scale(${imageZoom})`,
                   transformOrigin: 'center center'
                 }}
@@ -622,7 +622,7 @@ const AlertDetail = () => {
             {/* Image Info */}
             <div className="absolute bottom-4 left-4 bg-gray-800/90 text-white px-4 py-3 rounded-lg backdrop-blur-sm">
               <p className="text-sm">
-                <span className="font-semibold">Alert ID:</span> #{alert.id} | 
+                <span className="font-semibold">Alert ID:</span> #{alert.id} |
                 <span className="ml-2 font-semibold">Captured:</span> {new Date(alert.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
               </p>
             </div>
