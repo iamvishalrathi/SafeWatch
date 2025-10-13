@@ -107,7 +107,7 @@ const AlertCardWithScreenshot = ({ alert, onDownload }) => {
   };
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="bg-[#3A3A3A] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
     >
@@ -377,8 +377,8 @@ const AllAlerts = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAlerts.map((alert) => (
-              <AlertCardWithScreenshot 
-                key={alert.id} 
+              <AlertCardWithScreenshot
+                key={alert.id}
                 alert={alert}
                 onDownload={downloadAlertImage}
               />

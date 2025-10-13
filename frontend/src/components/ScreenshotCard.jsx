@@ -11,7 +11,7 @@ import {
 import API from "../utils/api";
 import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
 
-const ScreenshotCard = ({ alert, onImageError = () => {} }) => {
+const ScreenshotCard = ({ alert, onImageError = () => { } }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,13 +84,12 @@ const ScreenshotCard = ({ alert, onImageError = () => {} }) => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
         )}
-        
+
         <img
           src={API.getAlertImageUrl(alert.id)}
           alt={`Alert screenshot ${alert.id}`}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoading ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
+            }`}
           onLoad={handleImageLoad}
           onError={handleImageError}
         />
@@ -141,7 +140,7 @@ const ScreenshotCard = ({ alert, onImageError = () => {} }) => {
               <span className="font-medium text-yellow-400">{getGestureName(alert.gesture)}</span>
             </div>
           )}
-          
+
           <p>
             <span className="font-medium">Detection:</span> {alert.male_count} Male{alert.male_count !== 1 ? 's' : ''}, {alert.female_count} Female{alert.female_count !== 1 ? 's' : ''}
           </p>

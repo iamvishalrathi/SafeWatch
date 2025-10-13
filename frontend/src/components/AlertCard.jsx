@@ -61,7 +61,7 @@ const AlertCard = ({ alert, compact = false }) => {
   const formatDate = (timestamp) => {
     if (!timestamp) return 'Unknown';
     const date = new Date(timestamp);
-    
+
     // Format for IST timezone
     return date.toLocaleString("en-IN", {
       timeZone: 'Asia/Kolkata',

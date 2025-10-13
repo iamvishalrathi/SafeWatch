@@ -30,7 +30,7 @@ L.Icon.Default.mergeOptions({
 const CameraDetail = () => {
   const navigate = useNavigate();
   const { cameraId } = useParams();
-  
+
   // Use custom hooks for API data
   const { alerts, error: alertsError } = useAlerts(1000);
   const { totalCount, maleCount, femaleCount } = usePersonCount(1000);
@@ -71,50 +71,50 @@ const CameraDetail = () => {
   // Get camera info based on ID
   useEffect(() => {
     const cameras = [
-      { 
-        id: 1, 
-        position: "Main Entrance", 
-        location: "Rohini", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: true 
+      {
+        id: 1,
+        position: "Main Entrance",
+        location: "Rohini",
+        url: "http://localhost:5000/video_feed",
+        isOnline: true
       },
-      { 
-        id: 2, 
-        position: "Parking Area", 
-        location: "Rohini", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: false 
+      {
+        id: 2,
+        position: "Parking Area",
+        location: "Rohini",
+        url: "http://localhost:5000/video_feed",
+        isOnline: false
       },
-      { 
-        id: 3, 
-        position: "Hall", 
-        location: "Narela", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: false 
+      {
+        id: 3,
+        position: "Hall",
+        location: "Narela",
+        url: "http://localhost:5000/video_feed",
+        isOnline: false
       },
-      { 
-        id: 4, 
-        position: "Main Door", 
-        location: "Narela", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: false 
+      {
+        id: 4,
+        position: "Main Door",
+        location: "Narela",
+        url: "http://localhost:5000/video_feed",
+        isOnline: false
       },
-      { 
-        id: 5, 
-        position: "Reception", 
-        location: "Dwarka", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: false 
+      {
+        id: 5,
+        position: "Reception",
+        location: "Dwarka",
+        url: "http://localhost:5000/video_feed",
+        isOnline: false
       },
-      { 
-        id: 6, 
-        position: "Emergency Exit", 
-        location: "Dwarka", 
-        url: "http://localhost:5000/video_feed", 
-        isOnline: false 
+      {
+        id: 6,
+        position: "Emergency Exit",
+        location: "Dwarka",
+        url: "http://localhost:5000/video_feed",
+        isOnline: false
       },
     ];
-    
+
     const camera = cameras.find(cam => cam.id === parseInt(cameraId));
     setCameraInfo(camera);
   }, [cameraId]);
@@ -175,9 +175,9 @@ const CameraDetail = () => {
           {/* Camera Details Header */}
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-3">
-              <FontAwesomeIcon 
-                icon={faVideo} 
-                className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`} 
+              <FontAwesomeIcon
+                icon={faVideo}
+                className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}
               />
               <div className="flex flex-col flex-1">
                 <h2 className="text-xl font-bold">Camera #{cameraInfo.id}</h2>
@@ -199,7 +199,7 @@ const CameraDetail = () => {
               )}
             </div>
           </div>
-          
+
           <div className="w-full aspect-video bg-[#1A1A1A] rounded-xl overflow-hidden shadow-inner mb-4">
             {isCameraEnabled ? (
               cameraInfo.isOnline && !videoError ? (
@@ -248,7 +248,7 @@ const CameraDetail = () => {
             <FontAwesomeIcon icon={faUser} className="text-xl text-purple-400" />
             <h2 className="text-xl font-bold">Gender Distribution</h2>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-xl p-4 mb-4">
             <div className="flex flex-col gap-2 text-base">
               <div className="flex justify-between items-center">
@@ -272,7 +272,7 @@ const CameraDetail = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-center bg-white rounded-xl p-4">
             <div className="w-[200px] h-[200px]">
               <Piegraph male={maleCount} female={femaleCount} />
@@ -291,7 +291,7 @@ const CameraDetail = () => {
               Live
             </span>
           </div>
-          
+
           <div className="h-[480px]">
             <GestureDetection />
           </div>
@@ -312,7 +312,7 @@ const CameraDetail = () => {
             View All →
           </button>
         </div>
-        
+
         {recentAlertsWithScreenshots.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {recentAlertsWithScreenshots.map((alert) => (
@@ -329,14 +329,14 @@ const CameraDetail = () => {
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300"></div>
-                  
+
                   {/* Alert Type Badge */}
                   <div className="absolute top-2 left-2">
                     <span className="bg-red-600/90 px-3 py-1 rounded-lg text-xs font-semibold shadow-lg">
                       {alert.alert_type || 'Alert'}
                     </span>
                   </div>
-                  
+
                   {/* Download Button */}
                   <button
                     className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 shadow-lg"
@@ -348,7 +348,7 @@ const CameraDetail = () => {
                     <FontAwesomeIcon icon={faDownload} className="text-white text-sm" />
                   </button>
                 </div>
-                
+
                 {/* Alert Info */}
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -357,7 +357,7 @@ const CameraDetail = () => {
                       {new Date(alert.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-3 text-sm">
                     <div className="flex items-center gap-1">
                       <span className="text-blue-400">♂</span>
@@ -374,7 +374,7 @@ const CameraDetail = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {alert.latitude && alert.longitude && (
                     <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
                       <FontAwesomeIcon icon={faMapMarkerAlt} />
@@ -403,7 +403,7 @@ const CameraDetail = () => {
             <span className="text-xs text-yellow-400 ml-2">({locationError})</span>
           )}
         </div>
-        
+
         <div className="h-[400px] rounded-xl overflow-hidden shadow-lg">
           {deviceLocation ? (
             <MapContainer
@@ -415,7 +415,7 @@ const CameraDetail = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              
+
               {/* Camera Location Marker */}
               <Marker position={[deviceLocation.lat, deviceLocation.lng]}>
                 <Popup>

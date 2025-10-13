@@ -4,37 +4,37 @@
  */
 
 export const GESTURE_EMOJIS = {
-  thumb_palm: "✊",
-  wave: "👋",
-  ok_sign: "👌",
-  default: "🤚",
+    thumb_palm: "✊",
+    wave: "👋",
+    ok_sign: "👌",
+    default: "🤚",
 };
 
 export const GESTURE_NAMES = {
-  thumb_palm: "Thumb-Palm (Emergency)",
-  wave: "Wave Gesture",
-  ok_sign: "OK Sign (Distress)",
+    thumb_palm: "Thumb-Palm (Emergency)",
+    wave: "Wave Gesture",
+    ok_sign: "OK Sign (Distress)",
 };
 
 export const GESTURE_COLORS = {
-  thumb_palm: {
-    text: "text-red-400",
-    bg: "bg-red-500",
-    border: "border-red-500",
-    gradient: "from-red-600 to-red-700",
-  },
-  wave: {
-    text: "text-yellow-400",
-    bg: "bg-yellow-500",
-    border: "border-yellow-500",
-    gradient: "from-yellow-600 to-yellow-700",
-  },
-  ok_sign: {
-    text: "text-orange-400",
-    bg: "bg-orange-500",
-    border: "border-orange-500",
-    gradient: "from-orange-600 to-orange-700",
-  },
+    thumb_palm: {
+        text: "text-red-400",
+        bg: "bg-red-500",
+        border: "border-red-500",
+        gradient: "from-red-600 to-red-700",
+    },
+    wave: {
+        text: "text-yellow-400",
+        bg: "bg-yellow-500",
+        border: "border-yellow-500",
+        gradient: "from-yellow-600 to-yellow-700",
+    },
+    ok_sign: {
+        text: "text-orange-400",
+        bg: "bg-orange-500",
+        border: "border-orange-500",
+        gradient: "from-orange-600 to-orange-700",
+    },
 };
 
 /**
@@ -43,7 +43,7 @@ export const GESTURE_COLORS = {
  * @returns {string} The corresponding emoji
  */
 export const getGestureEmoji = (gestureType) => {
-  return GESTURE_EMOJIS[gestureType] || GESTURE_EMOJIS.default;
+    return GESTURE_EMOJIS[gestureType] || GESTURE_EMOJIS.default;
 };
 
 /**
@@ -52,7 +52,7 @@ export const getGestureEmoji = (gestureType) => {
  * @returns {string} The formatted gesture name
  */
 export const getGestureName = (gestureType) => {
-  return GESTURE_NAMES[gestureType] || gestureType?.replace('_', ' ') || "Unknown";
+    return GESTURE_NAMES[gestureType] || gestureType?.replace('_', ' ') || "Unknown";
 };
 
 /**
@@ -62,9 +62,9 @@ export const getGestureName = (gestureType) => {
  * @returns {string} The CSS class string
  */
 export const getGestureColor = (gestureType, variant = "text") => {
-  const colors = GESTURE_COLORS[gestureType];
-  if (!colors) return variant === "text" ? "text-gray-400" : "bg-gray-500";
-  return colors[variant] || colors.text;
+    const colors = GESTURE_COLORS[gestureType];
+    if (!colors) return variant === "text" ? "text-gray-400" : "bg-gray-500";
+    return colors[variant] || colors.text;
 };
 
 /**
@@ -74,17 +74,17 @@ export const getGestureColor = (gestureType, variant = "text") => {
  * @returns {string} Formatted gesture text
  */
 export const formatGestureText = (gestureType, includeEmoji = true) => {
-  const emoji = includeEmoji ? `${getGestureEmoji(gestureType)} ` : "";
-  const name = getGestureName(gestureType);
-  return `${emoji}${name}`;
+    const emoji = includeEmoji ? `${getGestureEmoji(gestureType)} ` : "";
+    const name = getGestureName(gestureType);
+    return `${emoji}${name}`;
 };
 
 export default {
-  GESTURE_EMOJIS,
-  GESTURE_NAMES,
-  GESTURE_COLORS,
-  getGestureEmoji,
-  getGestureName,
-  getGestureColor,
-  formatGestureText,
+    GESTURE_EMOJIS,
+    GESTURE_NAMES,
+    GESTURE_COLORS,
+    getGestureEmoji,
+    getGestureName,
+    getGestureColor,
+    formatGestureText,
 };

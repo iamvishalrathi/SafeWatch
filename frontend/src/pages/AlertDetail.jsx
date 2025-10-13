@@ -122,7 +122,7 @@ const AlertDetail = () => {
   const formatDetailedDate = (timestamp) => {
     if (!timestamp) return 'Unknown';
     const date = new Date(timestamp);
-    
+
     // Check if the timestamp has timezone info, if not assume it's IST
     const options = {
       timeZone: 'Asia/Kolkata',
@@ -135,7 +135,7 @@ const AlertDetail = () => {
       second: '2-digit',
       timeZoneName: 'short'
     };
-    
+
     return date.toLocaleString('en-IN', options);
   };
 
