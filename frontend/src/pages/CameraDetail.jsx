@@ -224,25 +224,9 @@ const CameraDetail = () => {
                 </span>
               )}
             </div>
-
-            {/* Toggle Switch */}
-            <div className="flex items-center justify-between bg-[#3A3A3A] px-4 py-2.5 rounded-lg">
-              <span className="text-sm font-medium text-gray-300">
-                {isCameraEnabled ? 'Camera Enabled' : 'Camera Disabled'}
-              </span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isCameraEnabled}
-                  onChange={() => setIsCameraEnabled(!isCameraEnabled)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-              </label>
-            </div>
           </div>
           
-          <div className="w-full aspect-video bg-[#1A1A1A] rounded-xl overflow-hidden shadow-inner">
+          <div className="w-full aspect-video bg-[#1A1A1A] rounded-xl overflow-hidden shadow-inner mb-4">
             {isCameraEnabled ? (
               cameraInfo.isOnline && !videoError ? (
                 <img
@@ -266,6 +250,22 @@ const CameraDetail = () => {
               </div>
             )}
           </div>
+
+          {/* Toggle Switch Below Video */}
+          <div className="flex items-center justify-between bg-[#3A3A3A] px-4 py-3 rounded-lg">
+            <span className="text-sm font-medium text-gray-300">
+              {isCameraEnabled ? 'Camera Enabled' : 'Camera Disabled'}
+            </span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isCameraEnabled}
+                onChange={() => setIsCameraEnabled(!isCameraEnabled)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
         </div>
 
         {/* Gender Distribution Stats */}
@@ -288,6 +288,13 @@ const CameraDetail = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Women:</span>
                 <span className="font-bold text-pink-400 text-lg">{femaleCount}</span>
+              </div>
+              <div className="h-px bg-gray-600 my-2"></div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300">Men/Women Ratio:</span>
+                <span className="font-bold text-green-400 text-lg">
+                  {femaleCount > 0 ? (maleCount / femaleCount).toFixed(2) : maleCount > 0 ? '∞' : '0'}
+                </span>
               </div>
             </div>
           </div>
