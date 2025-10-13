@@ -10,7 +10,6 @@ import {
   faClock,
   faMapMarkerAlt,
   faUserGroup,
-  faHand,
   faExpand,
   faCamera,
 } from "@fortawesome/free-solid-svg-icons";
@@ -182,7 +181,7 @@ const AlertCardWithScreenshot = ({ alert, onDownload }) => {
             </div>
           )}
 
-          {(alert.male_count > 0 || alert.female_count > 0) && (
+          {(alert.male_count >= 0 || alert.female_count >= 0) && (
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faUserGroup} className="text-white/70" />
               <span>

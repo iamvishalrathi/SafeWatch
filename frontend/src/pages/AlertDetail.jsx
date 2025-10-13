@@ -6,12 +6,12 @@ import {
   faExclamationTriangle,
   faClock,
   faMapMarkerAlt,
-  faHand,
   faUserGroup,
   faDownload,
   faEye,
   faInfoCircle,
-  faCamera
+  faCamera,
+  faVideo,
 } from '@fortawesome/free-solid-svg-icons';
 import API from '../utils/api';
 import { getGestureEmoji, getGestureName } from '../utils/gestureUtils';
@@ -24,6 +24,37 @@ const AlertDetail = () => {
   const [error, setError] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Mock camera data - In production, this should come from alert.camera_id
+  const getCameraInfo = (alertLocation) => {
+    // Default camera based on alert location
+    const cameras = [
+      {
+        id: 1,
+        name: "Main Entrance Camera",
+        position: "Main Entrance",
+        location: "Rohini",
+        status: "Online",
+        type: "Fixed Dome",
+        resolution: "1080p",
+        fieldOfView: "120°",
+      },
+      {
+        id: 2,
+        name: "Parking Area Camera",
+        position: "Parking Area",
+        location: "Rohini",
+        status: "Offline",
+        type: "PTZ Camera",
+        resolution: "4K",
+        fieldOfView: "360°",
+      },
+    ];
+
+    // If alert has location, try to match to nearby camera
+    // For now, return Camera 1 as default
+    return cameras[0];
+  };
 
   useEffect(() => {
     const fetchAlertDetail = async () => {
@@ -353,6 +384,70 @@ const AlertDetail = () => {
                   <p className="text-gray-400">No image captured</p>
                 </div>
               )}
+            </div>
+
+            {/* Camera Details */}
+            <div className="bg-gray-800 rounded-xl p-6">
+              <h3 className="text-white font-bold text-xl mb-4 flex items-center gap-2">
+                <FontAwesomeIcon icon={faVideo} />
+                Camera Details
+              </h3>
+              {(() => {
+                const cameraInfo = getCameraInfo(alert.latitude);
+                return (
+                  <div className="space-y-4">
+                    {/* Camera Name & Status */}
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-700">
+                      <div>
+                        <p className="text-white font-semibold text-lg">{cameraInfo.name}</p>
+                        <p className="text-gray-400 text-sm">{cameraInfo.position}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        cameraInfo.status === 'Online' 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {cameraInfo.status}
+                      </span>
+                    </div>
+
+                    {/* Camera Specs */}
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">Camera ID</span>
+                        <span className="text-white font-medium">#{cameraInfo.id}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">Location</span>
+                        <span className="text-white font-medium">{cameraInfo.location}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">Camera Type</span>
+                        <span className="text-white font-medium">{cameraInfo.type}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">Resolution</span>
+                        <span className="text-white font-medium">{cameraInfo.resolution}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">Field of View</span>
+                        <span className="text-white font-medium">{cameraInfo.fieldOfView}</span>
+                      </div>
+                    </div>
+
+                    {/* View Camera Button */}
+                    <div className="pt-3 border-t border-gray-700">
+                      <button
+                        onClick={() => navigate(`/camera/${cameraInfo.id}`)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FontAwesomeIcon icon={faVideo} />
+                        View Live Camera Feed
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Quick Stats */}
