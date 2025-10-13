@@ -75,7 +75,7 @@ const GestureDetection = () => {
       case "wave":
         return "👋";
       case "ok_sign":
-        return "�";
+        return "👌";
       default:
         return "🤚";
     }
@@ -118,14 +118,13 @@ const GestureDetection = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">�</span>
+                      <span className="text-xl">👌</span>
                       <div>
                         <p className="font-medium text-orange-400">OK Sign</p>
                         <p className="text-gray-400 text-[10px]">Distress signal</p>
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-500 text-[9px] mt-2 italic">Works with both hands</p>
                 </div>
               </div>
             </button>
