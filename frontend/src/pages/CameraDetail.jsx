@@ -1,20 +1,19 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { faMapMarkerAlt, faUser } from "@fortawesome/free-solid-svg-icons";
 import Piegraph from "../components/Piegraph.jsx";
-import AlertCard from "../components/AlertCard.jsx";
+import GestureDetection from "../components/GestureDetection.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faVideo,
   faBell,
-  faCamera,
-  faTrash,
   faDownload,
   faArrowLeft,
   faExclamationTriangle,
+  faHandPaper,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useApi";
 import API from "../utils/api";
@@ -36,13 +35,14 @@ const CameraDetail = () => {
   const { totalCount, maleCount, femaleCount } = usePersonCount(1000);
   const { downloadImage } = useDownloadAlertImage();
 
-  const [screenshots, setScreenshots] = useState([]);
   const [cameraInfo, setCameraInfo] = useState(null);
   const [videoError, setVideoError] = useState(false);
   const [isCameraEnabled, setIsCameraEnabled] = useState(true);
   const [deviceLocation, setDeviceLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
-  const galleryRef = useRef(null);
+
+  // Get recent 3 alerts with screenshots
+  const recentAlertsWithScreenshots = alerts.slice(0, 3);
 
   // Get device's live location
   useEffect(() => {
@@ -117,33 +117,6 @@ const CameraDetail = () => {
     const camera = cameras.find(cam => cam.id === parseInt(cameraId));
     setCameraInfo(camera);
   }, [cameraId]);
-
-  // Get top 10 alerts
-  const topAlerts = alerts.slice(0, 10);
-
-  // Update screenshots from alerts
-  useEffect(() => {
-    if (alerts.length > 0) {
-      const alertImages = alerts.map(alert => ({
-        id: alert.id,
-        url: API.getAlertImageUrl(alert.id)
-      }));
-      setScreenshots(alertImages);
-    }
-  }, [alerts]);
-
-  // Scroll to bottom when new screenshot added
-  useEffect(() => {
-    if (galleryRef.current) {
-      galleryRef.current.scrollTop = galleryRef.current.scrollHeight;
-    }
-  }, [screenshots]);
-
-  const handleDeleteScreenshot = (index) => {
-    const updated = [...screenshots];
-    updated.splice(index, 1);
-    setScreenshots(updated);
-  };
 
   const handleDownload = async (alertId) => {
     try {
@@ -306,84 +279,116 @@ const CameraDetail = () => {
           </div>
         </div>
 
-        {/* Recent Alerts */}
+        {/* Hand Gesture Detection */}
         <div className="lg:col-span-3 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faBell} className="text-xl text-yellow-400" />
-              <h2 className="text-xl font-bold">Recent Alerts</h2>
+              <FontAwesomeIcon icon={faHandPaper} className="text-xl text-yellow-400" />
+              <h2 className="text-xl font-bold">Hand Gestures</h2>
             </div>
-            <span className="text-sm text-gray-400 bg-[#3A3A3A] px-2 py-1 rounded">
-              {alerts.length} total
+            <span className="text-xs text-gray-400 bg-[#3A3A3A] px-2 py-1 rounded">
+              Live
             </span>
           </div>
           
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[480px] pr-2 custom-scrollbar">
-            {topAlerts.length > 0 ? (
-              topAlerts.map((alert) => (
-                <AlertCard key={alert.id} alert={alert} compact={true} />
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center h-40 text-gray-500">
-                <FontAwesomeIcon icon={faBell} className="text-4xl mb-2" />
-                <p>No alerts yet</p>
-              </div>
-            )}
+          <div className="h-[480px]">
+            <GestureDetection />
           </div>
         </div>
       </div>
 
-      {/* Screenshot Gallery */}
+      {/* Recent 3 Alerts with Screenshots */}
       <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FontAwesomeIcon icon={faCamera} className="text-xl text-green-400" />
-          <h2 className="text-xl font-bold">Captured Screenshots</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faBell} className="text-xl text-yellow-400" />
+            <h2 className="text-xl font-bold">Recent Alerts with Screenshots</h2>
+          </div>
+          <button
+            onClick={() => navigate("/all-alerts")}
+            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            View All →
+          </button>
         </div>
         
-        {screenshots.length > 0 ? (
-          <div
-            className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar"
-            ref={galleryRef}
-          >
-            {screenshots.map((screenshot, index) => (
+        {recentAlertsWithScreenshots.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {recentAlertsWithScreenshots.map((alert) => (
               <div
-                key={index}
-                className="relative bg-[#3A3A3A] rounded-xl min-w-[240px] h-[140px] overflow-hidden group shadow-lg"
+                key={alert.id}
+                className="bg-[#3A3A3A] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+                onClick={() => navigate(`/alert/${alert.id}`)}
               >
-                <img
-                  src={screenshot.url}
-                  alt={`screenshot-${index}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 cursor-pointer"
-                  onClick={() => window.open(screenshot.url, "_blank")}
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300"></div>
-                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Alert Screenshot */}
+                <div className="relative h-48 bg-[#1A1A1A] overflow-hidden">
+                  <img
+                    src={API.getAlertImageUrl(alert.id)}
+                    alt={`Alert ${alert.id}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300"></div>
+                  
+                  {/* Alert Type Badge */}
+                  <div className="absolute top-2 left-2">
+                    <span className="bg-red-600/90 px-3 py-1 rounded-lg text-xs font-semibold shadow-lg">
+                      {alert.alert_type || 'Alert'}
+                    </span>
+                  </div>
+                  
+                  {/* Download Button */}
                   <button
-                    className="bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-colors shadow-lg"
+                    className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 shadow-lg"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDownload(screenshot.id);
+                      handleDownload(alert.id);
                     }}
                   >
-                    <FontAwesomeIcon icon={faDownload} className="text-white" />
+                    <FontAwesomeIcon icon={faDownload} className="text-white text-sm" />
                   </button>
-                  <button
-                    className="bg-red-600 hover:bg-red-700 p-2 rounded-lg transition-colors shadow-lg"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteScreenshot(index);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faTrash} className="text-white" />
-                  </button>
+                </div>
+                
+                {/* Alert Info */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-gray-300">Alert #{alert.id}</span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(alert.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="text-blue-400">♂</span>
+                      <span className="text-gray-300">{alert.male_count || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-pink-400">♀</span>
+                      <span className="text-gray-300">{alert.female_count || 0}</span>
+                    </div>
+                    {alert.gesture && (
+                      <div className="flex items-center gap-1 ml-auto">
+                        <FontAwesomeIcon icon={faHandPaper} className="text-yellow-400 text-xs" />
+                        <span className="text-yellow-400 text-xs">{alert.gesture}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {alert.latitude && alert.longitude && (
+                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} />
+                      <span>{alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-32 text-gray-500 bg-[#3A3A3A] rounded-xl">
-            <FontAwesomeIcon icon={faCamera} className="text-4xl mb-2" />
-            <p>No screenshots captured yet</p>
+          <div className="flex flex-col items-center justify-center h-48 text-gray-500 bg-[#3A3A3A] rounded-xl">
+            <FontAwesomeIcon icon={faBell} className="text-5xl mb-3" />
+            <p className="text-lg">No recent alerts</p>
+            <p className="text-sm text-gray-600 mt-1">Alerts will appear here when detected</p>
           </div>
         )}
       </div>

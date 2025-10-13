@@ -86,5 +86,29 @@ def get_alert_image(alert_id):
         return send_file(alert.frame_path, mimetype='image/jpeg')
     return jsonify({'error': 'Image not found'}), 404
 
+@app.route('/api/person_count')
+def get_person_count():
+    """Returns the current person count from the detector"""
+    return jsonify({
+        'male': detector.current_counts.get('male', 0),
+        'female': detector.current_counts.get('female', 0),
+        'total': detector.current_counts.get('male', 0) + detector.current_counts.get('female', 0)
+    })
+
+@app.route('/api/stats')
+def get_stats():
+    """Returns system statistics"""
+    total_alerts = DBAlert.query.count()
+    return jsonify({
+        'total_alerts': total_alerts,
+        'current_male': detector.current_counts.get('male', 0),
+        'current_female': detector.current_counts.get('female', 0)
+    })
+
+@app.route('/api/gesture_status')
+def get_gesture_status():
+    """Returns the current gesture detection status"""
+    return jsonify(detector.current_gesture)
+
 if __name__ == '__main__':
     app.run(debug=True)

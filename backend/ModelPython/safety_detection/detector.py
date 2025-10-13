@@ -54,6 +54,14 @@ class SafetyDetector:
         self.alerts: List[Alert] = []
         self.current_counts = {'male': 0, 'female': 0}
         self.person_boxes = []  # Store detected person boxes with gender info
+        
+        # Gesture tracking
+        self.current_gesture = {
+            'detected': False,
+            'type': None,
+            'confidence': 0.0,
+            'handsCount': 0
+        }
 
     def detect_genders(self, frame: np.ndarray) -> np.ndarray:
         """Detect faces and classify gender in the frame"""
@@ -130,8 +138,11 @@ class SafetyDetector:
         results = self.hands.process(rgb_frame)
         
         detected_gesture = None
+        hands_count = 0
+        max_confidence = 0.0
         
         if results.multi_hand_landmarks:
+            hands_count = len(results.multi_hand_landmarks)
             for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
                 # Draw hand landmarks on the frame
                 self.mp_drawing.draw_landmarks(
@@ -145,6 +156,10 @@ class SafetyDetector:
                 # Check for distress gestures
                 handedness = results.multi_handedness[i]
                 hand_label = handedness.classification[0].label
+                confidence = handedness.classification[0].score
+                
+                if confidence > max_confidence:
+                    max_confidence = confidence
                 
                 if hand_label == "Left":
                     gesture = self._check_left_hand_gestures(hand_landmarks.landmark)
@@ -179,6 +194,14 @@ class SafetyDetector:
                 # Draw hand label
                 cv2.putText(frame, f"{hand_label} Hand", (cx + 10, cy + 20), 
                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        
+        # Update current gesture state
+        self.current_gesture = {
+            'detected': detected_gesture is not None,
+            'type': detected_gesture,
+            'confidence': max_confidence,
+            'handsCount': hands_count
+        }
         
         return detected_gesture, frame
 
