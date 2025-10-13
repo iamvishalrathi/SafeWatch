@@ -38,6 +38,14 @@
 - **Hotspot Maps**: Interactive maps with Leaflet integration
 - **Recent Alerts**: Real-time alert feed with compact cards
 
+#### 📰 **News Integration** 
+- **Women Safety News**: Latest news about women safety and rights
+- **Category Filters**: 5 categories (Safety, Crime, Harassment, Rights, Domestic Violence)
+- **Real-time Updates**: Refresh to get the latest articles
+- **API Integration**: Supports NewsAPI and GNews with easy setup
+- **Responsive Cards**: Beautiful card-based layout with images
+- **External Links**: Direct links to full news articles
+
 #### 🗺️ **Location Services**
 - **GPS Integration**: Geolocation-based camera tracking
 - **Interactive Maps**: Leaflet.js for map visualization
@@ -58,9 +66,9 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Frontend (React)                          │
 │  ┌────────────┬────────────┬────────────┬──────────────────┐   │
-│  │   Home     │   Live     │   Alerts   │    Contact       │   │
-│  │  Landing   │  Camera    │  Management│    Page          │   │
-│  │   Page     │   Grid     │   & Detail │                  │   │
+│  │   Home     │   Live     │   Alerts   │     News         │   │
+│  │  Landing   │  Camera    │  Management│   Women Safety   │   │
+│  │   Page     │   Grid     │   & Detail │    Articles      │   │
 │  └────────────┴────────────┴────────────┴──────────────────┘   │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │              Components & UI Elements                     │   │
@@ -88,6 +96,10 @@
 │  │              Database (SQLAlchemy + SQLite)               │   │
 │  │  • Alert Model (timestamp, location, counts, gesture)    │   │
 │  │  • IST Timezone Support (pytz)                           │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              External APIs (Optional)                     │   │
+│  │  • NewsAPI / GNews - Women safety news integration       │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
