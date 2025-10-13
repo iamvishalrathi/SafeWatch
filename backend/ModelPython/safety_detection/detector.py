@@ -155,13 +155,17 @@ class SafetyDetector:
                 
                 # Check for distress gestures
                 handedness = results.multi_handedness[i]
+                # MediaPipe detects hands from camera perspective (mirror image)
+                # So we need to flip: "Left" in camera = Right hand in reality
                 hand_label = handedness.classification[0].label
+                actual_hand = "Right" if hand_label == "Left" else "Left"
                 confidence = handedness.classification[0].score
                 
                 if confidence > max_confidence:
                     max_confidence = confidence
                 
-                if hand_label == "Left":
+                # Check gestures on left hand only (which appears as "Right" in camera)
+                if hand_label == "Right":  # This is actually the user's left hand
                     gesture = self._check_left_hand_gestures(hand_landmarks.landmark)
                     if gesture:
                         detected_gesture = gesture
@@ -186,13 +190,13 @@ class SafetyDetector:
                         cv2.putText(frame, gesture_text, (cx, cy - 10), 
                                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
                 
-                # Also show hand label (Left/Right) for all detected hands
+                # Show actual hand label (corrected for mirror image)
                 h, w, c = frame.shape
                 wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
                 cx, cy = int(wrist.x * w), int(wrist.y * h)
                 
-                # Draw hand label
-                cv2.putText(frame, f"{hand_label} Hand", (cx + 10, cy + 20), 
+                # Draw hand label with actual hand (not mirrored)
+                cv2.putText(frame, f"{actual_hand} Hand", (cx + 10, cy + 20), 
                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
         
         # Update current gesture state

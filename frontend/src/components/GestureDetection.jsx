@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandPaper } from "@fortawesome/free-solid-svg-icons";
+import { faHandPaper, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 const GestureDetection = () => {
   const [gestureData, setGestureData] = useState({
@@ -10,6 +10,7 @@ const GestureDetection = () => {
     handsCount: 0,
   });
   const [history, setHistory] = useState([]);
+  const [showInfo, setShowInfo] = useState(false);
 
   // Poll gesture detection status from backend
   useEffect(() => {
@@ -86,7 +87,50 @@ const GestureDetection = () => {
       <div className="bg-[#3A3A3A] rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-gray-300">Live Detection</span>
-          <div className={`w-3 h-3 rounded-full ${gestureData.detected ? 'bg-green-500 animate-pulse' : 'bg-gray-600'}`}></div>
+          <div className="flex items-center gap-2">
+            {/* Info Icon */}
+            <button
+              onClick={() => setShowInfo(!showInfo)}
+              className="relative group"
+              aria-label="Gesture Information"
+            >
+              <FontAwesomeIcon 
+                icon={faInfoCircle} 
+                className="text-gray-400 hover:text-blue-400 transition-colors cursor-pointer text-sm"
+              />
+              {/* Tooltip on hover */}
+              <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50">
+                <div className="bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl w-64 border border-gray-700">
+                  <h4 className="font-bold mb-2 text-blue-400">Gesture Types</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">✊</span>
+                      <div>
+                        <p className="font-medium text-red-400">Thumb-Palm</p>
+                        <p className="text-gray-400 text-[10px]">Emergency signal</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">👋</span>
+                      <div>
+                        <p className="font-medium text-yellow-400">Wave</p>
+                        <p className="text-gray-400 text-[10px]">Attention needed</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">👍</span>
+                      <div>
+                        <p className="font-medium text-orange-400">Thumb Folded</p>
+                        <p className="text-gray-400 text-[10px]">Help signal</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-[9px] mt-2 italic">Use your left hand for gestures</p>
+                </div>
+              </div>
+            </button>
+            <div className={`w-3 h-3 rounded-full ${gestureData.detected ? 'bg-green-500 animate-pulse' : 'bg-gray-600'}`}></div>
+          </div>
         </div>
         
         {gestureData.detected ? (
@@ -159,54 +203,6 @@ const GestureDetection = () => {
             <p className="text-xs">No recent gestures</p>
           </div>
         )}
-      </div>
-
-      {/* Gesture Legend */}
-      <div className="mt-4 bg-[#3A3A3A] rounded-lg p-3">
-        <h4 className="text-xs font-semibold text-gray-400 mb-3">Gesture Types</h4>
-        <div className="space-y-3 text-xs">
-          {/* Thumb-Palm Gesture */}
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-red-900/30 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">✊</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                <span className="text-gray-300 font-medium">Thumb-Palm</span>
-              </div>
-              <p className="text-gray-500 text-[10px] mt-0.5">Emergency signal</p>
-            </div>
-          </div>
-          
-          {/* Wave Gesture */}
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-yellow-900/30 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">👋</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                <span className="text-gray-300 font-medium">Wave</span>
-              </div>
-              <p className="text-gray-500 text-[10px] mt-0.5">Attention needed</p>
-            </div>
-          </div>
-          
-          {/* Thumb Folded Gesture */}
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-orange-900/30 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">👍</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                <span className="text-gray-300 font-medium">Thumb Folded</span>
-              </div>
-              <p className="text-gray-500 text-[10px] mt-0.5">Help signal</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
