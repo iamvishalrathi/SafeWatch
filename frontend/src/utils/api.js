@@ -168,6 +168,35 @@ const API = {
             console.error('Error getting alert stats:', error);
             throw error;
         }
+    },
+
+    /**
+     * Delete a specific alert
+     * @param {number} alertId - The ID of the alert to delete
+     * @returns {Promise<Object>} Response with success message
+     */
+    deleteAlert: async (alertId) => {
+        try {
+            const response = await axiosInstance.delete(`/alert/${alertId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error deleting alert:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete all alerts
+     * @returns {Promise<Object>} Response with count of deleted alerts
+     */
+    deleteAllAlerts: async () => {
+        try {
+            const response = await axiosInstance.delete('/alerts');
+            return response.data;
+        } catch (error) {
+            console.error('Error deleting all alerts:', error);
+            throw error;
+        }
     }
 };
 

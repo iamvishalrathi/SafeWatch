@@ -244,13 +244,14 @@ AlertCardWithScreenshot.propTypes = {
 };
 
 const AllAlerts = () => {
-  const { alerts, loading, error } = useAlerts(5000); // Poll every 5 seconds
+  const { alerts, loading, error, refetch } = useAlerts(5000); // Poll every 5 seconds
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [localAlerts, setLocalAlerts] = useState([]);
+  const [deleting, setDeleting] = useState(false);
 
   // Update local alerts when API alerts change
   useEffect(() => {
@@ -299,13 +300,33 @@ const AllAlerts = () => {
     }
   };
 
-  const deleteAlert = (alertId) => {
-    setLocalAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== alertId));
+  const deleteAlert = async (alertId) => {
+    setDeleting(true);
+    try {
+      await API.deleteAlert(alertId);
+      // Refetch alerts from backend to get updated list
+      await refetch();
+    } catch (err) {
+      console.error("Failed to delete alert:", err);
+      alert("Failed to delete alert. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
-  const deleteAllAlerts = () => {
+  const deleteAllAlerts = async () => {
     if (window.confirm(`Are you sure you want to delete ALL ${localAlerts.length} alerts? This action cannot be undone.`)) {
-      setLocalAlerts([]);
+      setDeleting(true);
+      try {
+        await API.deleteAllAlerts();
+        // Refetch alerts from backend to get updated (empty) list
+        await refetch();
+      } catch (err) {
+        console.error("Failed to delete all alerts:", err);
+        alert("Failed to delete all alerts. Please try again.");
+      } finally {
+        setDeleting(false);
+      }
     }
   };
 
