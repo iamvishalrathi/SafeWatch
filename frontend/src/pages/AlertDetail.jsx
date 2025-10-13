@@ -12,6 +12,10 @@ import {
   faInfoCircle,
   faCamera,
   faVideo,
+  faExpand,
+  faTimes,
+  faSearchPlus,
+  faSearchMinus,
 } from '@fortawesome/free-solid-svg-icons';
 import API from '../utils/api';
 import { getGestureEmoji, getGestureName } from '../utils/gestureUtils';
@@ -24,6 +28,8 @@ const AlertDetail = () => {
   const [error, setError] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [imageZoom, setImageZoom] = useState(1);
 
   // Mock camera data - In production, this should come from alert.camera_id
   const getCameraInfo = (alertLocation) => {
@@ -178,6 +184,28 @@ const AlertDetail = () => {
     }
   };
 
+  const handleZoomIn = () => {
+    setImageZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setImageZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
+  const resetZoom = () => {
+    setImageZoom(1);
+  };
+
+  const openFullScreen = () => {
+    setIsFullScreen(true);
+    resetZoom();
+  };
+
+  const closeFullScreen = () => {
+    setIsFullScreen(false);
+    resetZoom();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -227,78 +255,80 @@ const AlertDetail = () => {
           {/* Main Alert Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Alert Overview */}
-            <div className={`bg-gradient-to-r ${getAlertColor(alert.alert_type)} p-6 rounded-xl shadow-lg`}>
-              <div className="flex items-start justify-between mb-4">
+            <div className={`bg-gradient-to-r ${getAlertColor(alert.alert_type)} p-6 rounded-xl shadow-lg border-2 border-white/10`}>
+              <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="bg-white/20 p-4 rounded-full">
+                  <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl shadow-lg">
                     <FontAwesomeIcon
                       icon={getAlertIcon(alert.alert_type)}
-                      className="text-white text-2xl"
+                      className="text-white text-3xl"
                     />
                   </div>
                   <div>
-                    <h2 className="text-white font-bold text-2xl">
+                    <h2 className="text-white font-bold text-2xl mb-2">
                       {getAlertTitle(alert.alert_type)}
                     </h2>
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold mt-2 ${priority.color}`}>
+                    <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold shadow-md ${priority.color}`}>
                       {priority.level} PRIORITY
                     </div>
                   </div>
                 </div>
               </div>
-              <p className="text-white/90 text-lg leading-relaxed">
-                {getAlertDescription(alert.alert_type)}
-              </p>
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <p className="text-white/95 text-base leading-relaxed">
+                  {getAlertDescription(alert.alert_type)}
+                </p>
+              </div>
             </div>
 
             {/* Detailed Information */}
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h3 className="text-white font-bold text-xl mb-4 flex items-center gap-2">
-                <FontAwesomeIcon icon={faInfoCircle} />
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
+              <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
+                <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400" />
                 Detailed Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <FontAwesomeIcon icon={faClock} className="text-blue-400 mt-1" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-5">
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faClock} className="text-blue-400 mt-1 text-lg" />
                     <div>
-                      <p className="text-gray-400 text-sm">Timestamp (IST)</p>
-                      <p className="text-white font-medium">
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Timestamp (IST)</p>
+                      <p className="text-white font-medium text-sm">
                         {formatDetailedDate(alert.timestamp)}
                       </p>
                     </div>
                   </div>
 
                   {alert.gesture && (
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl mt-1">{getGestureEmoji(alert.gesture)}</span>
+                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                      <span className="text-3xl">{getGestureEmoji(alert.gesture)}</span>
                       <div>
-                        <p className="text-gray-400 text-sm">Detected Gesture</p>
-                        <p className="text-white font-medium">
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Detected Gesture</p>
+                        <p className="text-white font-medium text-sm">
                           {getGestureName(alert.gesture)}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-start gap-3">
-                    <FontAwesomeIcon icon={faUserGroup} className="text-green-400 mt-1" />
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faUserGroup} className="text-green-400 mt-1 text-lg" />
                     <div>
-                      <p className="text-gray-400 text-sm">People Detected</p>
-                      <p className="text-white font-medium">
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">People Detected</p>
+                      <p className="text-white font-medium text-sm">
                         {alert.male_count} Male{alert.male_count !== 1 ? 's' : ''}, {alert.female_count} Female{alert.female_count !== 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {alert.confidence && (
-                    <div className="flex items-start gap-3">
-                      <FontAwesomeIcon icon={faEye} className="text-purple-400 mt-1" />
+                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                      <FontAwesomeIcon icon={faEye} className="text-purple-400 mt-1 text-lg" />
                       <div>
-                        <p className="text-gray-400 text-sm">Detection Confidence</p>
-                        <p className="text-white font-medium">
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Detection Confidence</p>
+                        <p className="text-white font-medium text-sm">
                           {(alert.confidence * 100).toFixed(1)}%
                         </p>
                       </div>
@@ -306,11 +336,11 @@ const AlertDetail = () => {
                   )}
 
                   {alert.latitude && alert.longitude && (
-                    <div className="flex items-start gap-3">
-                      <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mt-1" />
+                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mt-1 text-lg" />
                       <div>
-                        <p className="text-gray-400 text-sm">Location</p>
-                        <p className="text-white font-medium">
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Location</p>
+                        <p className="text-white font-medium text-sm">
                           {alert.latitude.toFixed(6)}, {alert.longitude.toFixed(6)}
                         </p>
                       </div>
@@ -321,12 +351,12 @@ const AlertDetail = () => {
 
               {/* Location Map Button */}
               {alert.latitude && alert.longitude && (
-                <div className="mt-6 pt-4 border-t border-gray-700">
+                <div className="mt-6 pt-6 border-t border-gray-700">
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${alert.latitude},${alert.longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl font-medium"
                   >
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
                     View on Google Maps
@@ -339,43 +369,60 @@ const AlertDetail = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Alert Image */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-4 flex items-center gap-2">
-                <FontAwesomeIcon icon={faCamera} />
+                <FontAwesomeIcon icon={faCamera} className="text-blue-400" />
                 Captured Frame
               </h3>
               {alert.frame_path ? (
-                <div className="relative">
+                <div className="relative group">
                   {imageLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-700 rounded-lg">
                       <div className="text-gray-400">Loading image...</div>
                     </div>
                   )}
                   {!imageError ? (
-                    <img
-                      src={`http://localhost:5000/alert_image/${alert.id}`}
-                      alt="Alert frame"
-                      className="w-full rounded-lg shadow-md"
-                      onLoad={() => setImageLoading(false)}
-                      onError={() => {
-                        setImageError(true);
-                        setImageLoading(false);
-                      }}
-                    />
+                    <>
+                      <img
+                        src={`http://localhost:5000/alert_image/${alert.id}`}
+                        alt="Alert frame"
+                        className="w-full rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity border-2 border-gray-700 hover:border-blue-500"
+                        onClick={openFullScreen}
+                        onLoad={() => setImageLoading(false)}
+                        onError={() => {
+                          setImageError(true);
+                          setImageLoading(false);
+                        }}
+                      />
+                      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={openFullScreen}
+                          className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-lg transition-colors shadow-lg"
+                          title="View full screen"
+                        >
+                          <FontAwesomeIcon icon={faExpand} />
+                        </button>
+                        <button
+                          onClick={downloadAlertImage}
+                          className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors shadow-lg"
+                          title="Download image"
+                        >
+                          <FontAwesomeIcon icon={faDownload} />
+                        </button>
+                      </div>
+                      {/* Click to expand hint */}
+                      <div className="mt-3 text-center">
+                        <p className="text-gray-400 text-sm">
+                          <FontAwesomeIcon icon={faExpand} className="mr-1" />
+                          Click image to view full screen
+                        </p>
+                      </div>
+                    </>
                   ) : (
                     <div className="bg-gray-700 rounded-lg p-8 text-center">
                       <FontAwesomeIcon icon={faCamera} className="text-gray-500 text-4xl mb-2" />
                       <p className="text-gray-400">Image not available</p>
                     </div>
-                  )}
-                  {!imageError && (
-                    <button
-                      onClick={downloadAlertImage}
-                      className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
-                      title="Download image"
-                    >
-                      <FontAwesomeIcon icon={faDownload} />
-                    </button>
                   )}
                 </div>
               ) : (
@@ -387,9 +434,9 @@ const AlertDetail = () => {
             </div>
 
             {/* Camera Details */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-4 flex items-center gap-2">
-                <FontAwesomeIcon icon={faVideo} />
+                <FontAwesomeIcon icon={faVideo} className="text-blue-400" />
                 Camera Details
               </h3>
               {(() => {
@@ -397,15 +444,15 @@ const AlertDetail = () => {
                 return (
                   <div className="space-y-4">
                     {/* Camera Name & Status */}
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-700">
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-700">
                       <div>
                         <p className="text-white font-semibold text-lg">{cameraInfo.name}</p>
-                        <p className="text-gray-400 text-sm">{cameraInfo.position}</p>
+                        <p className="text-gray-400 text-sm mt-1">{cameraInfo.position}</p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-md ${
                         cameraInfo.status === 'Online' 
-                          ? 'bg-green-500/20 text-green-400' 
-                          : 'bg-red-500/20 text-red-400'
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                          : 'bg-red-500/20 text-red-400 border border-red-500/30'
                       }`}>
                         {cameraInfo.status}
                       </span>
@@ -413,33 +460,33 @@ const AlertDetail = () => {
 
                     {/* Camera Specs */}
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Camera ID</span>
                         <span className="text-white font-medium">#{cameraInfo.id}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Location</span>
                         <span className="text-white font-medium">{cameraInfo.location}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Camera Type</span>
                         <span className="text-white font-medium">{cameraInfo.type}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Resolution</span>
                         <span className="text-white font-medium">{cameraInfo.resolution}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Field of View</span>
                         <span className="text-white font-medium">{cameraInfo.fieldOfView}</span>
                       </div>
                     </div>
 
                     {/* View Camera Button */}
-                    <div className="pt-3 border-t border-gray-700">
+                    <div className="pt-4 border-t border-gray-700">
                       <button
                         onClick={() => navigate(`/camera/${cameraInfo.id}`)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl font-medium"
                       >
                         <FontAwesomeIcon icon={faVideo} />
                         View Live Camera Feed
@@ -451,32 +498,32 @@ const AlertDetail = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-4">Quick Stats</h3>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Alert Type</span>
-                  <span className="text-white capitalize">
+                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                  <span className="text-gray-400 font-medium">Alert Type</span>
+                  <span className="text-white font-semibold capitalize">
                     {alert.alert_type.replace('_', ' ')}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Priority</span>
-                  <span className={`font-semibold ${priority.level === 'CRITICAL' ? 'text-red-400' : priority.level === 'HIGH' ? 'text-orange-400' : priority.level === 'MEDIUM' ? 'text-yellow-400' : 'text-blue-400'}`}>
+                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                  <span className="text-gray-400 font-medium">Priority</span>
+                  <span className={`font-bold ${priority.level === 'CRITICAL' ? 'text-red-400' : priority.level === 'HIGH' ? 'text-orange-400' : priority.level === 'MEDIUM' ? 'text-yellow-400' : 'text-blue-400'}`}>
                     {priority.level}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">People Count</span>
-                  <span className="text-white">
+                <div className="flex justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                  <span className="text-gray-400 font-medium">People Count</span>
+                  <span className="text-white font-semibold">
                     {alert.male_count + alert.female_count} total
                   </span>
                 </div>
                 {alert.gesture && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Gesture</span>
-                    <span className="text-white flex items-center gap-2">
-                      <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
+                  <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <span className="text-gray-400 font-medium">Gesture</span>
+                    <span className="text-white flex items-center gap-2 font-semibold">
+                      <span className="text-xl">{getGestureEmoji(alert.gesture)}</span>
                       <span>{getGestureName(alert.gesture)}</span>
                     </span>
                   </div>
@@ -486,6 +533,102 @@ const AlertDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Full Screen Image Modal */}
+      {isFullScreen && !imageError && alert.frame_path && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+          onClick={closeFullScreen}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={closeFullScreen}
+              className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-colors z-10"
+              title="Close"
+            >
+              <FontAwesomeIcon icon={faTimes} size="lg" />
+            </button>
+
+            {/* Zoom Controls */}
+            <div className="absolute top-4 left-4 flex gap-2 z-10">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoomOut();
+                }}
+                className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg transition-colors"
+                title="Zoom out"
+                disabled={imageZoom <= 0.5}
+              >
+                <FontAwesomeIcon icon={faSearchMinus} />
+              </button>
+              <span className="bg-gray-800 text-white px-4 py-3 rounded-lg font-medium">
+                {Math.round(imageZoom * 100)}%
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoomIn();
+                }}
+                className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg transition-colors"
+                title="Zoom in"
+                disabled={imageZoom >= 3}
+              >
+                <FontAwesomeIcon icon={faSearchPlus} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  resetZoom();
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
+                title="Reset zoom"
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* Download Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadAlertImage();
+              }}
+              className="absolute bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center gap-2 z-10"
+              title="Download image"
+            >
+              <FontAwesomeIcon icon={faDownload} />
+              <span>Download</span>
+            </button>
+
+            {/* Image Container with Zoom */}
+            <div 
+              className="overflow-auto max-w-full max-h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={`http://localhost:5000/alert_image/${alert.id}`}
+                alt="Alert frame - Full screen"
+                className="max-w-none transition-transform duration-200"
+                style={{ 
+                  transform: `scale(${imageZoom})`,
+                  transformOrigin: 'center center'
+                }}
+                draggable={false}
+              />
+            </div>
+
+            {/* Image Info */}
+            <div className="absolute bottom-4 left-4 bg-gray-800/90 text-white px-4 py-3 rounded-lg backdrop-blur-sm">
+              <p className="text-sm">
+                <span className="font-semibold">Alert ID:</span> #{alert.id} | 
+                <span className="ml-2 font-semibold">Captured:</span> {new Date(alert.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
