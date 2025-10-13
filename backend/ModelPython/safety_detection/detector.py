@@ -119,11 +119,11 @@ class SafetyDetector:
         
         # 1. Thumb touching palm (closed fist)
         if ((thumb_tip.x - wrist.x)**2 + (thumb_tip.y - wrist.y)**2)**0.5 < self.config.gesture_thresholds['thumb_palm']:
-            return "closed_fist"
+            return "thumb_palm"
         
         # 2. Waving gesture (fingers spread)
         if ((index_tip.x - pinky_tip.x)**2 + (index_tip.y - pinky_tip.y)**2)**0.5 > self.config.gesture_thresholds['wave']:
-            return "waving"
+            return "wave"
         
         # 3. Thumb folded across palm
         if (thumb_tip.x < wrist.x and 

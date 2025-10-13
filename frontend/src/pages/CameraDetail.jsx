@@ -242,7 +242,7 @@ const CameraDetail = () => {
         </div>
 
         {/* Gender Distribution Stats */}
-        <div className="lg:col-span-4 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
+        <div className="lg:col-span-3 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <FontAwesomeIcon icon={faUser} className="text-xl text-purple-400" />
             <h2 className="text-xl font-bold">Gender Distribution</h2>
@@ -280,7 +280,7 @@ const CameraDetail = () => {
         </div>
 
         {/* Hand Gesture Detection */}
-        <div className="lg:col-span-3 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
+        <div className="lg:col-span-4 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faHandPaper} className="text-xl text-yellow-400" />

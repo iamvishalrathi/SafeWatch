@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandPaper, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faHandPaper } from "@fortawesome/free-solid-svg-icons";
 
 const GestureDetection = () => {
   const [gestureData, setGestureData] = useState({
@@ -67,6 +67,19 @@ const GestureDetection = () => {
     }
   };
 
+  const getGestureEmoji = (type) => {
+    switch (type) {
+      case "thumb_palm":
+        return "✊";
+      case "wave":
+        return "👋";
+      case "thumb_folded":
+        return "👍";
+      default:
+        return "🤚";
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Current Detection Status */}
@@ -78,13 +91,12 @@ const GestureDetection = () => {
         
         {gestureData.detected ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon 
-                icon={gestureData.type === "thumb_palm" ? faExclamationTriangle : faHandPaper} 
-                className={`text-2xl ${getGestureColor(gestureData.type)}`}
-              />
-              <div>
-                <p className={`font-bold ${getGestureColor(gestureData.type)}`}>
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-600/20 to-orange-600/20 rounded-xl flex items-center justify-center">
+                <span className="text-3xl">{getGestureEmoji(gestureData.type)}</span>
+              </div>
+              <div className="flex-1">
+                <p className={`font-bold text-sm ${getGestureColor(gestureData.type)}`}>
                   {getGestureName(gestureData.type)}
                 </p>
                 <p className="text-xs text-gray-400">
@@ -92,15 +104,21 @@ const GestureDetection = () => {
                 </p>
               </div>
             </div>
-            <div className="flex justify-between items-center text-xs text-gray-400">
+            <div className="flex justify-between items-center text-xs text-gray-400 pt-2 border-t border-gray-600">
               <span>Hands Detected: {gestureData.handsCount}</span>
-              <span className="text-green-400">Active</span>
+              <span className="text-green-400 flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Active
+              </span>
             </div>
           </div>
         ) : (
           <div className="text-center py-4">
-            <FontAwesomeIcon icon={faHandPaper} className="text-4xl text-gray-600 mb-2" />
+            <div className="w-16 h-16 mx-auto mb-3 bg-[#1A1A1A] rounded-xl flex items-center justify-center">
+              <span className="text-4xl">🤚</span>
+            </div>
             <p className="text-sm text-gray-400">No gesture detected</p>
+            <p className="text-xs text-gray-500 mt-1">Monitoring hands...</p>
           </div>
         )}
       </div>
@@ -145,19 +163,48 @@ const GestureDetection = () => {
 
       {/* Gesture Legend */}
       <div className="mt-4 bg-[#3A3A3A] rounded-lg p-3">
-        <h4 className="text-xs font-semibold text-gray-400 mb-2">Gesture Types</h4>
-        <div className="space-y-1 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-400"></div>
-            <span className="text-gray-300">Thumb-Palm: Emergency signal</span>
+        <h4 className="text-xs font-semibold text-gray-400 mb-3">Gesture Types</h4>
+        <div className="space-y-3 text-xs">
+          {/* Thumb-Palm Gesture */}
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-red-900/30 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">✊</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                <span className="text-gray-300 font-medium">Thumb-Palm</span>
+              </div>
+              <p className="text-gray-500 text-[10px] mt-0.5">Emergency signal</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-            <span className="text-gray-300">Wave: Attention needed</span>
+          
+          {/* Wave Gesture */}
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-yellow-900/30 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">👋</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                <span className="text-gray-300 font-medium">Wave</span>
+              </div>
+              <p className="text-gray-500 text-[10px] mt-0.5">Attention needed</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-            <span className="text-gray-300">Thumb Folded: Help signal</span>
+          
+          {/* Thumb Folded Gesture */}
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-orange-900/30 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">👍</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                <span className="text-gray-300 font-medium">Thumb Folded</span>
+              </div>
+              <p className="text-gray-500 text-[10px] mt-0.5">Help signal</p>
+            </div>
           </div>
         </div>
       </div>
