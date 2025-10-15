@@ -3,14 +3,17 @@ import "./App.css";
 
 
 import Contact from "./pages/Contact";
-import Event from "./pages/Event";
 import Home from "./pages/Home";
 import Live from "./pages/Live";
+import AllAlerts from "./pages/AllAlerts";
+import AlertDetail from "./pages/AlertDetail";
+import CameraDetail from "./pages/CameraDetail";
+import News from "./pages/News";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
-import Signup from "./pages/Signup"; // Add this import
+import Signup from "./pages/Signup";
+import APITest from "./pages/APITest";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -23,8 +26,12 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={<Home />} />
           <Route path="/live" element={<Live />} />
-          <Route path="/event" element={<Event />} />
+          <Route path="/camera/:cameraId" element={<CameraDetail />} />
+          <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/api-test" element={<APITest />} />
+          <Route path="/all-alerts" element={<AllAlerts />} />
+          <Route path="/alert/:id" element={<AlertDetail />} />
         </Routes>
       </div>
     </BrowserRouter>

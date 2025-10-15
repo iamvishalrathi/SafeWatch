@@ -1,10 +1,16 @@
 from .db import db
 from datetime import datetime
+import pytz
+
+def ist_now():
+    """Return current time in IST"""
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    return datetime.now(ist_tz)
 
 class Alert(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     alert_type = db.Column(db.String(50))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=ist_now)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     frame_path = db.Column(db.String(255))
@@ -14,10 +20,12 @@ class Alert(db.Model):
     confidence = db.Column(db.Float, nullable=True)
 
     def to_dict(self):
+        # Format timestamp for IST display
+        formatted_timestamp = self.timestamp.isoformat() if self.timestamp else None
         return {
             "id": self.id,
             "alert_type": self.alert_type,
-            "timestamp": self.timestamp.isoformat(),
+            "timestamp": formatted_timestamp,
             "latitude": self.latitude,
             "longitude": self.longitude,
             "frame_path": self.frame_path,

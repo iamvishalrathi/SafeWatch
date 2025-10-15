@@ -1,6 +1,38 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import RippleButton from "./RippleButton";
+
 const Navbar = () => {
+  const location = useLocation();
+
+  // Helper function to check if a route is active (including dynamic routes)
+  const isRouteActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    if (path === "/live") {
+      // Active for /live and /camera/:id routes
+      return location.pathname === "/live" || location.pathname.startsWith("/camera/");
+    }
+    if (path === "/all-alerts") {
+      // Active for /all-alerts and /alert/:id routes
+      return location.pathname === "/all-alerts" || location.pathname.startsWith("/alert/");
+    }
+    if (path === "/news") {
+      return location.pathname === "/news";
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  // Common className for nav links with red underline on active state only
+  const getLinkClassName = (path) => {
+    const isActive = isRouteActive(path);
+    return `text-lg px-1 transition-all duration-200 ${
+      isActive
+        ? "text-red-600 border-b-2 border-red-600"
+        : "text-white"
+    }`;
+  };
+
   return (
     <nav>
       <div className="logo">
@@ -23,11 +55,7 @@ const Navbar = () => {
             <div className="flex flex-row justify-between items-center gap-4">
               <NavLink
                 to="/"
-                className={({ isActive }) =>
-                  ` ${
-                    isActive ? "text-red-600" : "text-white "
-                  } text-lg px-2 rounded-lg text-white`
-                }
+                className={getLinkClassName("/")}
               >
                 Home
               </NavLink>
@@ -37,11 +65,7 @@ const Navbar = () => {
             <div className="flex flex-row justify-between items-center gap-4">
               <NavLink
                 to="/live"
-                className={({ isActive }) =>
-                  ` ${
-                    isActive ? "text-red-600" : "text-white "
-                  } text-lg px-2 rounded-lg text-white`
-                }
+                className={getLinkClassName("/live")}
               >
                 Live
               </NavLink>
@@ -49,24 +73,26 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
-              to="/event"
-              className={({ isActive }) =>
-                ` ${
-                  isActive ? "text-red-600" : "text-white "
-                } text-lg px-2 rounded-lg text-white`
-              }
+              to="/all-alerts"
+              className={getLinkClassName("/all-alerts")}
             >
-              Event
+              Alerts
             </NavLink>
           </li>
+
+          <li>
+            <NavLink
+              to="/news"
+              className={getLinkClassName("/news")}
+            >
+              News
+            </NavLink>
+          </li>
+
           <li>
             <NavLink
               to="/contact"
-              className={({ isActive }) =>
-                ` ${
-                  isActive ? "text-red-600" : "text-white "
-                } text-lg px-2 rounded-lg text-white`
-              }
+              className={getLinkClassName("/contact")}
             >
               Contact
             </NavLink>

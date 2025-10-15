@@ -56,7 +56,14 @@ def video_feed():
 
 @app.route('/alerts')
 def get_alerts():
-    alerts = DBAlert.query.order_by(DBAlert.timestamp.desc()).limit(10).all()
+    """Returns all alerts ordered by most recent first"""
+    alerts = DBAlert.query.order_by(DBAlert.timestamp.desc()).all()
+    return jsonify([a.to_dict() for a in alerts])
+
+@app.route('/screenshots')
+def get_screenshots():
+    """Returns the 10 most recent alerts that have frame_path (screenshots available)"""
+    alerts = DBAlert.query.filter(DBAlert.frame_path.isnot(None)).order_by(DBAlert.timestamp.desc()).limit(10).all()
     return jsonify([a.to_dict() for a in alerts])
 
 @app.route('/gender_count')
@@ -67,12 +74,79 @@ def get_gender_count():
         'female': detector.current_counts.get('female', 0)
     })
 
+@app.route('/alert/<int:alert_id>')
+def get_alert_detail(alert_id):
+    """Get detailed information about a specific alert"""
+    alert = DBAlert.query.get_or_404(alert_id)
+    return jsonify(alert.to_dict())
+
 @app.route('/alert_image/<int:alert_id>')
 def get_alert_image(alert_id):
     alert = DBAlert.query.get_or_404(alert_id)
-    if os.path.exists(alert.frame_path):
+    if alert.frame_path and os.path.exists(alert.frame_path):
         return send_file(alert.frame_path, mimetype='image/jpeg')
     return jsonify({'error': 'Image not found'}), 404
+
+@app.route('/alert/<int:alert_id>', methods=['DELETE'])
+def delete_alert(alert_id):
+    """Delete a specific alert"""
+    alert = DBAlert.query.get_or_404(alert_id)
+    try:
+        # Delete the image file if it exists
+        if alert.frame_path and os.path.exists(alert.frame_path):
+            os.remove(alert.frame_path)
+        # Delete from database
+        db.session.delete(alert)
+        db.session.commit()
+        return jsonify({'message': 'Alert deleted successfully', 'id': alert_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/alerts', methods=['DELETE'])
+def delete_all_alerts():
+    """Delete all alerts"""
+    try:
+        # Delete all alert images
+        alerts = DBAlert.query.all()
+        for alert in alerts:
+            if alert.frame_path and os.path.exists(alert.frame_path):
+                try:
+                    os.remove(alert.frame_path)
+                except Exception as e:
+                    print(f"Error deleting image {alert.frame_path}: {e}")
+        
+        # Delete all alerts from database
+        num_deleted = DBAlert.query.delete()
+        db.session.commit()
+        return jsonify({'message': f'Deleted {num_deleted} alerts successfully', 'count': num_deleted})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/person_count')
+def get_person_count():
+    """Returns the current person count from the detector"""
+    return jsonify({
+        'male': detector.current_counts.get('male', 0),
+        'female': detector.current_counts.get('female', 0),
+        'total': detector.current_counts.get('male', 0) + detector.current_counts.get('female', 0)
+    })
+
+@app.route('/api/stats')
+def get_stats():
+    """Returns system statistics"""
+    total_alerts = DBAlert.query.count()
+    return jsonify({
+        'total_alerts': total_alerts,
+        'current_male': detector.current_counts.get('male', 0),
+        'current_female': detector.current_counts.get('female', 0)
+    })
+
+@app.route('/api/gesture_status')
+def get_gesture_status():
+    """Returns the current gesture detection status"""
+    return jsonify(detector.current_gesture)
 
 if __name__ == '__main__':
     app.run(debug=True)

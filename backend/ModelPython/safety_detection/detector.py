@@ -4,11 +4,17 @@ import os
 import mediapipe as mp
 import time
 from datetime import datetime
+import pytz
 from typing import Tuple, Optional, List
 from .models import Alert, DetectionConfig
 from .utils import get_location, is_nighttime, save_alert_frame, encode_frame_to_jpg
 from .db import db
 from .models import Alert as DBAlert
+
+def ist_now():
+    """Return current time in IST"""
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    return datetime.now(ist_tz)
 
 
 class SafetyDetector:
@@ -23,6 +29,8 @@ class SafetyDetector:
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5
         )
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
         
         # Initialize gender detection with proper path handling
         model_dir = os.path.join(os.path.dirname(__file__), 'models')
@@ -46,6 +54,14 @@ class SafetyDetector:
         self.alerts: List[Alert] = []
         self.current_counts = {'male': 0, 'female': 0}
         self.person_boxes = []  # Store detected person boxes with gender info
+        
+        # Gesture tracking
+        self.current_gesture = {
+            'detected': False,
+            'type': None,
+            'confidence': 0.0,
+            'handsCount': 0
+        }
 
     def detect_genders(self, frame: np.ndarray) -> np.ndarray:
         """Detect faces and classify gender in the frame"""
@@ -94,51 +110,197 @@ class SafetyDetector:
         self.current_counts = {'male': male_count, 'female': female_count}
         return frame
 
-    def _check_left_hand_gestures(self, landmarks) -> Optional[str]:
-        """Check for specific distress gestures in left hand"""
+    def _check_hand_gestures(self, landmarks) -> Optional[str]:
+        """Check for specific distress gestures - works for both hands"""
         thumb_tip = landmarks[self.mp_hands.HandLandmark.THUMB_TIP]
+        thumb_ip = landmarks[self.mp_hands.HandLandmark.THUMB_IP]
+        thumb_mcp = landmarks[self.mp_hands.HandLandmark.THUMB_MCP]
         index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+        index_mcp = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_MCP]
+        index_pip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_PIP]
+        middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+        middle_mcp = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
+        ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
+        ring_mcp = landmarks[self.mp_hands.HandLandmark.RING_FINGER_MCP]
         pinky_tip = landmarks[self.mp_hands.HandLandmark.PINKY_TIP]
+        pinky_mcp = landmarks[self.mp_hands.HandLandmark.PINKY_MCP]
         wrist = landmarks[self.mp_hands.HandLandmark.WRIST]
         
-        # 1. Thumb touching palm (closed fist)
-        if ((thumb_tip.x - wrist.x)**2 + (thumb_tip.y - wrist.y)**2)**0.5 < self.config.gesture_thresholds['thumb_palm']:
-            return "closed_fist"
+        # Calculate distances
+        def distance(p1, p2):
+            return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2)**0.5
         
-        # 2. Waving gesture (fingers spread)
-        if ((index_tip.x - pinky_tip.x)**2 + (index_tip.y - pinky_tip.y)**2)**0.5 > self.config.gesture_thresholds['wave']:
-            return "waving"
+        # 1. THUMB_PALM: Enhanced detection with multiple variations for better reliability
+        # Detects thumb tucked in fist, thumb folded down, or closed fist with thumb hidden
+        thumb_to_wrist = distance(thumb_tip, wrist)
+        thumb_to_index_mcp = distance(thumb_tip, index_mcp)
+        thumb_to_middle_mcp = distance(thumb_tip, middle_mcp)
+        thumb_to_index_tip = distance(thumb_tip, index_tip)
         
-        # 3. Thumb folded across palm
-        if (thumb_tip.x < wrist.x and 
-            abs(thumb_tip.y - wrist.y) < self.config.gesture_thresholds['thumb_folded']):
-            return "thumb_folded"
+        # Check if fingers are curled (relaxed thresholds for better detection)
+        index_curled = distance(index_tip, index_mcp) < 0.10
+        middle_curled = distance(middle_tip, middle_mcp) < 0.10
+        ring_curled = distance(ring_tip, ring_mcp) < 0.10
+        pinky_curled = distance(pinky_tip, pinky_mcp) < 0.10
+        
+        # Count how many fingers are curled (at least 3 out of 4)
+        curled_count = sum([index_curled, middle_curled, ring_curled, pinky_curled])
+        mostly_curled = curled_count >= 3
+        all_fingers_curled = curled_count == 4
+        
+        # VARIATION 1: Thumb tucked deep inside fist (strict)
+        thumb_inside_fist = (thumb_to_wrist < 0.15 and 
+                            thumb_to_index_mcp < 0.10 and 
+                            all_fingers_curled)
+        
+        # VARIATION 2: Thumb touching or near index finger knuckle (medium)
+        thumb_near_knuckles = (thumb_to_index_mcp < 0.12 or thumb_to_middle_mcp < 0.12) and mostly_curled
+        
+        # VARIATION 3: Thumb folded down touching index fingertip (loose)
+        thumb_touching_finger = (thumb_to_index_tip < 0.10 and mostly_curled)
+        
+        # VARIATION 4: Relaxed closed fist with thumb down (most permissive)
+        # Check if thumb is not extended outward and hand is making a fist
+        thumb_not_extended = distance(thumb_tip, wrist) < 0.20
+        fist_shape = (distance(index_tip, wrist) < distance(index_mcp, wrist) * 1.5 and
+                     distance(middle_tip, wrist) < distance(middle_mcp, wrist) * 1.5 and
+                     curled_count >= 2)
+        relaxed_thumb_palm = thumb_not_extended and fist_shape
+        
+        # Detect any variation of thumb_palm gesture
+        if thumb_inside_fist or thumb_near_knuckles or thumb_touching_finger or relaxed_thumb_palm:
+            return "thumb_palm"
+        
+        # 2. WAVE: Open hand with fingers spread
+        # Check if all fingers are extended and spread apart
+        index_extended = distance(index_tip, wrist) > distance(index_mcp, wrist) * 1.2
+        middle_extended = distance(middle_tip, wrist) > distance(middle_mcp, wrist) * 1.2
+        ring_extended = distance(ring_tip, wrist) > distance(ring_mcp, wrist) * 1.2
+        pinky_extended = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist) * 1.2
+        thumb_extended = distance(thumb_tip, wrist) > distance(thumb_mcp, wrist) * 1.2
+        
+        # Check finger spread
+        fingers_spread = distance(index_tip, pinky_tip) > 0.15
+        
+        all_extended = (index_extended and middle_extended and ring_extended and 
+                       pinky_extended and thumb_extended and fingers_spread)
+        
+        if all_extended:
+            return "wave"
+        
+        # 3. OK_SIGN: Thumb and index finger forming a circle (distress signal)
+        # Thumb tip touches index tip, other fingers extended
+        thumb_index_distance = distance(thumb_tip, index_tip)
+        
+        # Check if middle, ring, and pinky are extended
+        middle_extended_ok = distance(middle_tip, wrist) > distance(middle_mcp, wrist)
+        ring_extended_ok = distance(ring_tip, wrist) > distance(ring_mcp, wrist)
+        pinky_extended_ok = distance(pinky_tip, wrist) > distance(pinky_mcp, wrist)
+        
+        # Thumb and index should form a small circle
+        if (thumb_index_distance < 0.05 and 
+            middle_extended_ok and ring_extended_ok and pinky_extended_ok):
+            return "ok_sign"
         
         return None
 
-    def detect_gestures(self, frame: np.ndarray) -> Optional[str]:
-        """Detect hand gestures and return distress type if found"""
+    def detect_gestures(self, frame: np.ndarray) -> Tuple[Optional[str], np.ndarray]:
+        """Detect hand gestures on BOTH hands, draw them on frame, and return distress type if found"""
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.hands.process(rgb_frame)
         
+        detected_gesture = None
+        hands_count = 0
+        max_confidence = 0.0
+        
         if results.multi_hand_landmarks:
+            hands_count = len(results.multi_hand_landmarks)
             for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # Draw hand landmarks on the frame
+                self.mp_drawing.draw_landmarks(
+                    frame,
+                    hand_landmarks,
+                    self.mp_hands.HAND_CONNECTIONS,
+                    self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                    self.mp_drawing_styles.get_default_hand_connections_style()
+                )
+                
+                # Check for distress gestures
                 handedness = results.multi_handedness[i]
-                if handedness.classification[0].label == "Left":
-                    gesture = self._check_left_hand_gestures(hand_landmarks.landmark)
-                    if gesture:
-                        return gesture
-        return None
+                # MediaPipe detects hands from camera perspective (mirror image)
+                # So we need to flip: "Left" in camera = Right hand in reality
+                hand_label = handedness.classification[0].label
+                actual_hand = "Right" if hand_label == "Left" else "Left"
+                confidence = handedness.classification[0].score
+                
+                if confidence > max_confidence:
+                    max_confidence = confidence
+                
+                # Check gestures on BOTH hands (removed single-hand restriction)
+                gesture = self._check_hand_gestures(hand_landmarks.landmark)
+                if gesture:
+                    detected_gesture = gesture
+                    
+                    # Draw gesture label on frame
+                    # Get wrist position for label placement
+                    h, w, c = frame.shape
+                    wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                    cx, cy = int(wrist.x * w), int(wrist.y * h)
+                    
+                    # Display gesture name with background
+                    gesture_text = f"GESTURE: {gesture.upper()}"
+                    text_size = cv2.getTextSize(gesture_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+                    
+                    # Determine color based on gesture type
+                    if gesture == "thumb_palm":
+                        color = (0, 0, 255)  # Red - Emergency
+                    elif gesture == "wave":
+                        color = (0, 255, 255)  # Yellow - Attention
+                    elif gesture == "ok_sign":
+                        color = (0, 165, 255)  # Orange - Distress Signal
+                    else:
+                        color = (0, 0, 255)  # Default red
+                    
+                    # Draw background rectangle
+                    cv2.rectangle(frame, 
+                                (cx - 10, cy - text_size[1] - 15), 
+                                (cx + text_size[0] + 10, cy - 5), 
+                                color, -1)
+                    
+                    # Draw text
+                    cv2.putText(frame, gesture_text, (cx, cy - 10), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                
+                # Show actual hand label (corrected for mirror image)
+                h, w, c = frame.shape
+                wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                cx, cy = int(wrist.x * w), int(wrist.y * h)
+                
+                # Draw hand label with actual hand (not mirrored)
+                cv2.putText(frame, f"{actual_hand} Hand", (cx + 10, cy + 20), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        
+        # Update current gesture state
+        self.current_gesture = {
+            'detected': detected_gesture is not None,
+            'type': detected_gesture,
+            'confidence': max_confidence,
+            'handsCount': hands_count
+        }
+        
+        return detected_gesture, frame
 
     def process_frame(self, frame: np.ndarray) -> Tuple[np.ndarray, Optional[Alert]]:
         """Process a frame and return (annotated_frame, alert_if_triggered)"""
         # Detect genders and update counts
         frame = self.detect_genders(frame)
         
+        # Detect and draw hand gestures on frame
+        gesture, frame = self.detect_gestures(frame)
+        
         # Check for distress gestures
         current_time = time.time()
         if current_time - self.last_alert_time > self.config.alert_cooldown:
-            gesture = self.detect_gestures(frame)
             female_count = self.current_counts['female']
             male_count = self.current_counts['male']
             
@@ -213,7 +375,7 @@ class SafetyDetector:
         # Save to in-memory alert list (optional)
         alert = Alert(
             alert_type=alert_type,
-            timestamp=datetime.now(),
+            timestamp=ist_now(),
             latitude=lat,
             longitude=lng,
             frame_path=frame_path,
