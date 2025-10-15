@@ -14,7 +14,45 @@
 
 **SafeWatch** is an innovative AI-driven platform designed to enhance women's safety in public spaces through real-time monitoring, anomaly detection, and intelligent gesture recognition. The system proactively identifies potential threats and alerts authorities, creating a safer environment for women everywhere.
 
-### 🎯 Key Features
+## 📸 Screenshots
+
+### Home Page
+<div align="center">
+  <img src="screenshot/Home.png" alt="SafeWatch Home Page" width="800">
+  <p><i>Landing page with modern UI and navigation</i></p>
+</div>
+
+### Live Camera Monitoring
+<div align="center">
+  <img src="screenshot/Live.png" alt="Live Camera Grid" width="800">
+  <p><i>Multi-camera grid view with real-time monitoring</i></p>
+</div>
+
+### Camera Feed with AI Detection
+<div align="center">
+  <img src="screenshot/Live-CameraFeed.png" alt="Camera Feed with AI" width="800">
+  <p><i>Live video feed with gender detection and person counting</i></p>
+</div>
+
+### All Alerts Dashboard
+<div align="center">
+  <img src="screenshot/All-Alert.png" alt="Alerts Dashboard" width="800">
+  <p><i>Comprehensive alert management with filtering and statistics</i></p>
+</div>
+
+### Alert Detail View
+<div align="center">
+  <img src="screenshot/Alert Detail.png" alt="Alert Detail Page" width="800">
+  <p><i>Detailed alert information with full-screen image viewer</i></p>
+</div>
+
+### Women Safety News
+<div align="center">
+  <img src="screenshot/News.png" alt="News Page" width="800">
+  <p><i>Latest news articles about women safety with category filters</i></p>
+</div>
+
+## 🎯 Key Features
 
 #### 🎥 **Video Monitoring**
 - **Real-time Video Feed**: Live camera feed processing with computer vision
