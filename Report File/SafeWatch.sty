@@ -1,0 +1,159 @@
+% pepadun.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pepadun}[2023/06/23 Template Jurnal Pepadun]
+
+% Paket yang diperlukan
+\RequirePackage[a4paper,top=3.25cm,bottom=2cm,left=2cm,right=2cm]{geometry}
+\RequirePackage{times}
+\RequirePackage{setspace}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{amsmath}
+% \RequirePackage[style=ieee]{biblatex}
+\RequirePackage[normalem]{ulem}
+\RequirePackage{hyperref}
+
+\usepackage[backend=biber, style=ieee]{biblatex}
+\addbibresource{pepadun.bib}  % Gunakan file bib yang disediakan
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=doi, final]
+      \step[fieldset=url, null]
+      \step[fieldset=eprint, null]
+    }
+  }
+}
+
+% Atur label gambar dan tabel menjadi Bahasa Indonesia
+% \renewcommand{\figurename}{Gambar}
+% \renewcommand{\tablename}{Tabel}
+
+% Pengaturan dasar
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{12pt}
+
+% Pengaturan font
+\renewcommand{\normalsize}{\fontsize{11}{13}\selectfont}
+\newcommand{\titlefont}{\fontsize{12}{14}\selectfont\bfseries}
+\newcommand{\affilfont}{\fontsize{10}{12}\selectfont}
+\newcommand{\abstractfont}{\fontsize{10}{12}\selectfont\itshape}
+\newcommand{\keywordfont}{\fontsize{10}{12}\selectfont}
+\newcommand{\captionfont}{\fontsize{10}{12}\selectfont}
+
+% Format judul artikel
+\renewcommand{\maketitle}{%
+    \begin{center}
+        {\titlefont \@title \par}
+        \vspace{12pt}
+        {\affilfont \@author \par}
+        {\affilfont \@date \par}
+    \end{center}
+}
+
+% PERBAIKAN: Format section dengan jarak yang lebih kecil
+\titleformat{\section}
+{\titlefont\raggedright}
+{\thesection}{1em}{}
+[\vspace{1pt}] % Jarak setelah section dikurangi dari 12pt menjadi 6pt
+
+% PERBAIKAN: Jarak section - sebelum 18pt (dari 24pt), setelah 6pt (dari 12pt)
+\titlespacing*{\section}{0pt}{3pt}{3pt}
+
+% PERBAIKAN: Format subsection dengan jarak yang lebih kecil
+\titleformat{\subsection}
+{\fontsize{11}{13}\selectfont\bfseries\raggedright}
+{\thesubsection}{1em}{}
+[\vspace{3pt}] % Jarak setelah subsection dikurangi dari 6pt menjadi 3pt
+
+% PERBAIKAN: Jarak subsection - sebelum 9pt (dari 12pt), setelah 3pt (dari 6pt)
+\titlespacing*{\subsection}{0pt}{3pt}{3pt}
+
+% Format abstract
+\renewenvironment{abstract}{
+    \vspace{3pt}
+    \noindent\textbf{\textit{Abstract}} - \textit\abstractfont
+}{
+    \par
+    \vspace{3pt}
+}
+
+% Format keywords
+\newcommand{\keywords}[1]{
+    \vspace{3pt}
+    \noindent\textbf{\textit{Keywords}:} \keywordfont #1
+    \vspace{3pt}
+}
+
+% Pengaturan tabel
+\newenvironment{pepaduntable}[1]
+{
+    \begin{table}[ht]
+    \vspace{10pt}
+    \centering
+    \captionfont
+    \def\pepaduntabcaption{#1}
+    \vspace{-6pt}
+}
+{
+    \caption{\pepaduntabcaption}
+    \end{table}
+    \vspace{6pt}
+}
+
+% Pengaturan gambar
+\newenvironment{pepadunfigure}[1]
+{
+    \begin{figure}[ht]
+    \vspace{6pt}
+    \centering
+    \captionfont
+    \def\pepadunfigcaption{#1}
+}
+{
+    \caption{\pepadunfigcaption}
+    \end{figure}
+    \vspace{10pt}
+}
+
+% Header dan footer
+\pagestyle{fancy}
+\setlength{\headheight}{14pt} % TAMBAHKAN BARIS INI
+\fancyhf{} % Membersihkan semua header dan footer
+\fancyhead[L]{\textit{Journal Paper}}
+\fancyhead[R]{\textit{MAIT}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Format persamaan
+\counterwithin{equation}{section}
+\newcommand{\eqmargin}{1.27pt}
+\everydisplay{\setlength{\abovedisplayskip}{12pt}}
+\everydisplay{\setlength{\belowdisplayskip}{12pt}}
+
+% Format referensi
+\defbibheading{bibliography}[\refname]{%
+    \section*{#1}
+    \vspace{12pt}
+}
+\AtEveryBibitem{\setlength{\itemsep}{6pt}}
+
+% Nomenclature
+\newenvironment{nomenclature}
+{\section*{NOMENCLATURES}
+ \begin{tabular}{@{}l l l@{}}
+}
+{\end{tabular}}
+
+% Acknowledgments
+\newenvironment{acknowledgments}
+{\section*{ACKNOWLEDGMENTS}}
+{}
+
+\endinput
