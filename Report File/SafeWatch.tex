@@ -502,32 +502,57 @@ The comparative analysis reveals significant gaps in existing research, particul
 
 SafeWatch employs a microservices-oriented, modular architecture designed for scalability, maintainability, and real-time performance. The system architecture follows modern software engineering principles including separation of concerns, loose coupling, and high cohesion, enabling independent development, testing, and deployment of individual components.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.8\textwidth}
+\vspace{0.3cm}
+\fbox{%
+\begin{minipage}{0.88\textwidth}
+\vspace{0.4cm}
 \centering
-\textbf{SafeWatch System Architecture}
-\vspace{0.5cm}
+{\Large\textbf{SafeWatch System Architecture}}
+\vspace{0.6cm}
 
-\framebox[0.9\textwidth][c]{
-\begin{minipage}{0.85\textwidth}
-\textbf{Frontend Layer}\\
-React.js Interface $\rightarrow$ User Dashboard $\rightarrow$ Real-time Alerts\\
-\vspace{0.2cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Frontend Layer}} \\
+\hline
+\centering React.js Interface $\rightarrow$ User Dashboard $\rightarrow$ Real-time Alerts \\
+\hline
+\end{tabular}
 
-\textbf{API Gateway}\\
-Flask RESTful API $\rightarrow$ Authentication $\rightarrow$ Route Management\\
-\vspace{0.2cm}
+\vspace{0.4cm}
 
-\textbf{AI Processing Engine}\\
-Gender Detection (CNN) $\rightarrow$ Gesture Recognition (MediaPipe) $\rightarrow$ Decision Fusion\\
-\vspace{0.2cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large API Gateway}} \\
+\hline
+\centering Flask RESTful API $\rightarrow$ Authentication $\rightarrow$ Route Management \\
+\hline
+\end{tabular}
 
-\textbf{Data Layer}\\
-SQLAlchemy ORM $\rightarrow$ SQLite Database $\rightarrow$ File Storage System
-\end{minipage}
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large AI Processing Engine}} \\
+\hline
+\centering Gender Detection (CNN) $\rightarrow$ Gesture Recognition (MediaPipe) $\rightarrow$ Decision Fusion \\
+\hline
+\end{tabular}
+
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Data Layer}} \\
+\hline
+\centering SQLAlchemy ORM $\rightarrow$ SQLite Database $\rightarrow$ File Storage System \\
+\hline
+\end{tabular}
+\vspace{0.4cm}
+\end{minipage}%
 }
-\end{minipage}
+\vspace{0.3cm}
 \caption{SafeWatch System Architecture Overview}
 \label{fig:system-architecture}
 \end{figure}
@@ -564,32 +589,66 @@ The Flask-based backend serves as the central hub for all system operations, imp
     \item \textbf{CORS Management}: Cross-Origin Resource Sharing configuration for secure frontend-backend communication
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.8\textwidth}
+\vspace{0.3cm}
+\fbox{%
+\begin{minipage}{0.88\textwidth}
+\vspace{0.4cm}
 \centering
-\textbf{AI Processing Workflow}
-\vspace{0.5cm}
+{\Large\textbf{AI Processing Workflow}}
+\vspace{0.6cm}
 
-\framebox[0.9\textwidth][c]{
-\begin{minipage}{0.85\textwidth}
-\textbf{Input Processing}\\
-Video Stream $\rightarrow$ Frame Extraction $\rightarrow$ Face Detection (Haar Cascade)\\
-\vspace{0.2cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Input Processing}} \\
+\hline
+\centering Video Stream $\rightarrow$ Frame Extraction $\rightarrow$ Face Detection (Haar Cascade) \\
+\hline
+\end{tabular}
 
-\textbf{Gender Analysis}\\
-Face ROI $\rightarrow$ CNN Model (Caffe) $\rightarrow$ Gender Classification (91.8\% accuracy)\\
-\vspace{0.2cm}
+\vspace{0.4cm}
+\centering
+$\downarrow$
+\vspace{0.4cm}
 
-\textbf{Gesture Recognition}\\
-Hand Detection (MediaPipe) $\rightarrow$ Landmark Extraction $\rightarrow$ Gesture Classification (87.0\% accuracy)\\
-\vspace{0.2cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Gender Analysis}} \\
+\hline
+\centering Face ROI $\rightarrow$ CNN Model (Caffe) $\rightarrow$ Gender Classification (91.8\% accuracy) \\
+\hline
+\end{tabular}
 
-\textbf{Decision Fusion}\\
-Multi-frame Analysis $\rightarrow$ Confidence Scoring $\rightarrow$ Alert Generation
-\end{minipage}
+\vspace{0.4cm}
+\centering
+$\downarrow$
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Gesture Recognition}} \\
+\hline
+\centering Hand Detection (MediaPipe) $\rightarrow$ Landmark Extraction $\rightarrow$ Gesture Classification (87.0\% accuracy) \\
+\hline
+\end{tabular}
+
+\vspace{0.4cm}
+\centering
+$\downarrow$
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Decision Fusion}} \\
+\hline
+\centering Multi-frame Analysis $\rightarrow$ Confidence Scoring $\rightarrow$ Alert Generation \\
+\hline
+\end{tabular}
+\vspace{0.4cm}
+\end{minipage}%
 }
-\end{minipage}
+\vspace{0.3cm}
 \caption{AI Processing Workflow for Threat Detection}
 \label{fig:ai-workflow}
 \end{figure}
@@ -778,41 +837,66 @@ SafeWatch employs a modular, microservices-based architecture designed for scala
 
 The development and evaluation of SafeWatch follows a comprehensive research methodology incorporating iterative design, systematic testing, and user-centered evaluation principles. The methodology encompasses four primary phases:
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.9\textwidth}
+\vspace{0.3cm}
+\fbox{%
+\begin{minipage}{0.90\textwidth}
+\vspace{0.4cm}
 \centering
-\textbf{Research Methodology Flowchart}
+{\Large\textbf{Research Methodology Flowchart}}
+\vspace{0.6cm}
+
+\begin{tabular}{|p{0.88\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Phase 1: Requirements Analysis}} \\
+\hline
+\centering Stakeholder Interviews $\rightarrow$ Literature Review $\rightarrow$ Gap Analysis $\rightarrow$ System Requirements \\
+\hline
+\end{tabular}
+
+\vspace{0.5cm}
+\centering
+{\Large $\downarrow$}
 \vspace{0.5cm}
 
-\framebox[0.95\textwidth][c]{
-\begin{minipage}{0.9\textwidth}
-\textbf{Phase 1: Requirements Analysis}\\
-Stakeholder Interviews $\rightarrow$ Literature Review $\rightarrow$ Gap Analysis $\rightarrow$ System Requirements\\
-\vspace{0.3cm}
+\begin{tabular}{|p{0.88\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Phase 2: Design \& Development}} \\
+\hline
+\centering Architecture Design $\rightarrow$ AI Model Selection $\rightarrow$ Implementation $\rightarrow$ Integration Testing \\
+\hline
+\end{tabular}
 
-$\downarrow$\\
-\vspace{0.2cm}
+\vspace{0.5cm}
+\centering
+{\Large $\downarrow$}
+\vspace{0.5cm}
 
-\textbf{Phase 2: Design \& Development}\\
-Architecture Design $\rightarrow$ AI Model Selection $\rightarrow$ Implementation $\rightarrow$ Integration Testing\\
-\vspace{0.3cm}
+\begin{tabular}{|p{0.88\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Phase 3: Validation \& Testing}} \\
+\hline
+\centering Performance Testing $\rightarrow$ User Evaluation $\rightarrow$ Security Assessment $\rightarrow$ Results Analysis \\
+\hline
+\end{tabular}
 
-$\downarrow$\\
-\vspace{0.2cm}
+\vspace{0.5cm}
+\centering
+{\Large $\downarrow$}
+\vspace{0.5cm}
 
-\textbf{Phase 3: Validation \& Testing}\\
-Performance Testing $\rightarrow$ User Evaluation $\rightarrow$ Security Assessment $\rightarrow$ Results Analysis\\
-\vspace{0.3cm}
-
-$\downarrow$\\
-\vspace{0.2cm}
-
-\textbf{Phase 4: Deployment \& Evaluation}\\
-Pilot Deployment $\rightarrow$ Field Testing $\rightarrow$ Performance Monitoring $\rightarrow$ Final Validation
-\end{minipage}
+\begin{tabular}{|p{0.88\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Phase 4: Deployment \& Evaluation}} \\
+\hline
+\centering Pilot Deployment $\rightarrow$ Field Testing $\rightarrow$ Performance Monitoring $\rightarrow$ Final Validation \\
+\hline
+\end{tabular}
+\vspace{0.4cm}
+\end{minipage}%
 }
-\end{minipage}
+\vspace{0.3cm}
 \caption{Research Methodology and Development Process}
 \label{fig:methodology-flowchart}
 \end{figure}
@@ -1101,39 +1185,61 @@ class SystemMetrics(db.Model):
 
 \subsection{Frontend Architecture}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.8\textwidth}
+\vspace{0.3cm}
+\fbox{%
+\begin{minipage}{0.88\textwidth}
+\vspace{0.4cm}
 \centering
-\textbf{SafeWatch User Interface Layout}
+{\Large\textbf{SafeWatch User Interface Layout}}
+\vspace{0.6cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Navigation Bar}} \\
+\hline
+\centering SafeWatch Logo \textbar{} Dashboard \textbar{} Live Feed \textbar{} Alerts \textbar{} Settings \textbar{} Profile \\
+\hline
+\end{tabular}
+
 \vspace{0.5cm}
 
-\framebox[0.9\textwidth][c]{
-\begin{minipage}{0.85\textwidth}
-\textbf{Navigation Bar}\\
-SafeWatch Logo | Dashboard | Live Feed | Alerts | Settings | Profile\\
-\vspace{0.3cm}
-
-\textbf{Main Dashboard}\\
-\begin{minipage}{0.4\textwidth}
-\textbf{Camera Grid}\\
-- Live Camera Feeds\\
-- Status Indicators\\
-- Location Labels
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Main Dashboard}} \\
+\hline
+\vspace{0.2cm}
+\begin{minipage}[t]{0.40\textwidth}
+\textbf{Camera Grid:}\\[0.1cm]
+• Live Camera Feeds\\
+• Status Indicators\\
+• Location Labels
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.40\textwidth}
+\textbf{Alert Panel:}\\[0.1cm]
+• Recent Alerts\\
+• Severity Levels\\
+• Timestamps
 \end{minipage}
-\begin{minipage}{0.4\textwidth}
-\textbf{Alert Panel}\\
-- Recent Alerts\\
-- Severity Levels\\
-- Timestamps
-\end{minipage}\\
-\vspace{0.3cm}
+\vspace{0.2cm} \\
+\hline
+\end{tabular}
 
-\textbf{Status Bar}\\
-System Status | Active Cameras: 6 | Processing Speed: 28 FPS | Alerts: 3
-\end{minipage}
+\vspace{0.5cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Status Bar}} \\
+\hline
+\centering System Status \textbar{} Active Cameras: 6 \textbar{} Processing Speed: 28 FPS \textbar{} Alerts: 3 \\
+\hline
+\end{tabular}
+\vspace{0.4cm}
+\end{minipage}%
 }
-\end{minipage}
+\vspace{0.3cm}
 \caption{SafeWatch Web Interface Layout and Components}
 \label{fig:ui-layout}
 \end{figure}
@@ -1482,32 +1588,57 @@ The system was evaluated against state-of-the-art solutions including commercial
     \item React: 18.3.1
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.8\textwidth}
+\vspace{0.3cm}
+\fbox{%
+\begin{minipage}{0.88\textwidth}
+\vspace{0.4cm}
 \centering
-\textbf{Performance Comparison Across Different Conditions}
-\vspace{0.5cm}
+{\Large\textbf{Performance Comparison Across Different Conditions}}
+\vspace{0.6cm}
 
-\framebox[0.9\textwidth][c]{
-\begin{minipage}{0.85\textwidth}
-\textbf{Gender Detection Accuracy}\\
-Daylight: 94.2\% | Artificial Light: 91.8\% | Low Light: 86.5\%\\
-\vspace{0.3cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Gender Detection Accuracy}} \\
+\hline
+\centering Daylight: \textbf{94.2\%} \textbar{} Artificial Light: \textbf{91.8\%} \textbar{} Low Light: \textbf{86.5\%} \\
+\hline
+\end{tabular}
 
-\textbf{Gesture Recognition Accuracy}\\
-Clear View: 91.2\% | Partial Occlusion: 87.0\% | Complex Background: 82.4\%\\
-\vspace{0.3cm}
+\vspace{0.4cm}
 
-\textbf{Real-time Performance (FPS)}\\
-Single Camera: 30 FPS | 3 Cameras: 28 FPS | 6 Cameras: 25 FPS\\
-\vspace{0.3cm}
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Gesture Recognition Accuracy}} \\
+\hline
+\centering Clear View: \textbf{91.2\%} \textbar{} Partial Occlusion: \textbf{87.0\%} \textbar{} Complex Background: \textbf{82.4\%} \\
+\hline
+\end{tabular}
 
-\textbf{Response Time}\\
-Alert Generation: <500ms | Database Update: <200ms | UI Refresh: <100ms
-\end{minipage}
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Real-time Performance (FPS)}} \\
+\hline
+\centering Single Camera: \textbf{30 FPS} \textbar{} 3 Cameras: \textbf{28 FPS} \textbar{} 6 Cameras: \textbf{25 FPS} \\
+\hline
+\end{tabular}
+
+\vspace{0.4cm}
+
+\begin{tabular}{|p{0.85\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{\large Response Time}} \\
+\hline
+\centering Alert Generation: \textbf{<500ms} \textbar{} Database Update: \textbf{<200ms} \textbar{} UI Refresh: \textbf{<100ms} \\
+\hline
+\end{tabular}
+\vspace{0.4cm}
+\end{minipage}%
 }
-\end{minipage}
+\vspace{0.3cm}
 \caption{Comprehensive Performance Metrics Across Testing Conditions}
 \label{fig:performance-metrics}
 \end{figure}
