@@ -11,85 +11,85 @@
  */
 
 const cameras = [
-  // Narela Cameras (2)
-  {
-    id: 1,
-    position: "Main Gate",
-    location: "Narela",
-    locality: "Sector 1",
-    model: "Hikvision DS-2CD2043G0-I",
-    lat: 28.8500,
-    lng: 77.0900,
-    url: "http://localhost:5000/video_feed",
-    isOnline: true,
-    isEnabled: true
-  },
-  {
-    id: 2,
-    position: "Community Center",
-    location: "Narela",
-    locality: "Sector 2",
-    model: "Dahua IPC-HFW2431S-S",
-    lat: 28.8510,
-    lng: 77.0910,
-    url: "http://localhost:5000/video_feed",
-    isOnline: false,
-    isEnabled: true
-  },
-  
-  // Rohini Cameras (2)
-  {
-    id: 3,
-    position: "Main Entrance",
-    location: "Rohini",
-    locality: "Sector 10",
-    model: "Axis M3046-V",
-    lat: 28.7041,
-    lng: 77.1025,
-    url: "http://localhost:5000/video_feed",
-    isOnline: true,
-    isEnabled: true
-  },
-  {
-    id: 4,
-    position: "Parking Area",
-    location: "Rohini",
-    locality: "Sector 15",
-    model: "CP Plus CP-UNC-TA40L3",
-    lat: 28.7050,
-    lng: 77.1030,
-    url: "http://localhost:5000/video_feed",
-    isOnline: false,
-    isEnabled: true
-  },
-  
-  // Bawana Camera (1)
-  {
-    id: 5,
-    position: "Industrial Area Gate",
-    location: "Bawana",
-    locality: "Industrial Area",
-    model: "Hikvision DS-2CD2143G0-I",
-    lat: 28.7971,
-    lng: 77.0325,
-    url: "http://localhost:5000/video_feed",
-    isOnline: false,
-    isEnabled: true
-  },
-  
-  // Kanjhawla Camera (1)
-  {
-    id: 6,
-    position: "Market Square",
-    location: "Kanjhawla",
-    locality: "Central Market",
-    model: "Dahua IPC-HDBW2431R-ZS",
-    lat: 28.8328,
-    lng: 77.0167,
-    url: "http://localhost:5000/video_feed",
-    isOnline: false,
-    isEnabled: true
-  }
+    // Narela Cameras (2)
+    {
+        id: 1,
+        position: "Main Gate",
+        location: "Narela",
+        locality: "Sector 1",
+        model: "Hikvision DS-2CD2043G0-I",
+        lat: 28.8500,
+        lng: 77.0900,
+        url: "http://localhost:5000/video_feed",
+        isOnline: true,
+        isEnabled: true
+    },
+    {
+        id: 2,
+        position: "Community Center",
+        location: "Narela",
+        locality: "Sector 2",
+        model: "Dahua IPC-HFW2431S-S",
+        lat: 28.8510,
+        lng: 77.0910,
+        url: "http://localhost:5000/video_feed",
+        isOnline: false,
+        isEnabled: true
+    },
+
+    // Rohini Cameras (2)
+    {
+        id: 3,
+        position: "Main Entrance",
+        location: "Rohini",
+        locality: "Sector 10",
+        model: "Axis M3046-V",
+        lat: 28.7041,
+        lng: 77.1025,
+        url: "http://localhost:5000/video_feed",
+        isOnline: true,
+        isEnabled: true
+    },
+    {
+        id: 4,
+        position: "Parking Area",
+        location: "Rohini",
+        locality: "Sector 15",
+        model: "CP Plus CP-UNC-TA40L3",
+        lat: 28.7050,
+        lng: 77.1030,
+        url: "http://localhost:5000/video_feed",
+        isOnline: false,
+        isEnabled: true
+    },
+
+    // Bawana Camera (1)
+    {
+        id: 5,
+        position: "Industrial Area Gate",
+        location: "Bawana",
+        locality: "Industrial Area",
+        model: "Hikvision DS-2CD2143G0-I",
+        lat: 28.7971,
+        lng: 77.0325,
+        url: "http://localhost:5000/video_feed",
+        isOnline: false,
+        isEnabled: true
+    },
+
+    // Kanjhawla Camera (1)
+    {
+        id: 6,
+        position: "Market Square",
+        location: "Kanjhawla",
+        locality: "Central Market",
+        model: "Dahua IPC-HDBW2431R-ZS",
+        lat: 28.8328,
+        lng: 77.0167,
+        url: "http://localhost:5000/video_feed",
+        isOnline: false,
+        isEnabled: true
+    }
 ];
 
 // Save to localStorage (overwrites existing cameras)

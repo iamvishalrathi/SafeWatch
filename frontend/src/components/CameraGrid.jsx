@@ -143,7 +143,7 @@ const LiveCamera = ({ cameraId, position, location, locality, videoFeedUrl, isEn
                             )}
                         </div>
                     </div>
-                    
+
                     {/* Toggle Switch */}
                     <div className="toggle-switch flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <label className="relative inline-flex items-center cursor-pointer">

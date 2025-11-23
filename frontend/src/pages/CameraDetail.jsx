@@ -71,7 +71,7 @@ const CameraDetail = () => {
   // Get camera info from localStorage based on ID (setup_cameras.js as single source of truth)
   useEffect(() => {
     const savedCameras = localStorage.getItem('cameras');
-    
+
     if (savedCameras) {
       const cameras = JSON.parse(savedCameras);
       const camera = cameras.find(cam => cam.id === parseInt(cameraId));
@@ -137,18 +137,18 @@ const CameraDetail = () => {
           <FontAwesomeIcon icon={faVideo} className="text-xl text-blue-400" />
           <h2 className="text-xl font-bold">Camera Information</h2>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Camera ID</div>
             <div className="text-white text-lg font-semibold">#{cameraInfo.id}</div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Position</div>
             <div className="text-white text-lg font-semibold">{cameraInfo.position}</div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Location</div>
             <div className="text-white text-lg font-semibold flex items-center gap-2">
@@ -156,7 +156,7 @@ const CameraDetail = () => {
               {cameraInfo.location}
             </div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Locality</div>
             <div className="text-white text-lg font-semibold flex items-center gap-2">
@@ -164,22 +164,22 @@ const CameraDetail = () => {
               {cameraInfo.locality || 'N/A'}
             </div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Camera Model</div>
             <div className="text-white text-base font-semibold">{cameraInfo.model || 'Unknown Model'}</div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Latitude</div>
             <div className="text-white text-lg font-semibold">{cameraInfo.lat?.toFixed(4) || 'N/A'}</div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Longitude</div>
             <div className="text-white text-lg font-semibold">{cameraInfo.lng?.toFixed(4) || 'N/A'}</div>
           </div>
-          
+
           <div className="bg-[#3A3A3A] rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Status</div>
             <div className="flex items-center gap-2">

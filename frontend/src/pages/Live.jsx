@@ -205,7 +205,7 @@ const Live = () => {
 
   // Get unique locations and localities from current cameras
   const locations = ["All", ...new Set(cameras.map(cam => cam.location))];
-  
+
   // Filter localities based on selected location
   const getLocalities = () => {
     if (selectedLocation === "All") {
@@ -214,9 +214,9 @@ const Live = () => {
     const filteredCameras = cameras.filter(cam => cam.location === selectedLocation);
     return ["All", ...new Set(filteredCameras.map(cam => cam.locality))];
   };
-  
+
   const localities = getLocalities();
-  
+
   // Reset locality when location changes
   useEffect(() => {
     setSelectedLocality("All");
@@ -279,7 +279,7 @@ const Live = () => {
 
       {/* Camera Grid - Full Width */}
       <div className="flex flex-col w-full bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
-        <CameraGrid 
+        <CameraGrid
           selectedLocation={selectedLocation}
           selectedLocality={selectedLocality}
           cameras={cameras}
