@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { faMapMarkerAlt, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -39,8 +39,6 @@ const CameraDetail = () => {
   const [cameraInfo, setCameraInfo] = useState(null);
   const [videoError, setVideoError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [deviceLocation, setDeviceLocation] = useState(null);
-  const [locationError, setLocationError] = useState(null);
 
   // Get recent 3 alerts with screenshots
   const recentAlertsWithScreenshots = alerts.slice(0, 3);
@@ -51,29 +49,6 @@ const CameraDetail = () => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  // Get device's live location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setDeviceLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setLocationError("Unable to get device location");
-          // Default to Delhi coordinates if location fails
-          setDeviceLocation({ lat: 28.6139, lng: 77.209 });
-        }
-      );
-    } else {
-      setLocationError("Geolocation not supported");
-      setDeviceLocation({ lat: 28.6139, lng: 77.209 });
-    }
   }, []);
 
   // Get camera info from localStorage based on ID (setup_cameras.js as single source of truth)
@@ -138,71 +113,6 @@ const CameraDetail = () => {
           Error loading alerts: {alertsError}
         </div>
       )}
-
-      {/* Camera Information Card */}
-      <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FontAwesomeIcon icon={faVideo} className="text-xl text-blue-400" />
-          <h2 className="text-xl font-bold">Camera Information</h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Camera ID</div>
-            <div className="text-white text-lg font-semibold">#{cameraInfo.id}</div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Position</div>
-            <div className="text-white text-lg font-semibold">{cameraInfo.position}</div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Location</div>
-            <div className="text-white text-lg font-semibold flex items-center gap-2">
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-400 text-sm" />
-              {cameraInfo.location}
-            </div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Locality</div>
-            <div className="text-white text-lg font-semibold flex items-center gap-2">
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-purple-400 text-sm" />
-              {cameraInfo.locality || 'N/A'}
-            </div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Camera Model</div>
-            <div className="text-white text-base font-semibold">{cameraInfo.model || 'Unknown Model'}</div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Latitude</div>
-            <div className="text-white text-lg font-semibold">{cameraInfo.lat?.toFixed(4) || 'N/A'}</div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Longitude</div>
-            <div className="text-white text-lg font-semibold">{cameraInfo.lng?.toFixed(4) || 'N/A'}</div>
-          </div>
-
-          <div className="bg-[#3A3A3A] rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Status</div>
-            <div className="flex items-center gap-2">
-              {cameraInfo.isOnline ? (
-                <span className="bg-green-600 px-3 py-1 rounded text-sm font-semibold">Online</span>
-              ) : (
-                <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold flex items-center gap-1">
-                  <FontAwesomeIcon icon={faExclamationTriangle} className="text-xs" />
-                  Offline
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content Grid - 3 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -441,16 +351,13 @@ const CameraDetail = () => {
       <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-2 mb-4">
           <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xl text-red-400" />
-          <h2 className="text-xl font-bold">Live Camera Location</h2>
-          {locationError && (
-            <span className="text-xs text-yellow-400 ml-2">({locationError})</span>
-          )}
+          <h2 className="text-xl font-bold">Camera Location</h2>
         </div>
 
         <div className="h-[400px] rounded-xl overflow-hidden shadow-lg">
-          {deviceLocation ? (
+          {cameraInfo.lat && cameraInfo.lng ? (
             <MapContainer
-              center={[deviceLocation.lat, deviceLocation.lng]}
+              center={[cameraInfo.lat, cameraInfo.lng]}
               zoom={15}
               style={{ height: "100%", width: "100%" }}
             >
@@ -460,7 +367,7 @@ const CameraDetail = () => {
               />
 
               {/* Camera Location Marker */}
-              <Marker position={[deviceLocation.lat, deviceLocation.lng]}>
+              <Marker position={[cameraInfo.lat, cameraInfo.lng]}>
                 <Popup>
                   <div className="text-black">
                     <strong>Camera #{cameraInfo.id}</strong><br />
@@ -469,40 +376,16 @@ const CameraDetail = () => {
                     Locality: {cameraInfo.locality || 'N/A'}<br />
                     Model: {cameraInfo.model || 'Unknown'}<br />
                     Status: {cameraInfo.isOnline ? "Online" : "Offline"}<br />
-                    Coordinates: {deviceLocation.lat.toFixed(6)}, {deviceLocation.lng.toFixed(6)}
+                    Coordinates: {cameraInfo.lat.toFixed(6)}, {cameraInfo.lng.toFixed(6)}
                   </div>
                 </Popup>
               </Marker>
-
-              {/* Alert Circles */}
-              {alerts.map((alert, index) => (
-                alert.latitude && alert.longitude ? (
-                  <Circle
-                    key={index}
-                    center={[alert.latitude, alert.longitude]}
-                    radius={50}
-                    pathOptions={{
-                      color: "red",
-                      fillColor: "red",
-                      fillOpacity: 0.4,
-                    }}
-                  >
-                    <Popup>
-                      <div className="text-black">
-                        <strong>Alert: {alert.alert_type}</strong><br />
-                        Timestamp: {new Date(alert.timestamp).toLocaleString()}<br />
-                        {alert.gesture && `Gesture: ${alert.gesture}`}
-                      </div>
-                    </Popup>
-                  </Circle>
-                ) : null
-              ))}
             </MapContainer>
           ) : (
             <div className="h-full flex items-center justify-center bg-[#3A3A3A] rounded-xl">
               <div className="text-center">
                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-5xl text-gray-600 mb-3" />
-                <p className="text-gray-400">Loading location...</p>
+                <p className="text-gray-400">Camera location not available</p>
               </div>
             </div>
           )}
