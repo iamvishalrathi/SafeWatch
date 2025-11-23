@@ -23,13 +23,13 @@ import { getGestureEmoji } from "../utils/gestureUtils";
 // Helper function to get age emoji based on age range
 const getAgeEmoji = (ageRange) => {
   if (!ageRange) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
-  
+
   // Parse age range to get approximate age
   const match = ageRange.match(/\d+/);
   if (!match) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
-  
+
   const age = parseInt(match[0]);
-  
+
   if (age < 4) return '\uD83D\uDC76';    // 👶 Baby
   if (age < 13) return '\uD83E\uDDD2';   // 🧒 Child
   if (age < 20) return '\uD83D\uDC66';   // 👦 Boy
@@ -78,7 +78,7 @@ const CameraDetail = () => {
       const cameras = JSON.parse(savedCameras);
       const camera = cameras.find(cam => cam.id === parseInt(cameraId));
       setCameraInfo(camera);
-      
+
       // Set the active camera in the backend when camera loads
       if (camera) {
         API.setCameraInfo({
@@ -321,23 +321,7 @@ const CameraDetail = () => {
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300"></div>
 
-                  {/* Alert Type Badge */}
-                  <div className="absolute top-2 left-2">
-                    <span className="bg-red-600/90 px-3 py-1 rounded-lg text-xs font-semibold shadow-lg">
-                      {alert.alert_type || 'Alert'}
-                    </span>
-                  </div>
 
-                  {/* Download Button */}
-                  <button
-                    className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDownload(alert.id);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faDownload} className="text-white text-sm" />
-                  </button>
                 </div>
 
                 {/* Alert Info */}
@@ -349,7 +333,7 @@ const CameraDetail = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 text-sm">
+                  <div className="flex items-center gap-3 text-sm mb-3">
                     <div className="flex items-center gap-1">
                       <span className="text-blue-400">♂</span>
                       <span className="text-gray-300">{alert.male_count || 0}</span>
@@ -371,12 +355,23 @@ const CameraDetail = () => {
                     ) : null}
                   </div>
 
-                  {alert.latitude && alert.longitude && (
-                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
-                      <FontAwesomeIcon icon={faMapMarkerAlt} />
-                      <span>{alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}</span>
-                    </div>
-                  )}
+                  {/* Location and Alert Type */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-600">
+                    {/* Location */}
+                    {alert.latitude && alert.longitude ? (
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400" />
+                        <span className="font-mono">{alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}</span>
+                      </div>
+                    ) : (
+                      <div></div>
+                    )}
+                    
+                    {/* Alert Type */}
+                    <span className="text-xs font-semibold text-orange-400 uppercase tracking-wide">
+                      {alert.alert_type || 'Alert'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
