@@ -355,6 +355,18 @@ const AlertDetail = () => {
                       </p>
                     </div>
                   </div>
+
+                  {alert.age_range && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                      <FontAwesomeIcon icon={faUserGroup} className="text-purple-400 mt-1 text-lg" />
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Age Range Detected</p>
+                        <p className="text-white font-medium text-sm">
+                          {alert.age_range}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">

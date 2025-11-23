@@ -18,6 +18,7 @@ class Alert(db.Model):
     female_count = db.Column(db.Integer)
     gesture = db.Column(db.String(50), nullable=True)
     confidence = db.Column(db.Float, nullable=True)
+    age_range = db.Column(db.String(20), nullable=True)
 
     def to_dict(self):
         # Format timestamp for IST display
@@ -32,7 +33,8 @@ class Alert(db.Model):
             "male_count": self.male_count,
             "female_count": self.female_count,
             "gesture": self.gesture,
-            "confidence": self.confidence
+            "confidence": self.confidence,
+            "age_range": self.age_range
         }
     
 

@@ -208,6 +208,15 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
             </div>
           )}
 
+          {alert.age_range && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faUserGroup} className="text-purple-400/70" />
+              <span className="text-sm">
+                Age: {alert.age_range}
+              </span>
+            </div>
+          )}
+
           {(alert.latitude && alert.longitude) && (
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70" />
@@ -238,6 +247,7 @@ AlertCardWithScreenshot.propTypes = {
     female_count: PropTypes.number,
     latitude: PropTypes.number,
     longitude: PropTypes.number,
+    age_range: PropTypes.string,
   }).isRequired,
   onDownload: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,

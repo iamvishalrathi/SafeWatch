@@ -44,6 +44,20 @@ class SafetyDetector:
                             "Please ensure 'gender_deploy.prototxt' and 'gender_net.caffemodel' "
                             "are in the 'models' directory.")
         
+        # Initialize age detection
+        try:
+            self.age_net = cv2.dnn.readNetFromCaffe(
+                os.path.join(model_dir, 'age_deploy.prototxt'),
+                os.path.join(model_dir, 'age_net.caffemodel')
+            )
+        except Exception as e:
+            raise RuntimeError(f"Failed to load age detection models: {str(e)}. "
+                            "Please ensure 'age_deploy.prototxt' and 'age_net.caffemodel' "
+                            "are in the 'models' directory.")
+        
+        # Age groups for classification
+        self.age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
+        
         # Initialize face detection
         self.face_cascade = cv2.CascadeClassifier(
             cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
@@ -54,6 +68,7 @@ class SafetyDetector:
         self.alerts: List[Alert] = []
         self.current_counts = {'male': 0, 'female': 0}
         self.person_boxes = []  # Store detected person boxes with gender info
+        self.detected_ages = []  # Store detected ages in current frame
         
         # Gesture tracking
         self.current_gesture = {
@@ -64,7 +79,7 @@ class SafetyDetector:
         }
 
     def detect_genders(self, frame: np.ndarray) -> np.ndarray:
-        """Detect faces and classify gender in the frame"""
+        """Detect faces and classify gender and age in the frame"""
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(
             gray, 
@@ -77,6 +92,7 @@ class SafetyDetector:
         female_count = 0
         labels = ['Male', 'Female']
         self.person_boxes = []  # Reset person boxes for this frame
+        self.detected_ages = []  # Reset detected ages for this frame
         
         for (x, y, w, h) in faces:
             face = frame[y:y+h, x:x+w]
@@ -85,11 +101,22 @@ class SafetyDetector:
                 (78.4263377603, 87.7689143744, 114.895847746),
                 swapRB=False
             )
-            self.gender_net.setInput(blob)
-            predictions = self.gender_net.forward()
             
-            gender = labels[predictions[0].argmax()]
-            confidence = predictions[0].max()
+            # Gender prediction
+            self.gender_net.setInput(blob)
+            gender_predictions = self.gender_net.forward()
+            
+            gender = labels[gender_predictions[0].argmax()]
+            gender_confidence = gender_predictions[0].max()
+            
+            # Age prediction
+            self.age_net.setInput(blob)
+            age_predictions = self.age_net.forward()
+            age = self.age_list[age_predictions[0].argmax()]
+            age_confidence = age_predictions[0].max()
+            
+            # Store detected age
+            self.detected_ages.append(age)
             
             if gender == "Female":
                 female_count += 1
@@ -103,9 +130,17 @@ class SafetyDetector:
             # Store person box with gender info (x, y, w, h, gender)
             self.person_boxes.append((x, y, w, h, gender_label))
             
+            # Draw rectangle and labels
             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-            cv2.putText(frame, f"{gender}: {confidence:.2f}", (x, y-10), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+            
+            # Display gender and age
+            label_text = f"{gender}: {gender_confidence:.2f}"
+            age_text = f"Age: {age}"
+            
+            cv2.putText(frame, label_text, (x, y-25), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+            cv2.putText(frame, age_text, (x, y-10), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
         
         self.current_counts = {'male': male_count, 'female': female_count}
         return frame
@@ -371,6 +406,9 @@ class SafetyDetector:
     def _create_alert(self, frame: np.ndarray, alert_type: str, gesture: str = None) -> Alert:
         frame_path = save_alert_frame(frame)
         lat, lng = get_location()
+        
+        # Get age range info - join all detected ages with commas
+        age_range = ', '.join(self.detected_ages) if self.detected_ages else None
 
         # Save to in-memory alert list (optional)
         alert = Alert(
@@ -393,7 +431,8 @@ class SafetyDetector:
             frame_path=frame_path,
             male_count=self.current_counts['male'],
             female_count=self.current_counts['female'],
-            gesture=gesture
+            gesture=gesture,
+            age_range=age_range
         )
         db.session.add(db_alert)
         db.session.commit()
