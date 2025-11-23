@@ -31,9 +31,13 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertIcon = (type) => {
     switch (type) {
+      case "Emergency signal":
+        return faExclamationTriangle;
       case "distress":
         return faExclamationTriangle;
-      case "lone_woman_night":
+      case "Attention":
+        return faInfoCircle;
+      case "lone_woman":
         return faClock;
       case "woman_surrounded":
       case "woman_surrounded_spatial":
@@ -45,10 +49,14 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertColor = (type) => {
     switch (type) {
-      case "distress":
+      case "Emergency signal":
         return "from-red-600 to-red-700";
-      case "lone_woman_night":
+      case "distress":
+        return "from-orange-600 to-orange-700";
+      case "Attention":
         return "from-yellow-600 to-yellow-700";
+      case "lone_woman":
+        return "from-purple-600 to-purple-700";
       case "woman_surrounded":
       case "woman_surrounded_spatial":
         return "from-orange-600 to-orange-700";
@@ -59,10 +67,14 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertTitle = (type) => {
     switch (type) {
+      case "Emergency signal":
+        return "Emergency Signal";
       case "distress":
         return "Distress Signal";
-      case "lone_woman_night":
-        return "Lone Woman at Night";
+      case "Attention":
+        return "Attention Required";
+      case "lone_woman":
+        return "Lone Woman Detected";
       case "woman_surrounded":
         return "Woman Surrounded";
       case "woman_surrounded_spatial":
@@ -342,22 +354,40 @@ const AllAlerts = () => {
 
   const alertTypesInfo = [
     {
-      type: "distress",
+      type: "Emergency signal",
       icon: faExclamationTriangle,
       color: "text-red-500",
-      title: "Distress Signal",
-      description: "Detected when a person makes a distress hand gesture (thumb inside palm/fist). This indicates someone may need immediate help.",
+      title: "Emergency Signal",
+      description: "Detected when a person makes a Thumb-Palm gesture. This indicates someone needs immediate emergency help.",
       priority: "CRITICAL",
       priorityColor: "text-red-500"
     },
     {
-      type: "lone_woman_night",
-      icon: faClock,
+      type: "distress",
+      icon: faExclamationTriangle,
+      color: "text-orange-500",
+      title: "Distress Signal",
+      description: "Detected when a person makes an OK Sign gesture. This indicates someone may need help.",
+      priority: "HIGH",
+      priorityColor: "text-orange-500"
+    },
+    {
+      type: "Attention",
+      icon: faInfoCircle,
       color: "text-yellow-500",
-      title: "Lone Woman at Night",
-      description: "Triggered when a woman is detected alone during nighttime hours (after 8 PM), which may pose safety risks.",
+      title: "Attention Required",
+      description: "Detected when a person makes a Wave gesture. This indicates someone needs attention.",
       priority: "MEDIUM",
       priorityColor: "text-yellow-500"
+    },
+    {
+      type: "lone_woman",
+      icon: faClock,
+      color: "text-purple-500",
+      title: "Lone Woman Detected",
+      description: "Triggered when a woman is detected alone, which may pose safety risks (works day and night).",
+      priority: "MEDIUM",
+      priorityColor: "text-purple-500"
     },
     {
       type: "woman_surrounded",
@@ -381,8 +411,10 @@ const AllAlerts = () => {
 
   const alertTypes = [
     { value: "all", label: "All Alerts" },
+    { value: "Emergency signal", label: "Emergency Signal" },
     { value: "distress", label: "Distress" },
-    { value: "lone_woman_night", label: "Lone Woman Night" },
+    { value: "Attention", label: "Attention" },
+    { value: "lone_woman", label: "Lone Woman" },
     { value: "woman_surrounded", label: "Woman Surrounded" },
     { value: "woman_surrounded_spatial", label: "Spatial Risk" },
   ];
@@ -574,17 +606,16 @@ const AllAlerts = () => {
                         <div className="mt-4 pt-4 border-t border-gray-600">
                           <div className="flex flex-wrap gap-2 text-sm">
                             <span className="text-gray-400">Detected by:</span>
-                            {alertInfo.type === 'distress' && (
+                            {(alertInfo.type === 'Emergency signal' || alertInfo.type === 'distress' || alertInfo.type === 'Attention') && (
                               <>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Hand Gesture Detection</span>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Real-time Monitoring</span>
                               </>
                             )}
-                            {alertInfo.type === 'lone_woman_night' && (
+                            {alertInfo.type === 'lone_woman' && (
                               <>
-                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Gender Detection</span>
-                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Time Analysis</span>
-                                <span className="bg-gray-800 px-2 py-1 rounded text-yellow-400">Person Count</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-purple-400">Gender Detection</span>
+                                <span className="bg-gray-800 px-2 py-1 rounded text-purple-400">Person Count</span>
                               </>
                             )}
                             {(alertInfo.type === 'woman_surrounded' || alertInfo.type === 'woman_surrounded_spatial') && (

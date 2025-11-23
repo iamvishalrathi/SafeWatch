@@ -17,9 +17,13 @@ const AlertCard = ({ alert, compact = false }) => {
   };
   const getAlertIcon = (type) => {
     switch (type) {
+      case "Emergency signal":
+        return faExclamationTriangle;
       case "distress":
         return faExclamationTriangle;
-      case "lone_woman_night":
+      case "Attention":
+        return faHand;
+      case "lone_woman":
         return faClock;
       case "woman_surrounded":
       case "woman_surrounded_spatial":
@@ -31,10 +35,14 @@ const AlertCard = ({ alert, compact = false }) => {
 
   const getAlertColor = (type) => {
     switch (type) {
-      case "distress":
+      case "Emergency signal":
         return "from-red-600 to-red-700";
-      case "lone_woman_night":
+      case "distress":
+        return "from-orange-600 to-orange-700";
+      case "Attention":
         return "from-yellow-600 to-yellow-700";
+      case "lone_woman":
+        return "from-purple-600 to-purple-700";
       case "woman_surrounded":
       case "woman_surrounded_spatial":
         return "from-orange-600 to-orange-700";
@@ -45,10 +53,14 @@ const AlertCard = ({ alert, compact = false }) => {
 
   const getAlertTitle = (type) => {
     switch (type) {
+      case "Emergency signal":
+        return "Emergency Signal";
       case "distress":
         return "Distress Signal";
-      case "lone_woman_night":
-        return "Lone Woman at Night";
+      case "Attention":
+        return "Attention Required";
+      case "lone_woman":
+        return "Lone Woman Detected";
       case "woman_surrounded":
         return "Woman Surrounded";
       case "woman_surrounded_spatial":

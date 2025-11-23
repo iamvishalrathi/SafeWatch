@@ -85,9 +85,13 @@ const AlertDetail = () => {
 
   const getAlertIcon = (type) => {
     switch (type) {
+      case 'Emergency signal':
+        return faExclamationTriangle;
       case 'distress':
         return faExclamationTriangle;
-      case 'lone_woman_night':
+      case 'Attention':
+        return faInfoCircle;
+      case 'lone_woman':
         return faClock;
       case 'woman_surrounded':
       case 'woman_surrounded_spatial':
@@ -99,10 +103,14 @@ const AlertDetail = () => {
 
   const getAlertColor = (type) => {
     switch (type) {
-      case 'distress':
+      case 'Emergency signal':
         return 'from-red-600 to-red-700';
-      case 'lone_woman_night':
+      case 'distress':
+        return 'from-orange-600 to-orange-700';
+      case 'Attention':
         return 'from-yellow-600 to-yellow-700';
+      case 'lone_woman':
+        return 'from-purple-600 to-purple-700';
       case 'woman_surrounded':
       case 'woman_surrounded_spatial':
         return 'from-orange-600 to-orange-700';
@@ -113,10 +121,14 @@ const AlertDetail = () => {
 
   const getAlertTitle = (type) => {
     switch (type) {
+      case 'Emergency signal':
+        return 'Emergency Signal Detected';
       case 'distress':
         return 'Distress Signal Detected';
-      case 'lone_woman_night':
-        return 'Lone Woman at Night';
+      case 'Attention':
+        return 'Attention Required';
+      case 'lone_woman':
+        return 'Lone Woman Detected';
       case 'woman_surrounded':
         return 'Woman Surrounded by Multiple Men';
       case 'woman_surrounded_spatial':
@@ -128,10 +140,14 @@ const AlertDetail = () => {
 
   const getAlertDescription = (type) => {
     switch (type) {
+      case 'Emergency signal':
+        return 'A Thumb-Palm emergency gesture was detected indicating someone needs immediate emergency help.';
       case 'distress':
-        return 'A distress gesture was detected indicating someone may need help.';
-      case 'lone_woman_night':
-        return 'A woman was detected alone during nighttime hours, which may pose safety risks.';
+        return 'An OK Sign distress gesture was detected indicating someone may need help.';
+      case 'Attention':
+        return 'A Wave gesture was detected indicating someone needs attention.';
+      case 'lone_woman':
+        return 'A woman was detected alone, which may pose safety risks.';
       case 'woman_surrounded':
         return 'A woman was detected surrounded by multiple men, indicating a potentially unsafe situation.';
       case 'woman_surrounded_spatial':
@@ -143,12 +159,14 @@ const AlertDetail = () => {
 
   const getPriorityLevel = (type) => {
     switch (type) {
-      case 'distress':
+      case 'Emergency signal':
         return { level: 'CRITICAL', color: 'text-red-500 bg-red-100' };
+      case 'distress':
       case 'woman_surrounded':
       case 'woman_surrounded_spatial':
         return { level: 'HIGH', color: 'text-orange-500 bg-orange-100' };
-      case 'lone_woman_night':
+      case 'Attention':
+      case 'lone_woman':
         return { level: 'MEDIUM', color: 'text-yellow-500 bg-yellow-100' };
       default:
         return { level: 'LOW', color: 'text-blue-500 bg-blue-100' };

@@ -11,8 +11,8 @@ export const GESTURE_EMOJIS = {
 };
 
 export const GESTURE_NAMES = {
-    thumb_palm: "Thumb-Palm (Emergency)",
-    wave: "Wave Gesture",
+    thumb_palm: "Thumb-Palm (Emergency Signal)",
+    wave: "Wave (Attention)",
     ok_sign: "OK Sign (Distress)",
 };
 
