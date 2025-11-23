@@ -266,7 +266,7 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
           </div>
         </div>
 
-        <div className="space-y-2 text-white/90 text-sm flex-1">
+        <div className="space-y-2 text-white/90 text-sm flex-1 mb-3">
           <div className="flex items-center gap-2">
             <FontAwesomeIcon icon={faClock} className="text-white/70 flex-shrink-0" />
             <span className="truncate">{formatDate(alert.timestamp)}</span>
@@ -304,7 +304,7 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
           )}
         </div>
 
-        <div className="mt-auto pt-3 border-t border-white/20">
+        <div className="mt-auto pt-1 border-t border-white/20">
           <span className="text-white/60 text-xs">
             Alert ID: #{alert.id}
           </span>
@@ -359,8 +359,8 @@ const AllAlerts = () => {
         filtered = filtered.filter(
           (alert) =>
             alert.id.toString().includes(searchTerm) ||
-            (alert.camera_location && alert.camera_location.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (alert.camera_locality && alert.camera_locality.toLowerCase().includes(searchTerm.toLowerCase()))
+            (alert.camera?.location && alert.camera.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (alert.camera?.locality && alert.camera.locality.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       }
 
