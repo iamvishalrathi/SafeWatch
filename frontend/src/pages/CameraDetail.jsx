@@ -126,7 +126,10 @@ const CameraDetail = () => {
                 className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}
               />
               <div className="flex flex-col flex-1">
-                <h2 className="text-xl font-bold">Camera #{cameraInfo.id}•{cameraInfo.model || 'Unknown Model'}</h2>
+                <div className="flex items-center gap-3">
+                  <span className="font-bold">Camera #{cameraInfo.id}</span>
+                  <span className="font-bold">Model {cameraInfo.model || 'Unknown Model'}</span>
+                </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="font-medium">{cameraInfo.position}</span>
                   <span>•</span>
