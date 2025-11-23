@@ -112,8 +112,7 @@ const Navbar = () => {
         </ul>
       </div>
       <div>
-        <RippleButton text="Sign in" route="/signin" />
-        <RippleButton text="Register" route="/signup" />
+        <RippleButton text="Sign In / Register" route="/signin" />
       </div>
     </nav>
   );
