@@ -180,7 +180,7 @@ const AlertDetail = () => {
       timeZone: 'Asia/Kolkata',
       weekday: 'long',
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -296,7 +296,7 @@ const AlertDetail = () => {
               </div>
             </div>
 
-            {/* Alert Information & Statistics */}
+            {/* Alert Information */}
             <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                 <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400" />
@@ -314,6 +314,18 @@ const AlertDetail = () => {
                     </div>
                   </div>
 
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faUserGroup} className="text-green-400 mt-1 text-lg" />
+                    <div>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">People Breakdown</p>
+                      <p className="text-white font-medium text-sm">
+                        {alert.male_count} Male{alert.male_count !== 1 ? 's' : ''}, {alert.female_count} Female{alert.female_count !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
                   {alert.gesture && (
                     <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                       <span className="text-3xl">{getGestureEmoji(alert.gesture)}</span>
@@ -326,16 +338,6 @@ const AlertDetail = () => {
                     </div>
                   )}
 
-                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                    <FontAwesomeIcon icon={faUserGroup} className="text-green-400 mt-1 text-lg" />
-                    <div>
-                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">People Breakdown</p>
-                      <p className="text-white font-medium text-sm">
-                        {alert.male_count} Male{alert.male_count !== 1 ? 's' : ''}, {alert.female_count} Female{alert.female_count !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  </div>
-
                   {alert.age_range && (
                     <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                       <FontAwesomeIcon icon={faUserGroup} className="text-purple-400 mt-1 text-lg" />
@@ -347,19 +349,6 @@ const AlertDetail = () => {
                       </div>
                     </div>
                   )}
-                </div>
-
-                <div className="space-y-4">
-
-                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                    <FontAwesomeIcon icon={faCamera} className="text-cyan-400 mt-1 text-lg" />
-                    <div>
-                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Evidence Captured</p>
-                      <p className="text-white font-medium text-sm">
-                        {alert.frame_path ? 'Yes - Image Available' : 'No Image'}
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
