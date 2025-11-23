@@ -305,18 +305,12 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
 
         {(alert.latitude && alert.longitude) && (
           <div className="mt-auto pt-2 border-t border-white/20">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm">
-              <div className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70 flex-shrink-0" />
-                <span className="truncate">
-                  {alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}
-                </span>
-              </div>
-              {alert.camera?.location && (
-                <span className="truncate">
-                  {alert.camera.location}
-                </span>
-              )}
+            <div className="flex items-center gap-2 text-gray-400 text-xs">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="flex-shrink-0" />
+              <span className="truncate">
+                {alert.camera?.locality && `${alert.camera.locality}, `}
+                {alert.camera?.location && `${alert.camera.location}`}
+              </span>
             </div>
           </div>
         )}
