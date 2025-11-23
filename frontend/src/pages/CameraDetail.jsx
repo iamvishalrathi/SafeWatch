@@ -132,16 +132,16 @@ const CameraDetail = () => {
                     <span className="font-bold text-base">Camera #{cameraInfo.id}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="font-medium">{cameraInfo.position}</span>
+                    <span className="font-medium truncate max-w-[120px]" title={cameraInfo.position}>{cameraInfo.position}</span>
                     <span>•</span>
-                    <span>{cameraInfo.locality}</span>
+                    <span className="truncate max-w-[120px]" title={cameraInfo.locality}>{cameraInfo.locality}</span>
                     <span>•</span>
-                    <span>{cameraInfo.location}</span>
+                    <span className="truncate max-w-[120px]" title={cameraInfo.location}>{cameraInfo.location}</span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <div className="font-bold text-base">
+                <div className="font-bold text-base truncate max-w-[200px]" title={cameraInfo.model || 'Unknown Model'}>
                   Model {cameraInfo.model || 'Unknown Model'}
                 </div>
                 <div className={`text-sm font-semibold ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}>
