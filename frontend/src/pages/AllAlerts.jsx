@@ -5,12 +5,10 @@ import {
   faSearch,
   faFilter,
   faSortAmountDown,
-  faDownload,
   faExclamationTriangle,
   faClock,
   faMapMarkerAlt,
   faUserGroup,
-  faExpand,
   faCamera,
   faInfoCircle,
   faTrash,
@@ -41,7 +39,7 @@ const getAgeEmoji = (ageRange) => {
 };
 
 // Alert Card with Screenshot Component
-const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
+const AlertCardWithScreenshot = ({ alert, onDelete }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,22 +125,11 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
     navigate(`/alert/${alert.id}`);
   };
 
-  const handleDownload = (e) => {
-    e.stopPropagation();
-    onDownload(alert.id);
-  };
-
   const handleDelete = (e) => {
     e.stopPropagation();
     if (window.confirm(`Are you sure you want to delete Alert #${alert.id}?`)) {
       onDelete(alert.id);
     }
-  };
-
-  const openFullscreen = (e) => {
-    e.stopPropagation();
-    const imageUrl = API.getAlertImageUrl(alert.id);
-    window.open(imageUrl, '_blank');
   };
 
   // Check if alert is recent (within last hour)
@@ -184,21 +171,7 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
               className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
             />
             {/* Image overlay buttons */}
-            <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button
-                onClick={openFullscreen}
-                className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg backdrop-blur-sm"
-                title="View fullscreen"
-              >
-                <FontAwesomeIcon icon={faExpand} />
-              </button>
-              <button
-                onClick={handleDownload}
-                className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg backdrop-blur-sm"
-                title="Download screenshot"
-              >
-                <FontAwesomeIcon icon={faDownload} />
-              </button>
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button
                 onClick={handleDelete}
                 className="bg-red-600/70 hover:bg-red-700 text-white p-2 rounded-lg backdrop-blur-sm"
@@ -310,7 +283,6 @@ AlertCardWithScreenshot.propTypes = {
     longitude: PropTypes.number,
     age_range: PropTypes.string,
   }).isRequired,
-  onDownload: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 
@@ -322,7 +294,6 @@ const AllAlerts = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [localAlerts, setLocalAlerts] = useState([]);
-  const [deleting, setDeleting] = useState(false);
 
   // Update local alerts when API alerts change
   useEffect(() => {
@@ -363,16 +334,7 @@ const AllAlerts = () => {
     }
   }, [localAlerts, searchTerm, filterType, sortOrder]);
 
-  const downloadAlertImage = async (alertId) => {
-    try {
-      await API.downloadAlertImage(alertId);
-    } catch (err) {
-      console.error("Failed to download alert image:", err);
-    }
-  };
-
   const deleteAlert = async (alertId) => {
-    setDeleting(true);
     try {
       await API.deleteAlert(alertId);
       // Refetch alerts from backend to get updated list
@@ -380,14 +342,11 @@ const AllAlerts = () => {
     } catch (err) {
       console.error("Failed to delete alert:", err);
       alert("Failed to delete alert. Please try again.");
-    } finally {
-      setDeleting(false);
     }
   };
 
   const deleteAllAlerts = async () => {
     if (window.confirm(`Are you sure you want to delete ALL ${localAlerts.length} alerts? This action cannot be undone.`)) {
-      setDeleting(true);
       try {
         await API.deleteAllAlerts();
         // Refetch alerts from backend to get updated (empty) list
@@ -395,8 +354,6 @@ const AllAlerts = () => {
       } catch (err) {
         console.error("Failed to delete all alerts:", err);
         alert("Failed to delete all alerts. Please try again.");
-      } finally {
-        setDeleting(false);
       }
     }
   };
@@ -672,7 +629,6 @@ const AllAlerts = () => {
               <AlertCardWithScreenshot
                 key={alert.id}
                 alert={alert}
-                onDownload={downloadAlertImage}
                 onDelete={deleteAlert}
               />
             ))}
