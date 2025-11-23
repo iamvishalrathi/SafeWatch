@@ -235,6 +235,7 @@ const CameraModal = ({ camera, onSave, onClose, title }) => {
         position: "",
         location: "",
         locality: "",
+        model: "",
         lat: 28.6139,
         lng: 77.209,
         url: "http://localhost:5000/video_feed",
@@ -312,6 +313,20 @@ const CameraModal = ({ camera, onSave, onClose, title }) => {
                             value={formData.locality}
                             onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
                             placeholder="e.g., Sector 10, Mall Complex"
+                            className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-300 text-sm font-semibold mb-2">
+                            Camera Model
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.model}
+                            onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                            placeholder="e.g., Hikvision DS-2CD2043G0-I"
                             className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                             required
                         />

@@ -16,6 +16,7 @@ const CameraModal = ({ onSave, onClose }) => {
     position: "",
     location: "",
     locality: "",
+    model: "",
     lat: 28.6139,
     lng: 77.209,
     url: "http://localhost:5000/video_feed",
@@ -98,6 +99,20 @@ const CameraModal = ({ onSave, onClose }) => {
             />
           </div>
 
+          <div>
+            <label className="block text-gray-300 text-sm font-semibold mb-2">
+              Camera Model
+            </label>
+            <input
+              type="text"
+              value={formData.model}
+              onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+              placeholder="e.g., Hikvision DS-2CD2043G0-I"
+              className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-300 text-sm font-semibold mb-2">
@@ -162,20 +177,15 @@ const CameraModal = ({ onSave, onClose }) => {
 };
 
 const Live = () => {
-  // Load cameras from localStorage or use defaults
+  // Load cameras from localStorage (setup_cameras.js as single source of truth)
   const loadCameras = () => {
     const savedCameras = localStorage.getItem('cameras');
     if (savedCameras) {
       return JSON.parse(savedCameras);
     }
-    return [
-      { id: 1, position: "Main Entrance", location: "Rohini", locality: "Sector 10", lat: 28.7041, lng: 77.1025, url: "http://localhost:5000/video_feed", isOnline: true, isEnabled: true },
-      { id: 2, position: "Parking Area", location: "Rohini", locality: "Sector 15", lat: 28.7050, lng: 77.1030, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 3, position: "Hall", location: "Narela", locality: "Industrial Area", lat: 28.8500, lng: 77.0900, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 4, position: "Main Door", location: "Narela", locality: "Market Complex", lat: 28.8510, lng: 77.0910, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 5, position: "Reception", location: "Dwarka", locality: "Sector 21", lat: 28.5921, lng: 77.0460, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 6, position: "Emergency Exit", location: "Dwarka", locality: "Mall Road", lat: 28.5930, lng: 77.0470, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-    ];
+    // Return empty array if no cameras in localStorage
+    // Use setup_cameras.js script in browser console to initialize
+    return [];
   };
 
   const [cameras, setCameras] = useState(loadCameras);

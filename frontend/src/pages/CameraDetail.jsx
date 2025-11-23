@@ -68,55 +68,18 @@ const CameraDetail = () => {
     }
   }, []);
 
-  // Get camera info based on ID
+  // Get camera info from localStorage based on ID (setup_cameras.js as single source of truth)
   useEffect(() => {
-    const cameras = [
-      {
-        id: 1,
-        position: "Main Entrance",
-        location: "Rohini",
-        url: "http://localhost:5000/video_feed",
-        isOnline: true
-      },
-      {
-        id: 2,
-        position: "Parking Area",
-        location: "Rohini",
-        url: "http://localhost:5000/video_feed",
-        isOnline: false
-      },
-      {
-        id: 3,
-        position: "Hall",
-        location: "Narela",
-        url: "http://localhost:5000/video_feed",
-        isOnline: false
-      },
-      {
-        id: 4,
-        position: "Main Door",
-        location: "Narela",
-        url: "http://localhost:5000/video_feed",
-        isOnline: false
-      },
-      {
-        id: 5,
-        position: "Reception",
-        location: "Dwarka",
-        url: "http://localhost:5000/video_feed",
-        isOnline: false
-      },
-      {
-        id: 6,
-        position: "Emergency Exit",
-        location: "Dwarka",
-        url: "http://localhost:5000/video_feed",
-        isOnline: false
-      },
-    ];
-
-    const camera = cameras.find(cam => cam.id === parseInt(cameraId));
-    setCameraInfo(camera);
+    const savedCameras = localStorage.getItem('cameras');
+    
+    if (savedCameras) {
+      const cameras = JSON.parse(savedCameras);
+      const camera = cameras.find(cam => cam.id === parseInt(cameraId));
+      setCameraInfo(camera);
+    } else {
+      // No cameras found - user needs to run setup_cameras.js
+      setCameraInfo(null);
+    }
   }, [cameraId]);
 
   const handleDownload = async (alertId) => {
@@ -167,6 +130,71 @@ const CameraDetail = () => {
           Error loading alerts: {alertsError}
         </div>
       )}
+
+      {/* Camera Information Card */}
+      <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FontAwesomeIcon icon={faVideo} className="text-xl text-blue-400" />
+          <h2 className="text-xl font-bold">Camera Information</h2>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Camera ID</div>
+            <div className="text-white text-lg font-semibold">#{cameraInfo.id}</div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Position</div>
+            <div className="text-white text-lg font-semibold">{cameraInfo.position}</div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Location</div>
+            <div className="text-white text-lg font-semibold flex items-center gap-2">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-400 text-sm" />
+              {cameraInfo.location}
+            </div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Locality</div>
+            <div className="text-white text-lg font-semibold flex items-center gap-2">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-purple-400 text-sm" />
+              {cameraInfo.locality || 'N/A'}
+            </div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Camera Model</div>
+            <div className="text-white text-base font-semibold">{cameraInfo.model || 'Unknown Model'}</div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Latitude</div>
+            <div className="text-white text-lg font-semibold">{cameraInfo.lat?.toFixed(4) || 'N/A'}</div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Longitude</div>
+            <div className="text-white text-lg font-semibold">{cameraInfo.lng?.toFixed(4) || 'N/A'}</div>
+          </div>
+          
+          <div className="bg-[#3A3A3A] rounded-lg p-4">
+            <div className="text-gray-400 text-sm mb-1">Status</div>
+            <div className="flex items-center gap-2">
+              {cameraInfo.isOnline ? (
+                <span className="bg-green-600 px-3 py-1 rounded text-sm font-semibold">Online</span>
+              ) : (
+                <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold flex items-center gap-1">
+                  <FontAwesomeIcon icon={faExclamationTriangle} className="text-xs" />
+                  Offline
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content Grid - 3 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -423,6 +451,8 @@ const CameraDetail = () => {
                     <strong>Camera #{cameraInfo.id}</strong><br />
                     <strong>{cameraInfo.position}</strong><br />
                     Location: {cameraInfo.location}<br />
+                    Locality: {cameraInfo.locality || 'N/A'}<br />
+                    Model: {cameraInfo.model || 'Unknown'}<br />
                     Status: {cameraInfo.isOnline ? "Online" : "Offline"}<br />
                     Coordinates: {deviceLocation.lat.toFixed(6)}, {deviceLocation.lng.toFixed(6)}
                   </div>
