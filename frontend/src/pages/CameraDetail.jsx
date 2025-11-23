@@ -14,6 +14,7 @@ import {
   faArrowLeft,
   faExclamationTriangle,
   faHandPaper,
+  faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useApi";
 import API from "../utils/api";
@@ -353,9 +354,35 @@ const CameraDetail = () => {
 
       {/* Live Camera Location Map */}
       <div className="bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xl text-red-400" />
-          <h2 className="text-xl font-bold">Camera Location</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xl text-red-400" />
+            <h2 className="text-xl font-bold">Camera Location</h2>
+            <p className="text-sm text-gray-400 flex items-center gap-2">
+              (Click on the marker to see detailed location information)
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              const locationText = `Camera #${cameraInfo.id}\nLocation: ${cameraInfo.location}\nLocality: ${cameraInfo.locality || 'N/A'}\nCoordinates: ${cameraInfo.lat.toFixed(6)}, ${cameraInfo.lng.toFixed(6)}\nGoogle Maps: https://www.google.com/maps?q=${cameraInfo.lat},${cameraInfo.lng}`;
+              if (navigator.share) {
+                navigator.share({
+                  title: `Camera #${cameraInfo.id} Location`,
+                  text: locationText,
+                }).catch(() => {
+                  navigator.clipboard.writeText(locationText);
+                  alert('Location details copied to clipboard!');
+                });
+              } else {
+                navigator.clipboard.writeText(locationText);
+                alert('Location details copied to clipboard!');
+              }
+            }}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 text-sm"
+          >
+            <FontAwesomeIcon icon={faShareAlt} />
+            <span>Share Location</span>
+          </button>
         </div>
 
         <div className="h-[400px] rounded-xl overflow-hidden shadow-lg">
@@ -374,8 +401,6 @@ const CameraDetail = () => {
               <Marker position={[cameraInfo.lat, cameraInfo.lng]}>
                 <Popup>
                   <div className="text-black">
-                    <strong className="text-lg">Camera #{cameraInfo.id}</strong><br />
-                    <strong className="text-base">{cameraInfo.position}</strong><br />
                     <div className="mt-2">
                       <strong>Location:</strong> {cameraInfo.location}<br />
                       <strong>Locality:</strong> {cameraInfo.locality || 'N/A'}<br />
