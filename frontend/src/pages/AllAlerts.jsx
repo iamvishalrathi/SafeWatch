@@ -58,6 +58,45 @@ const getGestureIcon = (gestureType) => {
   }
 };
 
+// Helper function to get alert emoji
+const getAlertEmoji = (type) => {
+  switch (type) {
+    case "Emergency Signal":
+      return "✊";
+    case "Distress":
+      return "👌";
+    case "Attention":
+      return "👋";
+    case "Lone Woman":
+      return "👤";
+    case "Woman Surrounded":
+      return "👥";
+    case "Woman Surrounded Spatial":
+      return "📍";
+    default:
+      return "⚠️";
+  }
+};
+
+// Helper function to get alert icon color
+const getAlertIconColor = (type) => {
+  switch (type) {
+    case "Emergency Signal":
+      return "text-red-500";
+    case "Distress":
+      return "text-orange-500";
+    case "Attention":
+      return "text-yellow-500";
+    case "Lone Woman":
+      return "text-purple-500";
+    case "Woman Surrounded":
+    case "Woman Surrounded Spatial":
+      return "text-orange-500";
+    default:
+      return "text-red-500";
+  }
+};
+
 // Alert Card with Screenshot Component
 const AlertCardWithScreenshot = ({ alert, onDelete }) => {
   const navigate = useNavigate();
@@ -213,11 +252,12 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
       {/* Alert Info Section */}
       <div className={`p-4 bg-gradient-to-r ${getAlertColor(alert.alert_type)} flex-1 flex flex-col`}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="bg-white/20 p-2 rounded-full flex-shrink-0">
+          <div className={`${getAlertIconColor(alert.alert_type)} bg-gray-800 p-3 rounded-xl flex-shrink-0 relative`}>
             <FontAwesomeIcon
               icon={getAlertIcon(alert.alert_type)}
-              className="text-white text-lg"
+              className="text-xl"
             />
+            <span className="absolute -top-1 -right-1 text-xl">{getAlertEmoji(alert.alert_type)}</span>
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-white font-bold text-base truncate">
