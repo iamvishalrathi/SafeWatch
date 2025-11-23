@@ -23,6 +23,23 @@ import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
 
+// Helper function to get age emoji based on age range
+const getAgeEmoji = (ageRange) => {
+  if (!ageRange) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
+  
+  const match = ageRange.match(/\d+/);
+  if (!match) return '\uD83D\uDC64';
+  
+  const age = parseInt(match[0]);
+  
+  if (age < 4) return '\uD83D\uDC76';    // 👶 Baby
+  if (age < 13) return '\uD83E\uDDD2';   // 🧒 Child
+  if (age < 20) return '\uD83D\uDC66';   // 👦 Boy
+  if (age < 40) return '\uD83D\uDC68';   // 👨 Man
+  if (age < 60) return '\uD83E\uDDD1';   // 🧑 Person
+  return '\uD83D\uDC74';                 // 👴 Old Man
+};
+
 // Alert Card with Screenshot Component
 const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
   const navigate = useNavigate();
@@ -200,32 +217,32 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
       </div>
 
       {/* Alert Info Section */}
-      <div className={`p-4 bg-gradient-to-r ${getAlertColor(alert.alert_type)}`}>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-white/20 p-2 rounded-full">
+      <div className={`p-4 bg-gradient-to-r ${getAlertColor(alert.alert_type)} flex-1 flex flex-col`}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="bg-white/20 p-2 rounded-full flex-shrink-0">
             <FontAwesomeIcon
               icon={getAlertIcon(alert.alert_type)}
               className="text-white text-lg"
             />
           </div>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-lg">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-white font-bold text-base truncate">
                 {getAlertTitle(alert.alert_type)}
               </h3>
               {/* Priority Badge */}
               {(alert.alert_type === "Emergency Signal") && (
-                <span className="bg-white/30 px-2 py-0.5 rounded text-xs font-bold text-white uppercase animate-pulse">
+                <span className="bg-white/30 px-2 py-0.5 rounded text-xs font-bold text-white uppercase animate-pulse flex-shrink-0">
                   Critical
                 </span>
               )}
-              {(alert.alert_type === "distress" || alert.alert_type === "Woman Surrounded" || alert.alert_type === "Woman Surrounded Spatial") && (
-                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase">
+              {(alert.alert_type === "Distress" || alert.alert_type === "Woman Surrounded" || alert.alert_type === "Woman Surrounded Spatial") && (
+                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase flex-shrink-0">
                   High
                 </span>
               )}
               {(alert.alert_type === "Attention" || alert.alert_type === "Lone Woman") && (
-                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase">
+                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase flex-shrink-0">
                   Medium
                 </span>
               )}
@@ -233,48 +250,45 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
           </div>
         </div>
 
-        <div className="space-y-2 text-white/90 text-sm">
+        <div className="space-y-2 text-white/90 text-sm flex-1">
           <div className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faClock} className="text-white/70" />
-            <span>{formatDate(alert.timestamp)}</span>
+            <FontAwesomeIcon icon={faClock} className="text-white/70 flex-shrink-0" />
+            <span className="truncate">{formatDate(alert.timestamp)}</span>
           </div>
 
-          {alert.gesture && (
+          {/* Gesture or Age Display */}
+          {alert.gesture ? (
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
               <span className="text-xl">{getGestureEmoji(alert.gesture)}</span>
-              <span className="font-medium">{getGestureName(alert.gesture)}</span>
+              <span className="font-medium truncate">{getGestureName(alert.gesture)}</span>
             </div>
-          )}
+          ) : (alert.alert_type === 'Lone Woman' || alert.alert_type === 'Woman Surrounded' || alert.alert_type === 'Woman Surrounded Spatial') && alert.age_range ? (
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
+              <span className="text-xl">{getAgeEmoji(alert.age_range)}</span>
+              <span className="font-medium">Age: {alert.age_range}</span>
+            </div>
+          ) : null}
 
           {(alert.male_count >= 0 || alert.female_count >= 0) && (
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faUserGroup} className="text-white/70" />
-              <span>
+              <FontAwesomeIcon icon={faUserGroup} className="text-white/70 flex-shrink-0" />
+              <span className="truncate">
                 {alert.male_count} Male • {alert.female_count} Female
-              </span>
-            </div>
-          )}
-
-          {alert.age_range && (
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faUserGroup} className="text-purple-400/70" />
-              <span className="text-sm">
-                Age: {alert.age_range}
               </span>
             </div>
           )}
 
           {(alert.latitude && alert.longitude) && (
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70" />
-              <span className="truncate">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70 flex-shrink-0" />
+              <span className="font-mono text-xs truncate">
                 {alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}
               </span>
             </div>
           )}
         </div>
 
-        <div className="mt-3 pt-3 border-t border-white/20">
+        <div className="mt-auto pt-3 border-t border-white/20">
           <span className="text-white/60 text-xs">
             Alert ID: #{alert.id}
           </span>
