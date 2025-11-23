@@ -254,23 +254,30 @@ const CameraDetail = () => {
           </div>
 
           {/* Time Widget Below Video */}
-          <div className="bg-[#3A3A3A] px-4 py-3 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-white">
-                  {currentTime.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
+          <div className="flex flex-col items-center justify-center space-y-3">
+            {/* Time Display */}
+            <div className="flex items-center justify-center w-full">
+              <div className="text-center">
+                <div className="text-5xl font-bold text-white tracking-wider font-mono bg-[#1A1A1A] px-8 py-4 rounded-xl shadow-inner border border-[#4A4A4A]">
+                  {currentTime.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
                     second: '2-digit',
-                    hour12: true 
+                    hour12: false
                   })}
-                </span>
-                <span className="text-sm text-gray-400 mt-1">
-                  {currentTime.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                </div>
+              </div>
+            </div>
+
+            {/* Date Display */}
+            <div className="flex items-center justify-center w-full bg-[#1A1A1A] rounded-lg px-6 py-3 border border-[#3A3A3A]">
+              <div className="text-center">
+                <span className="text-lg font-semibold text-gray-300">
+                  {currentTime.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   })}
                 </span>
               </div>
