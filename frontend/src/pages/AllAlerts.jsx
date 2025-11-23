@@ -266,7 +266,7 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
           </div>
         </div>
 
-        <div className="space-y-2 text-white/90 text-sm flex-1 mb-3">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm flex-1 mb-3">
           <div className="flex items-center gap-2">
             <FontAwesomeIcon icon={faClock} className="text-white/70 flex-shrink-0" />
             <span className="truncate">{formatDate(alert.timestamp)}</span>
@@ -283,7 +283,7 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
               <FontAwesomeIcon icon={getAgeIcon(alert.age_range)} className="text-white/70 flex-shrink-0" />
               <span className="truncate">Age: {alert.age_range}</span>
             </div>
-          ) : null}
+          ) : <div></div>}
 
           {(alert.male_count >= 0 || alert.female_count >= 0) && (
             <div className="flex items-center gap-2">
