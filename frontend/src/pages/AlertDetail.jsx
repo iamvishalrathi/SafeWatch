@@ -45,7 +45,7 @@ const AlertDetail = () => {
         longitude: alert.camera.longitude
       };
     }
-    
+
     // Fallback to default camera if no camera info in alert
     return {
       id: 1,
@@ -300,44 +300,8 @@ const AlertDetail = () => {
             <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                 <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400" />
-                Alert Information & Statistics
+                Alert Information
               </h3>
-
-              {/* Quick Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 pb-6 border-b border-gray-700">
-                <div className="flex flex-col p-4 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-lg hover:border-blue-500/40 transition-colors">
-                  <span className="text-blue-400 font-medium text-xs uppercase tracking-wide mb-2">Alert Type</span>
-                  <span className="text-white font-bold text-lg capitalize">
-                    {alert.alert_type.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="flex flex-col p-4 bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-lg hover:border-purple-500/40 transition-colors">
-                  <span className="text-purple-400 font-medium text-xs uppercase tracking-wide mb-2">Priority Level</span>
-                  <span className={`font-bold text-lg ${priority.level === 'CRITICAL' ? 'text-red-400' : priority.level === 'HIGH' ? 'text-orange-400' : priority.level === 'MEDIUM' ? 'text-yellow-400' : 'text-blue-400'}`}>
-                    {priority.level}
-                  </span>
-                </div>
-                <div className="flex flex-col p-4 bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-lg hover:border-green-500/40 transition-colors">
-                  <span className="text-green-400 font-medium text-xs uppercase tracking-wide mb-2">Total People</span>
-                  <span className="text-white font-bold text-lg">
-                    {alert.male_count + alert.female_count}
-                  </span>
-                </div>
-                {alert.confidence && (
-                  <div className="flex flex-col p-4 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-lg hover:border-yellow-500/40 transition-colors">
-                    <span className="text-yellow-400 font-medium text-xs uppercase tracking-wide mb-2">Confidence</span>
-                    <span className="text-white font-bold text-lg">
-                      {(alert.confidence * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Detailed Information Grid */}
-              <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400 text-sm" />
-                Detailed Information
-              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-4">
                   <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
@@ -386,42 +350,6 @@ const AlertDetail = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {alert.camera && alert.camera.latitude && alert.camera.longitude && (
-                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                      <FontAwesomeIcon icon={faVideo} className="text-blue-400 mt-1 text-lg" />
-                      <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Camera Location</p>
-                        <p className="text-white font-medium text-sm">
-                          {alert.camera.location}
-                        </p>
-                        <p className="text-gray-400 text-xs mt-1">
-                          {alert.camera.latitude.toFixed(6)}, {alert.camera.longitude.toFixed(6)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {alert.latitude && alert.longitude && (
-                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                      <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mt-1 text-lg" />
-                      <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Alert Coordinates</p>
-                        <p className="text-white font-medium text-sm">
-                          {alert.latitude.toFixed(6)}, {alert.longitude.toFixed(6)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="text-orange-400 mt-1 text-lg" />
-                    <div>
-                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Alert Status</p>
-                      <p className="text-white font-medium text-sm">
-                        Active & Monitoring
-                      </p>
-                    </div>
-                  </div>
 
                   <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                     <FontAwesomeIcon icon={faCamera} className="text-cyan-400 mt-1 text-lg" />
@@ -522,33 +450,29 @@ const AlertDetail = () => {
                 const cameraInfo = getCameraInfo(alert);
                 return (
                   <div className="space-y-4">
-                    {/* Camera Name & Status */}
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-700">
-                      <div>
-                        <p className="text-white font-semibold text-lg">{cameraInfo.name}</p>
-                        <p className="text-gray-400 text-sm mt-1">{cameraInfo.position}</p>
-                      </div>
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-md ${cameraInfo.status === 'Online'
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        }`}>
-                        {cameraInfo.status}
-                      </span>
-                    </div>
-
                     {/* Camera Specs */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center p-1 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Camera ID</span>
                         <span className="text-white font-medium">#{cameraInfo.id}</span>
                       </div>
-                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
-                        <span className="text-gray-400 text-sm">Location</span>
-                        <span className="text-white font-medium">{cameraInfo.location}</span>
+                      <div className="flex justify-between items-center p-1 hover:bg-gray-700/50 rounded transition-colors">
+                        <span className="text-gray-400 text-sm">Position</span>
+                        <span className="text-white font-medium truncate max-w-[180px]" title={cameraInfo.position}>{cameraInfo.position}</span>
                       </div>
-                      <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
+                      {alert.camera?.locality && (
+                        <div className="flex justify-between items-center p-1 hover:bg-gray-700/50 rounded transition-colors">
+                          <span className="text-gray-400 text-sm">Locality</span>
+                          <span className="text-white font-medium truncate max-w-[180px]" title={alert.camera.locality}>{alert.camera.locality}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center p-1 hover:bg-gray-700/50 rounded transition-colors">
+                        <span className="text-gray-400 text-sm">Location</span>
+                        <span className="text-white font-medium truncate max-w-[180px]" title={cameraInfo.location}>{cameraInfo.location}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-1 hover:bg-gray-700/50 rounded transition-colors">
                         <span className="text-gray-400 text-sm">Camera Model</span>
-                        <span className="text-white font-medium">{cameraInfo.model}</span>
+                        <span className="text-white font-medium truncate max-w-[180px]" title={cameraInfo.model}>{cameraInfo.model}</span>
                       </div>
                     </div>
 
