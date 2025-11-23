@@ -120,22 +120,31 @@ const CameraDetail = () => {
         <div className="lg:col-span-5 bg-[#2C2C2C] rounded-2xl shadow-xl p-6">
           {/* Camera Details Header */}
           <div className="mb-4">
-            <div className="flex items-center gap-3 mb-3">
-              <FontAwesomeIcon
-                icon={faVideo}
-                className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}
-              />
-              <div className="flex flex-col flex-1">
-                <div className="flex items-center gap-3">
-                  <span className="font-bold">Camera #{cameraInfo.id}</span>
-                  <span className="font-bold">Model {cameraInfo.model || 'Unknown Model'}</span>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3">
+                <FontAwesomeIcon
+                  icon={faVideo}
+                  className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}
+                />
+                <div className="flex flex-col flex-1">
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-base">Camera #{cameraInfo.id}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <span className="font-medium">{cameraInfo.position}</span>
+                    <span>•</span>
+                    <span>{cameraInfo.locality}</span>
+                    <span>•</span>
+                    <span>{cameraInfo.location}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <span className="font-medium">{cameraInfo.position}</span>
-                  <span>•</span>
-                  <span>{cameraInfo.locality}</span>
-                  <span>•</span>
-                  <span>{cameraInfo.location}</span>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <div className="font-bold text-base">
+                  Model {cameraInfo.model || 'Unknown Model'}
+                </div>
+                <div className={`text-sm font-semibold ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}>
+                  {cameraInfo.isOnline ? "● Online" : "● Offline"}
                 </div>
               </div>
             </div>
