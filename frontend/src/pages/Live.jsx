@@ -15,6 +15,7 @@ const CameraModal = ({ onSave, onClose }) => {
     id: Date.now(),
     position: "",
     location: "",
+    locality: "",
     lat: 28.6139,
     lng: 77.209,
     url: "http://localhost:5000/video_feed",
@@ -71,13 +72,27 @@ const CameraModal = ({ onSave, onClose }) => {
 
           <div>
             <label className="block text-gray-300 text-sm font-semibold mb-2">
-              Location
+              Location (Area)
             </label>
             <input
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="e.g., Rohini"
+              className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 text-sm font-semibold mb-2">
+              Locality / Building
+            </label>
+            <input
+              type="text"
+              value={formData.locality}
+              onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
+              placeholder="e.g., Sector 10, Mall Complex"
               className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
               required
             />
@@ -154,17 +169,18 @@ const Live = () => {
       return JSON.parse(savedCameras);
     }
     return [
-      { id: 1, position: "Main Entrance", location: "Rohini", lat: 28.7041, lng: 77.1025, url: "http://localhost:5000/video_feed", isOnline: true, isEnabled: true },
-      { id: 2, position: "Parking Area", location: "Rohini", lat: 28.7050, lng: 77.1030, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 3, position: "Hall", location: "Narela", lat: 28.8500, lng: 77.0900, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 4, position: "Main Door", location: "Narela", lat: 28.8510, lng: 77.0910, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 5, position: "Reception", location: "Dwarka", lat: 28.5921, lng: 77.0460, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
-      { id: 6, position: "Emergency Exit", location: "Dwarka", lat: 28.5930, lng: 77.0470, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
+      { id: 1, position: "Main Entrance", location: "Rohini", locality: "Sector 10", lat: 28.7041, lng: 77.1025, url: "http://localhost:5000/video_feed", isOnline: true, isEnabled: true },
+      { id: 2, position: "Parking Area", location: "Rohini", locality: "Sector 15", lat: 28.7050, lng: 77.1030, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
+      { id: 3, position: "Hall", location: "Narela", locality: "Industrial Area", lat: 28.8500, lng: 77.0900, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
+      { id: 4, position: "Main Door", location: "Narela", locality: "Market Complex", lat: 28.8510, lng: 77.0910, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
+      { id: 5, position: "Reception", location: "Dwarka", locality: "Sector 21", lat: 28.5921, lng: 77.0460, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
+      { id: 6, position: "Emergency Exit", location: "Dwarka", locality: "Mall Road", lat: 28.5930, lng: 77.0470, url: "http://localhost:5000/video_feed", isOnline: false, isEnabled: true },
     ];
   };
 
   const [cameras, setCameras] = useState(loadCameras);
   const [selectedLocation, setSelectedLocation] = useState("All");
+  const [selectedLocality, setSelectedLocality] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Save cameras to localStorage whenever they change
@@ -177,8 +193,24 @@ const Live = () => {
     setCameras([...cameras, newCamera]);
   };
 
-  // Get unique locations from current cameras
+  // Get unique locations and localities from current cameras
   const locations = ["All", ...new Set(cameras.map(cam => cam.location))];
+  
+  // Filter localities based on selected location
+  const getLocalities = () => {
+    if (selectedLocation === "All") {
+      return ["All", ...new Set(cameras.map(cam => cam.locality))];
+    }
+    const filteredCameras = cameras.filter(cam => cam.location === selectedLocation);
+    return ["All", ...new Set(filteredCameras.map(cam => cam.locality))];
+  };
+  
+  const localities = getLocalities();
+  
+  // Reset locality when location changes
+  useEffect(() => {
+    setSelectedLocality("All");
+  }, [selectedLocation]);
 
   return (
     <div className="min-h-screen w-full bg-[#2C2C2C] p-6 flex flex-col gap-6 text-white">
@@ -202,7 +234,7 @@ const Live = () => {
           {/* Location Filter */}
           <div className="flex items-center gap-3 bg-[#3A3A3A] px-4 py-2 rounded-lg shadow-lg">
             <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-500" />
-            <span className="text-sm font-semibold">Filter by Location:</span>
+            <span className="text-sm font-semibold">Location:</span>
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
@@ -215,6 +247,23 @@ const Live = () => {
               ))}
             </select>
           </div>
+
+          {/* Locality Filter */}
+          <div className="flex items-center gap-3 bg-[#3A3A3A] px-4 py-2 rounded-lg shadow-lg">
+            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-purple-500" />
+            <span className="text-sm font-semibold">Locality:</span>
+            <select
+              value={selectedLocality}
+              onChange={(e) => setSelectedLocality(e.target.value)}
+              className="bg-[#4A4A4A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+            >
+              {localities.map((locality) => (
+                <option key={locality} value={locality}>
+                  {locality}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -222,6 +271,7 @@ const Live = () => {
       <div className="flex flex-col w-full bg-[#3A3A3A] rounded-xl p-6 shadow-lg">
         <CameraGrid 
           selectedLocation={selectedLocation}
+          selectedLocality={selectedLocality}
           cameras={cameras}
           setCameras={setCameras}
           setShowAddModal={setShowAddModal}

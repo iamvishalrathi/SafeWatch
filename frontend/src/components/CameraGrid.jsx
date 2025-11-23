@@ -5,7 +5,7 @@ import { faVideo, faExclamationTriangle, faExpand, faMapMarkerAlt, faDoorOpen, f
 import PropTypes from "prop-types";
 
 // Dummy camera to show when camera is not available
-const DummyCamera = ({ cameraId, position, location, onEdit, onDelete }) => {
+const DummyCamera = ({ cameraId, position, location, locality, onEdit, onDelete }) => {
     const navigate = useNavigate();
 
     const handleCardClick = (e) => {
@@ -36,6 +36,12 @@ const DummyCamera = ({ cameraId, position, location, onEdit, onDelete }) => {
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
                                 <span>{location}</span>
                             </div>
+                            {locality && (
+                                <div className="flex items-center gap-1">
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs text-purple-400" />
+                                    <span className="text-purple-300">{locality}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="flex items-center gap-2 bg-red-600/80 px-2 py-1 rounded">
@@ -90,12 +96,13 @@ DummyCamera.propTypes = {
     cameraId: PropTypes.number.isRequired,
     position: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
+    locality: PropTypes.string,
     onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
 // Live camera feed component
-const LiveCamera = ({ cameraId, position, location, videoFeedUrl, isEnabled, onToggle, onEdit, onDelete }) => {
+const LiveCamera = ({ cameraId, position, location, locality, videoFeedUrl, isEnabled, onToggle, onEdit, onDelete }) => {
     const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);
 
@@ -128,6 +135,12 @@ const LiveCamera = ({ cameraId, position, location, videoFeedUrl, isEnabled, onT
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
                                 <span>{location}</span>
                             </div>
+                            {locality && (
+                                <div className="flex items-center gap-1">
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs text-purple-400" />
+                                    <span className="text-purple-300">{locality}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                     
@@ -207,6 +220,7 @@ LiveCamera.propTypes = {
     cameraId: PropTypes.number.isRequired,
     position: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
+    locality: PropTypes.string,
     videoFeedUrl: PropTypes.string.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     onToggle: PropTypes.func.isRequired,
@@ -220,6 +234,7 @@ const CameraModal = ({ camera, onSave, onClose, title }) => {
         id: Date.now(),
         position: "",
         location: "",
+        locality: "",
         lat: 28.6139,
         lng: 77.209,
         url: "http://localhost:5000/video_feed",
@@ -276,13 +291,27 @@ const CameraModal = ({ camera, onSave, onClose, title }) => {
 
                     <div>
                         <label className="block text-gray-300 text-sm font-semibold mb-2">
-                            Location
+                            Location (Area)
                         </label>
                         <input
                             type="text"
                             value={formData.location}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                             placeholder="e.g., Rohini"
+                            className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-300 text-sm font-semibold mb-2">
+                            Locality / Building
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.locality}
+                            onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
+                            placeholder="e.g., Sector 10, Mall Complex"
                             className="w-full bg-[#3A3A3A] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                             required
                         />
@@ -404,7 +433,7 @@ DeleteConfirmModal.propTypes = {
 };
 
 // Main CameraGrid component
-const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddModal }) => {
+const CameraGrid = ({ selectedLocation = "All", selectedLocality = "All", cameras, setCameras, setShowAddModal }) => {
     const [editingCamera, setEditingCamera] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -453,11 +482,12 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
         setCameraToDelete(null);
     };
 
-    // Filter cameras based on selected location
-    const filteredCameras =
-        selectedLocation === "All"
-            ? cameras
-            : cameras.filter((camera) => camera.location === selectedLocation);
+    // Filter cameras based on selected location and locality
+    const filteredCameras = cameras.filter((camera) => {
+        const locationMatch = selectedLocation === "All" || camera.location === selectedLocation;
+        const localityMatch = selectedLocality === "All" || camera.locality === selectedLocality;
+        return locationMatch && localityMatch;
+    });
 
     const enabledCameras = filteredCameras.filter(cam => cam.isEnabled).length;
 
@@ -471,6 +501,7 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
                         <span className="text-lg font-medium">
                             {enabledCameras} / {filteredCameras.length} Cameras Enabled
                             {selectedLocation !== "All" && ` in ${selectedLocation}`}
+                            {selectedLocality !== "All" && ` - ${selectedLocality}`}
                         </span>
                     </div>
                 </div>
@@ -486,6 +517,7 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
                                 cameraId={camera.id}
                                 position={camera.position}
                                 location={camera.location}
+                                locality={camera.locality}
                                 videoFeedUrl={camera.url}
                                 isEnabled={camera.isEnabled}
                                 onToggle={toggleCamera}
@@ -498,6 +530,7 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
                                 cameraId={camera.id}
                                 position={camera.position}
                                 location={camera.location}
+                                locality={camera.locality}
                                 onEdit={() => handleEdit(camera)}
                                 onDelete={() => confirmDelete(camera)}
                             />
@@ -507,7 +540,11 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
             ) : (
                 <div className="text-center py-12 text-gray-400">
                     <FontAwesomeIcon icon={faVideo} className="text-6xl mb-4" />
-                    <p className="text-xl">No cameras found for {selectedLocation}</p>
+                    <p className="text-xl">
+                        No cameras found
+                        {selectedLocation !== "All" && ` in ${selectedLocation}`}
+                        {selectedLocality !== "All" && ` - ${selectedLocality}`}
+                    </p>
                 </div>
             )}
 
@@ -541,6 +578,7 @@ const CameraGrid = ({ selectedLocation = "All", cameras, setCameras, setShowAddM
 
 CameraGrid.propTypes = {
     selectedLocation: PropTypes.string,
+    selectedLocality: PropTypes.string,
     cameras: PropTypes.array.isRequired,
     setCameras: PropTypes.func.isRequired,
     setShowAddModal: PropTypes.func.isRequired,
