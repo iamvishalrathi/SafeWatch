@@ -126,9 +126,11 @@ const CameraDetail = () => {
                 className={`text-2xl ${cameraInfo.isOnline ? "text-green-400" : "text-red-400"}`}
               />
               <div className="flex flex-col flex-1">
-                <h2 className="text-xl font-bold">Camera #{cameraInfo.id}</h2>
+                <h2 className="text-xl font-bold">Camera #{cameraInfo.id}•{cameraInfo.model || 'Unknown Model'}</h2>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="font-medium">{cameraInfo.position}</span>
+                  <span>•</span>
+                  <span>{cameraInfo.locality}</span>
                   <span>•</span>
                   <span>{cameraInfo.location}</span>
                 </div>
@@ -358,7 +360,7 @@ const CameraDetail = () => {
           {cameraInfo.lat && cameraInfo.lng ? (
             <MapContainer
               center={[cameraInfo.lat, cameraInfo.lng]}
-              zoom={15}
+              zoom={18}
               style={{ height: "100%", width: "100%" }}
             >
               <TileLayer
@@ -370,13 +372,16 @@ const CameraDetail = () => {
               <Marker position={[cameraInfo.lat, cameraInfo.lng]}>
                 <Popup>
                   <div className="text-black">
-                    <strong>Camera #{cameraInfo.id}</strong><br />
-                    <strong>{cameraInfo.position}</strong><br />
-                    Location: {cameraInfo.location}<br />
-                    Locality: {cameraInfo.locality || 'N/A'}<br />
-                    Model: {cameraInfo.model || 'Unknown'}<br />
-                    Status: {cameraInfo.isOnline ? "Online" : "Offline"}<br />
-                    Coordinates: {cameraInfo.lat.toFixed(6)}, {cameraInfo.lng.toFixed(6)}
+                    <strong className="text-lg">Camera #{cameraInfo.id}</strong><br />
+                    <strong className="text-base">{cameraInfo.position}</strong><br />
+                    <div className="mt-2">
+                      <strong>Location:</strong> {cameraInfo.location}<br />
+                      <strong>Locality:</strong> {cameraInfo.locality || 'N/A'}<br />
+                    </div>
+                    <div className="mt-2 text-sm text-gray-700">
+                      <strong>Coordinates:</strong><br />
+                      {cameraInfo.lat.toFixed(6)}, {cameraInfo.lng.toFixed(6)}
+                    </div>
                   </div>
                 </Popup>
               </Marker>
