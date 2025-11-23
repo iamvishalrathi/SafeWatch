@@ -14,28 +14,48 @@ import {
   faTrash,
   faTrashAlt,
   faTimes,
+  faHandFist,
+  faHandPeace,
+  faHand,
+  faUser,
+  faBaby,
+  faChild,
+  faPerson,
+  faPersonCane,
 } from "@fortawesome/free-solid-svg-icons";
 import EmptyState from "../components/EmptyState";
 import { useAlerts } from "../hooks/useApi";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { getGestureEmoji, getGestureName } from "../utils/gestureUtils";
+import { getGestureName } from "../utils/gestureUtils";
 
-// Helper function to get age emoji based on age range
-const getAgeEmoji = (ageRange) => {
-  if (!ageRange) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
+// Helper function to get age icon based on age range
+const getAgeIcon = (ageRange) => {
+  if (!ageRange) return faUser;
 
   const match = ageRange.match(/\d+/);
-  if (!match) return '\uD83D\uDC64';
+  if (!match) return faUser;
 
   const age = parseInt(match[0]);
 
-  if (age < 4) return '\uD83D\uDC76';    // 👶 Baby
-  if (age < 13) return '\uD83E\uDDD2';   // 🧒 Child
-  if (age < 20) return '\uD83D\uDC66';   // 👦 Boy
-  if (age < 40) return '\uD83D\uDC68';   // 👨 Man
-  if (age < 60) return '\uD83E\uDDD1';   // 🧑 Person
-  return '\uD83D\uDC74';                 // 👴 Old Man
+  if (age < 4) return faBaby;
+  if (age < 13) return faChild;
+  if (age < 60) return faPerson;
+  return faPersonCane;
+};
+
+// Helper function to get gesture icon
+const getGestureIcon = (gestureType) => {
+  switch (gestureType) {
+    case 'thumb_palm':
+      return faHandFist;
+    case 'ok_sign':
+      return faHandPeace;
+    case 'wave':
+      return faHand;
+    default:
+      return faHand;
+  }
 };
 
 // Alert Card with Screenshot Component
@@ -153,6 +173,24 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
               onError={handleImageError}
               className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
             />
+            {/* Priority Badge - Top Left */}
+            <div className="absolute top-2 left-2">
+              {(alert.alert_type === "Emergency Signal") && (
+                <span className="bg-red-600/90 px-3 py-1 rounded-lg text-xs font-bold text-white uppercase animate-pulse backdrop-blur-sm shadow-lg">
+                  Critical
+                </span>
+              )}
+              {(alert.alert_type === "Distress" || alert.alert_type === "Woman Surrounded" || alert.alert_type === "Woman Surrounded Spatial") && (
+                <span className="bg-orange-600/90 px-3 py-1 rounded-lg text-xs font-semibold text-white uppercase backdrop-blur-sm shadow-lg">
+                  High
+                </span>
+              )}
+              {(alert.alert_type === "Attention" || alert.alert_type === "Lone Woman") && (
+                <span className="bg-yellow-600/90 px-3 py-1 rounded-lg text-xs font-semibold text-white uppercase backdrop-blur-sm shadow-lg">
+                  Medium
+                </span>
+              )}
+            </div>
             {/* Image overlay buttons */}
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button
@@ -182,27 +220,9 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-white font-bold text-base truncate">
-                {getAlertTitle(alert.alert_type)}
-              </h3>
-              {/* Priority Badge */}
-              {(alert.alert_type === "Emergency Signal") && (
-                <span className="bg-white/30 px-2 py-0.5 rounded text-xs font-bold text-white uppercase animate-pulse flex-shrink-0">
-                  Critical
-                </span>
-              )}
-              {(alert.alert_type === "Distress" || alert.alert_type === "Woman Surrounded" || alert.alert_type === "Woman Surrounded Spatial") && (
-                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase flex-shrink-0">
-                  High
-                </span>
-              )}
-              {(alert.alert_type === "Attention" || alert.alert_type === "Lone Woman") && (
-                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase flex-shrink-0">
-                  Medium
-                </span>
-              )}
-            </div>
+            <h3 className="text-white font-bold text-base truncate">
+              {getAlertTitle(alert.alert_type)}
+            </h3>
           </div>
         </div>
 
@@ -215,12 +235,12 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
           {/* Gesture or Age Display */}
           {alert.gesture ? (
             <div className="flex items-center gap-2">
-              <span className="text-xl flex-shrink-0">{getGestureEmoji(alert.gesture)}</span>
+              <FontAwesomeIcon icon={getGestureIcon(alert.gesture)} className="text-white/70 flex-shrink-0" />
               <span className="truncate">{getGestureName(alert.gesture)}</span>
             </div>
           ) : (alert.alert_type === 'Lone Woman' || alert.alert_type === 'Woman Surrounded' || alert.alert_type === 'Woman Surrounded Spatial') && alert.age_range ? (
             <div className="flex items-center gap-2">
-              <span className="text-xl flex-shrink-0">{getAgeEmoji(alert.age_range)}</span>
+              <FontAwesomeIcon icon={getAgeIcon(alert.age_range)} className="text-white/70 flex-shrink-0" />
               <span className="truncate">Age: {alert.age_range}</span>
             </div>
           ) : null}
@@ -580,7 +600,7 @@ const AllAlerts = () => {
                   >
                     {/* Priority indicator */}
                     <div className={`absolute top-0 right-0 w-1 h-full ${alertType.priority === 'CRITICAL' ? 'bg-red-500' :
-                        alertType.priority === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-500'
+                      alertType.priority === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-500'
                       } ${alertType.priority === 'CRITICAL' ? 'animate-pulse' : ''}`}></div>
 
                     <div className="flex items-center gap-2 mb-2">
