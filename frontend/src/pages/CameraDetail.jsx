@@ -135,16 +135,6 @@ const CameraDetail = () => {
                   <span>{cameraInfo.location}</span>
                 </div>
               </div>
-              {cameraInfo.isOnline ? (
-                <span className="bg-green-600/90 px-3 py-1.5 rounded-lg text-sm font-semibold shadow-lg">
-                  Online
-                </span>
-              ) : (
-                <span className="bg-red-600/90 px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 font-semibold shadow-lg">
-                  <FontAwesomeIcon icon={faExclamationTriangle} className="text-xs" />
-                  Offline
-                </span>
-              )}
             </div>
           </div>
 
