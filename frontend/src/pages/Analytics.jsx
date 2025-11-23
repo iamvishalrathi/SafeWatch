@@ -10,8 +10,35 @@ import {
     faExclamationTriangle,
     faInfoCircle,
     faFire,
+    faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAlerts } from "../hooks/useApi";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
 
 // Fix default marker icon issue with Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -47,6 +74,82 @@ const Analytics = () => {
     const [showLegend, setShowLegend] = useState(true);
     const [selectedHotspot, setSelectedHotspot] = useState(null);
     const [mapKey, setMapKey] = useState(0);
+    const [timeRange, setTimeRange] = useState('24h'); // 24h, 7d, 30d
+    const [chartData, setChartData] = useState(null);
+
+    // Process alerts over time for chart
+    useEffect(() => {
+        if (alerts && alerts.length > 0) {
+            // Get time range in hours
+            const rangeHours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 720;
+            const now = new Date();
+            const startTime = new Date(now.getTime() - rangeHours * 60 * 60 * 1000);
+
+            // Filter alerts within time range
+            const filteredAlerts = alerts.filter(alert => {
+                const alertTime = new Date(alert.timestamp || alert.created_at);
+                return alertTime >= startTime && alertTime <= now;
+            });
+
+            // Group alerts by time intervals
+            const intervals = timeRange === '24h' ? 24 : timeRange === '7d' ? 7 : 30;
+            const intervalMs = (rangeHours * 60 * 60 * 1000) / intervals;
+            
+            const timeGroups = {};
+            const labels = [];
+
+            // Initialize time groups
+            for (let i = 0; i < intervals; i++) {
+                const intervalStart = new Date(startTime.getTime() + i * intervalMs);
+                let label;
+                
+                if (timeRange === '24h') {
+                    label = intervalStart.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                } else if (timeRange === '7d') {
+                    label = intervalStart.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                } else {
+                    label = intervalStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+                
+                labels.push(label);
+                timeGroups[i] = 0;
+            }
+
+            // Count alerts in each interval
+            filteredAlerts.forEach(alert => {
+                const alertTime = new Date(alert.timestamp || alert.created_at);
+                const timeDiff = alertTime - startTime;
+                const intervalIndex = Math.floor(timeDiff / intervalMs);
+                
+                if (intervalIndex >= 0 && intervalIndex < intervals) {
+                    timeGroups[intervalIndex]++;
+                }
+            });
+
+            const data = Object.values(timeGroups);
+
+            // Create chart data
+            setChartData({
+                labels,
+                datasets: [
+                    {
+                        label: 'Alerts',
+                        data,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }
+                ]
+            });
+        }
+    }, [alerts, timeRange]);
 
     // Calculate hotspots based on alert locations
     useEffect(() => {
@@ -203,6 +306,150 @@ const Analytics = () => {
                             </div>
                             <FontAwesomeIcon icon={faMapMarkedAlt} className="text-yellow-500 text-2xl" />
                         </div>
+                    </div>
+                </div>
+
+                {/* Time Series Chart */}
+                <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700 mb-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-white text-2xl font-bold flex items-center gap-2">
+                            <FontAwesomeIcon icon={faChartLine} className="text-blue-500" />
+                            Alerts Over Time
+                        </h2>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setTimeRange('24h')}
+                                className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                                    timeRange === '24h'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                                24 Hours
+                            </button>
+                            <button
+                                onClick={() => setTimeRange('7d')}
+                                className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                                    timeRange === '7d'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                                7 Days
+                            </button>
+                            <button
+                                onClick={() => setTimeRange('30d')}
+                                className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                                    timeRange === '30d'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                                30 Days
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="h-[400px] bg-gray-900 rounded-xl p-4">
+                        {chartData ? (
+                            <Line
+                                data={chartData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                            labels: {
+                                                color: '#fff',
+                                                font: {
+                                                    size: 14,
+                                                    weight: 'bold'
+                                                },
+                                                padding: 15,
+                                                usePointStyle: true,
+                                            }
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            titleColor: '#fff',
+                                            bodyColor: '#fff',
+                                            borderColor: 'rgb(59, 130, 246)',
+                                            borderWidth: 1,
+                                            padding: 12,
+                                            displayColors: true,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return `Alerts: ${context.parsed.y}`;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                color: '#9ca3af',
+                                                font: {
+                                                    size: 12
+                                                },
+                                                stepSize: 1,
+                                                precision: 0
+                                            },
+                                            grid: {
+                                                color: 'rgba(255, 255, 255, 0.1)',
+                                                drawBorder: false
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Number of Alerts',
+                                                color: '#fff',
+                                                font: {
+                                                    size: 14,
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        },
+                                        x: {
+                                            ticks: {
+                                                color: '#9ca3af',
+                                                font: {
+                                                    size: 11
+                                                },
+                                                maxRotation: 45,
+                                                minRotation: 45
+                                            },
+                                            grid: {
+                                                color: 'rgba(255, 255, 255, 0.05)',
+                                                drawBorder: false
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Time',
+                                                color: '#fff',
+                                                font: {
+                                                    size: 14,
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        }
+                                    },
+                                    interaction: {
+                                        intersect: false,
+                                        mode: 'index'
+                                    }
+                                }}
+                            />
+                        ) : (
+                            <div className="h-full flex items-center justify-center">
+                                <div className="text-center">
+                                    <FontAwesomeIcon icon={faChartLine} className="text-5xl text-gray-600 mb-3" />
+                                    <p className="text-gray-400 text-lg">No data available</p>
+                                    <p className="text-gray-500 text-sm mt-2">Chart will appear when alerts are generated</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
