@@ -8,6 +8,7 @@ import Live from "./pages/Live";
 import AllAlerts from "./pages/AllAlerts";
 import AlertDetail from "./pages/AlertDetail";
 import CameraDetail from "./pages/CameraDetail";
+import Analytics from "./pages/Analytics";
 import News from "./pages/News";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/live" element={<Live />} />
           <Route path="/camera/:cameraId" element={<CameraDetail />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/api-test" element={<APITest />} />

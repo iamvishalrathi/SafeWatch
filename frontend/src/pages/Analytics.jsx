@@ -1,0 +1,342 @@
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChartLine,
+  faMapMarkedAlt,
+  faExclamationTriangle,
+  faInfoCircle,
+  faFire,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAlerts } from "../hooks/useApi";
+
+// Fix default marker icon issue with Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
+});
+
+const Analytics = () => {
+  const { alerts, loading, error } = useAlerts(5000); // Poll every 5 seconds
+  const [hotspots, setHotspots] = useState([]);
+  const [mapCenter, setMapCenter] = useState([28.7041, 77.1025]); // Default: Delhi
+  const [showLegend, setShowLegend] = useState(true);
+
+  // Calculate hotspots based on alert locations
+  useEffect(() => {
+    if (alerts && alerts.length > 0) {
+      // Group alerts by location (using camera location or alert lat/lng)
+      const locationGroups = {};
+
+      alerts.forEach(alert => {
+        let lat, lng, locationName;
+
+        // Prefer camera location if available
+        if (alert.camera?.latitude && alert.camera?.longitude) {
+          lat = alert.camera.latitude;
+          lng = alert.camera.longitude;
+          locationName = alert.camera.location || alert.camera.locality || 'Unknown Location';
+        } else if (alert.latitude && alert.longitude) {
+          lat = alert.latitude;
+          lng = alert.longitude;
+          locationName = 'Alert Location';
+        } else {
+          return; // Skip alerts without location data
+        }
+
+        // Round coordinates to group nearby alerts (precision of ~100m)
+        const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+
+        if (!locationGroups[key]) {
+          locationGroups[key] = {
+            lat: lat,
+            lng: lng,
+            count: 0,
+            locationName: locationName,
+            alerts: []
+          };
+        }
+
+        locationGroups[key].count++;
+        locationGroups[key].alerts.push(alert);
+      });
+
+      // Convert to array and sort by count
+      const hotspotsArray = Object.values(locationGroups).sort((a, b) => b.count - a.count);
+      setHotspots(hotspotsArray);
+
+      // Set map center to the hotspot with most alerts
+      if (hotspotsArray.length > 0) {
+        setMapCenter([hotspotsArray[0].lat, hotspotsArray[0].lng]);
+      }
+    }
+  }, [alerts]);
+
+  // Get color based on alert count
+  const getHotspotColor = (count) => {
+    if (count >= 10) return { color: '#dc2626', label: 'Critical', textColor: 'text-red-500' }; // Red
+    if (count >= 5) return { color: '#ea580c', label: 'High', textColor: 'text-orange-500' }; // Orange
+    if (count >= 2) return { color: '#eab308', label: 'Medium', textColor: 'text-yellow-500' }; // Yellow
+    return { color: '#3b82f6', label: 'Low', textColor: 'text-blue-500' }; // Blue
+  };
+
+  // Get radius based on alert count (larger circles for more alerts)
+  const getRadius = (count) => {
+    return Math.min(100 + count * 20, 500); // Min 120m, max 500m radius
+  };
+
+  if (loading && !alerts) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading analytics...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-red-500 text-xl">Error loading data: {error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#2C2C2C] p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FontAwesomeIcon icon={faChartLine} className="text-blue-500 text-3xl" />
+              <h1 className="text-4xl font-bold text-white">Safety Analytics</h1>
+            </div>
+            <button
+              onClick={() => setShowLegend(!showLegend)}
+              className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faInfoCircle} />
+              <span>{showLegend ? 'Hide' : 'Show'} Legend</span>
+            </button>
+          </div>
+          <p className="text-gray-400">
+            Visualizing alert hotspots across monitored locations • Total Alerts: <span className="text-white font-semibold">{alerts?.length || 0}</span>
+          </p>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Total Hotspots</p>
+                <p className="text-white text-2xl font-bold">{hotspots.length}</p>
+              </div>
+              <FontAwesomeIcon icon={faMapMarkedAlt} className="text-blue-500 text-2xl" />
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Critical Areas</p>
+                <p className="text-white text-2xl font-bold">
+                  {hotspots.filter(h => h.count >= 10).length}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-2xl animate-pulse" />
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">High Risk Areas</p>
+                <p className="text-white text-2xl font-bold">
+                  {hotspots.filter(h => h.count >= 5 && h.count < 10).length}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faFire} className="text-orange-500 text-2xl" />
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Top Hotspot</p>
+                <p className="text-white text-2xl font-bold">
+                  {hotspots.length > 0 ? `${hotspots[0].count} alerts` : 'N/A'}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faMapMarkedAlt} className="text-yellow-500 text-2xl" />
+            </div>
+          </div>
+        </div>
+
+        {/* Map Container */}
+        <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-white text-2xl font-bold flex items-center gap-2">
+              <FontAwesomeIcon icon={faMapMarkedAlt} className="text-blue-500" />
+              Alert Hotspot Map
+            </h2>
+            {showLegend && (
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-red-600"></div>
+                  <span className="text-gray-400">Critical (10+)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-orange-600"></div>
+                  <span className="text-gray-400">High (5-9)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-yellow-600"></div>
+                  <span className="text-gray-400">Medium (2-4)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-blue-600"></div>
+                  <span className="text-gray-400">Low (1)</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="h-[600px] rounded-xl overflow-hidden shadow-lg">
+            {hotspots.length > 0 ? (
+              <MapContainer
+                center={mapCenter}
+                zoom={13}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+
+                {/* Draw circles for each hotspot */}
+                {hotspots.map((hotspot, index) => {
+                  const { color, label } = getHotspotColor(hotspot.count);
+                  return (
+                    <Circle
+                      key={index}
+                      center={[hotspot.lat, hotspot.lng]}
+                      radius={getRadius(hotspot.count)}
+                      pathOptions={{
+                        fillColor: color,
+                        fillOpacity: 0.4,
+                        color: color,
+                        weight: 2,
+                        opacity: 0.8
+                      }}
+                    >
+                      <Popup>
+                        <div className="text-black min-w-[200px]">
+                          <div className="font-bold text-lg mb-2 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faMapMarkedAlt} />
+                            {hotspot.locationName}
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-700">Alert Count:</span>
+                              <span className="font-bold text-lg">{hotspot.count}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-700">Risk Level:</span>
+                              <span className={`font-semibold ${
+                                label === 'Critical' ? 'text-red-600' :
+                                label === 'High' ? 'text-orange-600' :
+                                label === 'Medium' ? 'text-yellow-600' : 'text-blue-600'
+                              }`}>{label}</span>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-gray-300">
+                              <p className="text-xs text-gray-600">
+                                <strong>Coordinates:</strong><br />
+                                {hotspot.lat.toFixed(6)}, {hotspot.lng.toFixed(6)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Popup>
+                    </Circle>
+                  );
+                })}
+              </MapContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-gray-700 rounded-xl">
+                <div className="text-center">
+                  <FontAwesomeIcon icon={faMapMarkedAlt} className="text-5xl text-gray-500 mb-3" />
+                  <p className="text-gray-400 text-lg">No alert data available</p>
+                  <p className="text-gray-500 text-sm mt-2">Hotspots will appear when alerts are generated</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Hotspot List */}
+        {hotspots.length > 0 && (
+          <div className="mt-6 bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
+            <h2 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+              <FontAwesomeIcon icon={faFire} className="text-orange-500" />
+              Top Hotspots
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {hotspots.slice(0, 6).map((hotspot, index) => {
+                const { color, label, textColor } = getHotspotColor(hotspot.count);
+                return (
+                  <div
+                    key={index}
+                    className="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors border-l-4"
+                    style={{ borderLeftColor: color }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h3 className="text-white font-semibold text-lg truncate" title={hotspot.locationName}>
+                          {hotspot.locationName}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          {hotspot.lat.toFixed(4)}, {hotspot.lng.toFixed(4)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white">{hotspot.count}</div>
+                        <div className="text-xs text-gray-400">alerts</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-600">
+                      <span className={`${textColor} font-semibold text-sm uppercase`}>
+                        {label} Risk
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Info Box */}
+        <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <FontAwesomeIcon icon={faInfoCircle} className="text-blue-400 text-xl mt-1" />
+            <div>
+              <h3 className="text-white font-semibold mb-2">How Hotspot Detection Works</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Our system analyzes all generated alerts and groups them by location to identify areas with high alert frequency.
+                Circle size and color indicate the severity: larger, redder circles represent areas with more alerts and higher risk.
+                This helps security teams prioritize monitoring and response efforts in the most critical areas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Analytics;

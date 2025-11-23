@@ -17,6 +17,9 @@ const Navbar = () => {
       // Active for /all-alerts and /alert/:id routes
       return location.pathname === "/all-alerts" || location.pathname.startsWith("/alert/");
     }
+    if (path === "/analytics") {
+      return location.pathname === "/analytics";
+    }
     if (path === "/news") {
       return location.pathname === "/news";
     }
@@ -77,6 +80,15 @@ const Navbar = () => {
               className={getLinkClassName("/all-alerts")}
             >
               Alerts
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink
+              to="/analytics"
+              className={getLinkClassName("/analytics")}
+            >
+              Analytics
             </NavLink>
           </li>
 
