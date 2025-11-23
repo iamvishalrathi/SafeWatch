@@ -19,6 +19,7 @@ class Alert(db.Model):
     gesture = db.Column(db.String(50), nullable=True)
     confidence = db.Column(db.Float, nullable=True)
     age_range = db.Column(db.String(20), nullable=True)
+    status = db.Column(db.String(20), default='unseen', nullable=False)
     
     # Camera information
     camera_id = db.Column(db.Integer, nullable=True)
@@ -44,6 +45,7 @@ class Alert(db.Model):
             "gesture": self.gesture,
             "confidence": self.confidence,
             "age_range": self.age_range,
+            "status": self.status,
             "camera": {
                 "id": self.camera_id,
                 "name": self.camera_name,

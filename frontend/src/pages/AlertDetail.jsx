@@ -323,6 +323,16 @@ const AlertDetail = () => {
                       </p>
                     </div>
                   </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faCamera} className="text-yellow-400 mt-1 text-lg" />
+                    <div>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Image Captured</p>
+                      <p className="text-white font-medium text-sm">
+                        {alert.frame_path ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -369,6 +379,20 @@ const AlertDetail = () => {
                       </div>
                     </div>
                   )}
+
+                  <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <FontAwesomeIcon icon={faInfoCircle} className={`mt-1 text-lg ${alert.status === 'unseen' ? 'text-gray-400' :
+                        alert.status === 'pending' ? 'text-yellow-400' :
+                          alert.status === 'resolved' ? 'text-green-400' :
+                            alert.status === 'closed' ? 'text-blue-400' : 'text-gray-400'
+                      }`} />
+                    <div>
+                      <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Status</p>
+                      <p className="text-white font-medium text-sm capitalize">
+                        {alert.status || 'unseen'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

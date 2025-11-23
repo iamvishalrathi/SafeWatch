@@ -89,6 +89,10 @@ def get_gender_count():
 def get_alert_detail(alert_id):
     """Get detailed information about a specific alert"""
     alert = DBAlert.query.get_or_404(alert_id)
+    # Update status to 'pending' when alert is viewed
+    if alert.status == 'unseen':
+        alert.status = 'pending'
+        db.session.commit()
     return jsonify(alert.to_dict())
 
 @app.route('/alert_image/<int:alert_id>')
@@ -97,6 +101,30 @@ def get_alert_image(alert_id):
     if alert.frame_path and os.path.exists(alert.frame_path):
         return send_file(alert.frame_path, mimetype='image/jpeg')
     return jsonify({'error': 'Image not found'}), 404
+
+@app.route('/alert/<int:alert_id>/status', methods=['PATCH'])
+def update_alert_status(alert_id):
+    """Update alert status (unseen, pending, resolved, closed)"""
+    from flask import request
+    alert = DBAlert.query.get_or_404(alert_id)
+    data = request.get_json()
+    
+    if not data or 'status' not in data:
+        return jsonify({'error': 'Status field is required'}), 400
+    
+    new_status = data['status']
+    valid_statuses = ['unseen', 'pending', 'resolved', 'closed']
+    
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}), 400
+    
+    try:
+        alert.status = new_status
+        db.session.commit()
+        return jsonify({'message': 'Alert status updated successfully', 'alert': alert.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/alert/<int:alert_id>', methods=['DELETE'])
 def delete_alert(alert_id):

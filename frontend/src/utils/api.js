@@ -104,6 +104,23 @@ const API = {
     },
 
     /**
+     * PATCH /alert/:id/status
+     * Update alert status
+     * @param {number} alertId - The ID of the alert
+     * @param {string} status - New status (unseen, pending, resolved, closed)
+     * @returns {Promise<Object>} Updated alert object
+     */
+    updateAlertStatus: async (alertId, status) => {
+        try {
+            const response = await axiosInstance.patch(`/alert/${alertId}/status`, { status });
+            return response.data;
+        } catch (error) {
+            console.error('Error updating alert status:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Get a specific alert by ID
      * @param {number} alertId - The ID of the alert
      * @returns {Promise<Object>} Alert object
