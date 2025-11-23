@@ -30,35 +30,33 @@ const AlertDetail = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [imageZoom, setImageZoom] = useState(1);
 
-  // Mock camera data - In production, this should come from alert.camera_id
-  const getCameraInfo = (alertLocation) => {
-    // Default camera based on alert location
-    const cameras = [
-      {
-        id: 1,
-        name: "Main Entrance Camera",
-        position: "Main Entrance",
-        location: "Rohini",
-        status: "Online",
-        type: "Fixed Dome",
-        resolution: "1080p",
-        fieldOfView: "120°",
-      },
-      {
-        id: 2,
-        name: "Parking Area Camera",
-        position: "Parking Area",
-        location: "Rohini",
-        status: "Offline",
-        type: "PTZ Camera",
-        resolution: "4K",
-        fieldOfView: "360°",
-      },
-    ];
-
-    // If alert has location, try to match to nearby camera
-    // For now, return Camera 1 as default
-    return cameras[0];
+  // Get camera info from alert data or use default
+  const getCameraInfo = (alert) => {
+    if (alert.camera) {
+      // Use actual camera information from alert
+      return {
+        id: alert.camera.id,
+        name: alert.camera.name || 'Unknown Camera',
+        position: alert.camera.name || 'Unknown Position',
+        location: alert.camera.location || 'Unknown Location',
+        status: 'Online', // You can update this based on actual camera status
+        type: 'IP Camera',
+        latitude: alert.camera.latitude,
+        longitude: alert.camera.longitude
+      };
+    }
+    
+    // Fallback to default camera if no camera info in alert
+    return {
+      id: 1,
+      name: "Main Entrance Camera",
+      position: "Main Entrance",
+      location: "Rohini",
+      status: "Online",
+      type: "Fixed Dome",
+      latitude: 28.7041,
+      longitude: 77.1025
+    };
   };
 
   useEffect(() => {
@@ -388,11 +386,26 @@ const AlertDetail = () => {
                 </div>
 
                 <div className="space-y-4">
+                  {alert.camera && alert.camera.latitude && alert.camera.longitude && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                      <FontAwesomeIcon icon={faVideo} className="text-blue-400 mt-1 text-lg" />
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Camera Location</p>
+                        <p className="text-white font-medium text-sm">
+                          {alert.camera.location}
+                        </p>
+                        <p className="text-gray-400 text-xs mt-1">
+                          {alert.camera.latitude.toFixed(6)}, {alert.camera.longitude.toFixed(6)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {alert.latitude && alert.longitude && (
                     <div className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                       <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mt-1 text-lg" />
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Location Coordinates</p>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Alert Coordinates</p>
                         <p className="text-white font-medium text-sm">
                           {alert.latitude.toFixed(6)}, {alert.longitude.toFixed(6)}
                         </p>
@@ -513,7 +526,7 @@ const AlertDetail = () => {
                 Camera Details
               </h3>
               {(() => {
-                const cameraInfo = getCameraInfo(alert.latitude);
+                const cameraInfo = getCameraInfo(alert);
                 return (
                   <div className="space-y-4">
                     {/* Camera Name & Status */}

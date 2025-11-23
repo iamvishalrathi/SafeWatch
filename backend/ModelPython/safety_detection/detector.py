@@ -70,12 +70,33 @@ class SafetyDetector:
         self.person_boxes = []  # Store detected person boxes with gender info
         self.detected_ages = []  # Store detected ages in current frame
         
+        # Camera information
+        self.camera_info = {
+            'id': None,
+            'name': None,
+            'location': None,
+            'latitude': None,
+            'longitude': None
+        }
+        
         # Gesture tracking
         self.current_gesture = {
             'detected': False,
             'type': None,
             'confidence': 0.0,
             'handsCount': 0
+        }
+
+    def set_camera_info(self, camera_id: int = None, camera_name: str = None, 
+                       camera_location: str = None, camera_lat: float = None, 
+                       camera_lng: float = None):
+        """Set camera information for alerts"""
+        self.camera_info = {
+            'id': camera_id,
+            'name': camera_name,
+            'location': camera_location,
+            'latitude': camera_lat,
+            'longitude': camera_lng
         }
 
     def detect_genders(self, frame: np.ndarray) -> np.ndarray:
@@ -398,7 +419,9 @@ class SafetyDetector:
 
     def _create_alert(self, frame: np.ndarray, alert_type: str, gesture: str = None) -> Alert:
         frame_path = save_alert_frame(frame)
-        lat, lng = get_location()
+        # Use camera location if available, otherwise use default location
+        lat = self.camera_info['latitude'] if self.camera_info['latitude'] else get_location()[0]
+        lng = self.camera_info['longitude'] if self.camera_info['longitude'] else get_location()[1]
         
         # Get age range info - join all detected ages with commas
         age_range = ', '.join(self.detected_ages) if self.detected_ages else None
@@ -416,7 +439,7 @@ class SafetyDetector:
         )
         self.alerts.append(alert)
 
-        # Save to DB
+        # Save to DB with camera information
         db_alert = DBAlert(
             alert_type=alert_type,
             latitude=lat,
@@ -425,7 +448,12 @@ class SafetyDetector:
             male_count=self.current_counts['male'],
             female_count=self.current_counts['female'],
             gesture=gesture,
-            age_range=age_range
+            age_range=age_range,
+            camera_id=self.camera_info['id'],
+            camera_name=self.camera_info['name'],
+            camera_location=self.camera_info['location'],
+            camera_latitude=self.camera_info['latitude'],
+            camera_longitude=self.camera_info['longitude']
         )
         db.session.add(db_alert)
         db.session.commit()

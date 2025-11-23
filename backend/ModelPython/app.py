@@ -37,6 +37,15 @@ with app.app_context():
 config = DetectionConfig()
 detector = SafetyDetector(config)
 
+# Set default camera information (Camera 1 - Main Gate, Narela)
+detector.set_camera_info(
+    camera_id=1,
+    camera_name="Main Gate",
+    camera_location="Narela - Sector 1",
+    camera_lat=28.8500,
+    camera_lng=77.0900
+)
+
 @app.route('/video_feed')
 def video_feed():
     def generate():
@@ -147,6 +156,20 @@ def get_stats():
 def get_gesture_status():
     """Returns the current gesture detection status"""
     return jsonify(detector.current_gesture)
+
+@app.route('/api/set_camera', methods=['POST'])
+def set_camera():
+    """Set camera information for the detector"""
+    from flask import request
+    data = request.json
+    detector.set_camera_info(
+        camera_id=data.get('id'),
+        camera_name=data.get('name'),
+        camera_location=data.get('location'),
+        camera_lat=data.get('lat'),
+        camera_lng=data.get('lng')
+    )
+    return jsonify({'message': 'Camera information updated', 'camera': detector.camera_info})
 
 if __name__ == '__main__':
     app.run(debug=True)

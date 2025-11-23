@@ -19,6 +19,13 @@ class Alert(db.Model):
     gesture = db.Column(db.String(50), nullable=True)
     confidence = db.Column(db.Float, nullable=True)
     age_range = db.Column(db.String(20), nullable=True)
+    
+    # Camera information
+    camera_id = db.Column(db.Integer, nullable=True)
+    camera_name = db.Column(db.String(100), nullable=True)
+    camera_location = db.Column(db.String(100), nullable=True)
+    camera_latitude = db.Column(db.Float, nullable=True)
+    camera_longitude = db.Column(db.Float, nullable=True)
 
     def to_dict(self):
         # Format timestamp for IST display
@@ -34,7 +41,14 @@ class Alert(db.Model):
             "female_count": self.female_count,
             "gesture": self.gesture,
             "confidence": self.confidence,
-            "age_range": self.age_range
+            "age_range": self.age_range,
+            "camera": {
+                "id": self.camera_id,
+                "name": self.camera_name,
+                "location": self.camera_location,
+                "latitude": self.camera_latitude,
+                "longitude": self.camera_longitude
+            } if self.camera_id else None
         }
     
 
