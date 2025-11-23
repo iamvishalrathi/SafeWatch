@@ -75,6 +75,7 @@ class SafetyDetector:
             'id': None,
             'name': None,
             'location': None,
+            'model': None,
             'latitude': None,
             'longitude': None
         }
@@ -88,13 +89,14 @@ class SafetyDetector:
         }
 
     def set_camera_info(self, camera_id: int = None, camera_name: str = None, 
-                       camera_location: str = None, camera_lat: float = None, 
-                       camera_lng: float = None):
+                       camera_location: str = None, camera_model: str = None,
+                       camera_lat: float = None, camera_lng: float = None):
         """Set camera information for alerts"""
         self.camera_info = {
             'id': camera_id,
             'name': camera_name,
             'location': camera_location,
+            'model': camera_model,
             'latitude': camera_lat,
             'longitude': camera_lng
         }
@@ -419,9 +421,9 @@ class SafetyDetector:
 
     def _create_alert(self, frame: np.ndarray, alert_type: str, gesture: str = None) -> Alert:
         frame_path = save_alert_frame(frame)
-        # Use camera location if available, otherwise use default location
-        lat = self.camera_info['latitude'] if self.camera_info['latitude'] else get_location()[0]
-        lng = self.camera_info['longitude'] if self.camera_info['longitude'] else get_location()[1]
+        # Always use camera location coordinates (required)
+        lat = self.camera_info['latitude']
+        lng = self.camera_info['longitude']
         
         # Get age range info - join all detected ages with commas
         age_range = ', '.join(self.detected_ages) if self.detected_ages else None
@@ -452,6 +454,7 @@ class SafetyDetector:
             camera_id=self.camera_info['id'],
             camera_name=self.camera_info['name'],
             camera_location=self.camera_info['location'],
+            camera_model=self.camera_info['model'],
             camera_latitude=self.camera_info['latitude'],
             camera_longitude=self.camera_info['longitude']
         )

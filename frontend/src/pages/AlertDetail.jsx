@@ -40,7 +40,7 @@ const AlertDetail = () => {
         position: alert.camera.name || 'Unknown Position',
         location: alert.camera.location || 'Unknown Location',
         status: 'Online', // You can update this based on actual camera status
-        type: 'IP Camera',
+        model: alert.camera.model || 'Unknown Model',
         latitude: alert.camera.latitude,
         longitude: alert.camera.longitude
       };
@@ -53,9 +53,9 @@ const AlertDetail = () => {
       position: "Main Entrance",
       location: "Rohini",
       status: "Online",
-      type: "Fixed Dome",
+      model: "Hikvision DS-2CD2043G0-I",
       latitude: 28.7041,
-      longitude: 77.1025
+      longitude: 87.1025
     };
   };
 
@@ -554,8 +554,8 @@ const AlertDetail = () => {
                         <span className="text-white font-medium">{cameraInfo.location}</span>
                       </div>
                       <div className="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded transition-colors">
-                        <span className="text-gray-400 text-sm">Camera Type</span>
-                        <span className="text-white font-medium">{cameraInfo.type}</span>
+                        <span className="text-gray-400 text-sm">Camera Model</span>
+                        <span className="text-white font-medium">{cameraInfo.model}</span>
                       </div>
                     </div>
 
