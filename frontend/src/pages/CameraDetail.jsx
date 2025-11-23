@@ -38,12 +38,20 @@ const CameraDetail = () => {
 
   const [cameraInfo, setCameraInfo] = useState(null);
   const [videoError, setVideoError] = useState(false);
-  const [isCameraEnabled, setIsCameraEnabled] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [deviceLocation, setDeviceLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
 
   // Get recent 3 alerts with screenshots
   const recentAlertsWithScreenshots = alerts.slice(0, 3);
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Get device's live location
   useEffect(() => {
@@ -229,44 +237,44 @@ const CameraDetail = () => {
           </div>
 
           <div className="w-full aspect-video bg-[#1A1A1A] rounded-xl overflow-hidden shadow-inner mb-4">
-            {isCameraEnabled ? (
-              cameraInfo.isOnline && !videoError ? (
-                <img
-                  src={cameraInfo.url}
-                  alt={`Camera ${cameraInfo.id} Feed`}
-                  className="w-full h-full object-cover"
-                  onError={() => setVideoError(true)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center">
-                  <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-6xl mb-4" />
-                  <p className="text-gray-300 text-lg font-semibold">Camera Unavailable</p>
-                  <p className="text-gray-500 text-sm mt-1">Feed currently offline</p>
-                </div>
-              )
+            {cameraInfo.isOnline && !videoError ? (
+              <img
+                src={cameraInfo.url}
+                alt={`Camera ${cameraInfo.id} Feed`}
+                className="w-full h-full object-cover"
+                onError={() => setVideoError(true)}
+              />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center">
-                <FontAwesomeIcon icon={faVideo} className="text-gray-600 text-6xl mb-4" />
-                <p className="text-gray-300 text-lg font-semibold">Camera Disabled</p>
-                <p className="text-gray-500 text-sm mt-1">Enable camera to view feed</p>
+                <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-6xl mb-4" />
+                <p className="text-gray-300 text-lg font-semibold">Camera Unavailable</p>
+                <p className="text-gray-500 text-sm mt-1">Feed currently offline</p>
               </div>
             )}
           </div>
 
-          {/* Toggle Switch Below Video */}
-          <div className="flex items-center justify-between bg-[#3A3A3A] px-4 py-3 rounded-lg">
-            <span className="text-sm font-medium text-gray-300">
-              {isCameraEnabled ? 'Camera Enabled' : 'Camera Disabled'}
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isCameraEnabled}
-                onChange={() => setIsCameraEnabled(!isCameraEnabled)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-            </label>
+          {/* Time Widget Below Video */}
+          <div className="bg-[#3A3A3A] px-4 py-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-white">
+                  {currentTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit',
+                    hour12: true 
+                  })}
+                </span>
+                <span className="text-sm text-gray-400 mt-1">
+                  {currentTime.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
