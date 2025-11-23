@@ -358,9 +358,9 @@ const AllAlerts = () => {
       if (searchTerm) {
         filtered = filtered.filter(
           (alert) =>
-            alert.alert_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (alert.gesture && alert.gesture.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            alert.id.toString().includes(searchTerm)
+            alert.id.toString().includes(searchTerm) ||
+            (alert.camera_location && alert.camera_location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (alert.camera_locality && alert.camera_locality.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       }
 
@@ -547,7 +547,7 @@ const AllAlerts = () => {
             />
             <input
               type="text"
-              placeholder="Search by ID, type, or gesture..."
+              placeholder="Search by ID, location, or locality..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

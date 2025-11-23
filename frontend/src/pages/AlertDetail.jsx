@@ -119,17 +119,17 @@ const AlertDetail = () => {
 
   const getAlertTitle = (type) => {
     switch (type) {
-      case 'Emergency signal':
+      case 'Emergency Signal':
         return 'Emergency Signal Detected';
-      case 'distress':
+      case 'Distress':
         return 'Distress Signal Detected';
       case 'Attention':
         return 'Attention Required';
-      case 'lone_woman':
+      case 'Lone Woman':
         return 'Lone Woman Detected';
-      case 'woman_surrounded':
+      case 'Woman Surrounded':
         return 'Woman Surrounded by Multiple Men';
-      case 'woman_surrounded_spatial':
+      case 'Woman Surrounded Spatial':
         return 'Spatial Risk Detected';
       default:
         return 'Safety Alert';
@@ -138,17 +138,17 @@ const AlertDetail = () => {
 
   const getAlertDescription = (type) => {
     switch (type) {
-      case 'Emergency signal':
+      case 'Emergency Signal':
         return 'A Thumb-Palm emergency gesture was detected indicating someone needs immediate emergency help.';
-      case 'distress':
+      case 'Distress':
         return 'An OK Sign distress gesture was detected indicating someone may need help.';
       case 'Attention':
         return 'A Wave gesture was detected indicating someone needs attention.';
-      case 'lone_woman':
+      case 'Lone Woman':
         return 'A woman was detected alone, which may pose safety risks.';
-      case 'woman_surrounded':
+      case 'Woman Surrounded':
         return 'A woman was detected surrounded by multiple men, indicating a potentially unsafe situation.';
-      case 'woman_surrounded_spatial':
+      case 'Woman Surrounded Spatial':
         return 'Spatial analysis detected a woman in close proximity to men, indicating potential risk.';
       default:
         return 'A safety alert was triggered by the monitoring system.';
@@ -481,13 +481,6 @@ const AlertDetail = () => {
                         }}
                       />
                       <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={openFullScreen}
-                          className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-lg transition-colors shadow-lg"
-                          title="View full screen"
-                        >
-                          <FontAwesomeIcon icon={faExpand} />
-                        </button>
                         <button
                           onClick={downloadAlertImage}
                           className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors shadow-lg"
