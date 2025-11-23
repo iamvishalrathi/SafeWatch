@@ -266,11 +266,26 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm flex-1 mb-3">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm mb-3">
+          <div className="flex items-center gap-2">
+            <span className="truncate">
+              ID: #{alert.id}
+            </span>
+          </div>
+
           <div className="flex items-center gap-2">
             <FontAwesomeIcon icon={faClock} className="text-white/70 flex-shrink-0" />
             <span className="truncate">{formatDate(alert.timestamp)}</span>
           </div>
+
+          {(alert.male_count >= 0 || alert.female_count >= 0) && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faUserGroup} className="text-white/70 flex-shrink-0" />
+              <span className="truncate">
+                {alert.male_count} Male • {alert.female_count} Female
+              </span>
+            </div>
+          )}
 
           {/* Gesture or Age Display */}
           {alert.gesture ? (
@@ -284,31 +299,25 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
               <span className="truncate">Age: {alert.age_range}</span>
             </div>
           ) : <div></div>}
-
-          {(alert.male_count >= 0 || alert.female_count >= 0) && (
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faUserGroup} className="text-white/70 flex-shrink-0" />
-              <span className="truncate">
-                {alert.male_count} Male • {alert.female_count} Female
-              </span>
-            </div>
-          )}
-
-          {(alert.latitude && alert.longitude) && (
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70 flex-shrink-0" />
-              <span className="font-mono text-xs truncate">
-                {alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}
-              </span>
-            </div>
-          )}
         </div>
 
-        <div className="mt-auto pt-1 border-t border-white/20">
-          <span className="text-white/60 text-xs">
-            Alert ID: #{alert.id}
-          </span>
-        </div>
+        {(alert.latitude && alert.longitude) && (
+          <div className="mt-auto pt-2 border-t border-white/20">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white/70 flex-shrink-0" />
+                <span className="truncate">
+                  {alert.latitude.toFixed(4)}, {alert.longitude.toFixed(4)}
+                </span>
+              </div>
+              {alert.camera?.location && (
+                <span className="truncate">
+                  {alert.camera.location}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -325,6 +334,10 @@ AlertCardWithScreenshot.propTypes = {
     latitude: PropTypes.number,
     longitude: PropTypes.number,
     age_range: PropTypes.string,
+    camera: PropTypes.shape({
+      location: PropTypes.string,
+      locality: PropTypes.string,
+    }),
   }).isRequired,
   onDelete: PropTypes.func.isRequired,
 };
