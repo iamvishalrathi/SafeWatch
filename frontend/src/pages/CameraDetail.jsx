@@ -254,11 +254,11 @@ const CameraDetail = () => {
           </div>
 
           {/* Time Widget Below Video */}
-          <div className="flex flex-col items-center justify-center space-y-3">
+          <div className="flex flex-col items-center justify-center">
             {/* Time Display */}
             <div className="flex items-center justify-center w-full">
               <div className="text-center">
-                <div className="text-5xl font-bold text-white tracking-wider font-mono bg-[#1A1A1A] px-8 py-4 rounded-xl shadow-inner border border-[#4A4A4A]">
+                <div className="text-5xl font-bold text-white tracking-wider font-mono px-8 py-4">
                   {currentTime.toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -270,7 +270,7 @@ const CameraDetail = () => {
             </div>
 
             {/* Date Display */}
-            <div className="flex items-center justify-center w-full bg-[#1A1A1A] rounded-lg px-6 py-3 border border-[#3A3A3A]">
+            <div className="flex items-center justify-center w-full px-6">
               <div className="text-center">
                 <span className="text-lg font-semibold text-gray-300">
                   {currentTime.toLocaleDateString('en-US', {
