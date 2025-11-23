@@ -41,7 +41,8 @@ detector = SafetyDetector(config)
 detector.set_camera_info(
     camera_id=1,
     camera_name="Main Gate",
-    camera_location="Narela - Sector 1",
+    camera_location="Narela",
+    camera_locality="Sector 1",
     camera_model="Hikvision DS-2CD2043G0-I",
     camera_lat=28.8500,
     camera_lng=77.0900
@@ -167,6 +168,7 @@ def set_camera():
         camera_id=data.get('id'),
         camera_name=data.get('name'),
         camera_location=data.get('location'),
+        camera_locality=data.get('locality'),
         camera_model=data.get('model'),
         camera_lat=data.get('lat'),
         camera_lng=data.get('lng')

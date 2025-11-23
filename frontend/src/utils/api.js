@@ -197,6 +197,29 @@ const API = {
             console.error('Error deleting all alerts:', error);
             throw error;
         }
+    },
+
+    /**
+     * POST /api/set_camera
+     * Sets the active camera information for the detector
+     * @param {Object} cameraInfo - Camera information object
+     * @param {number} cameraInfo.id - Camera ID
+     * @param {string} cameraInfo.name - Camera name/position
+     * @param {string} cameraInfo.location - Camera location (area)
+     * @param {string} cameraInfo.locality - Camera locality (sector/building)
+     * @param {string} cameraInfo.model - Camera model
+     * @param {number} cameraInfo.lat - Camera latitude
+     * @param {number} cameraInfo.lng - Camera longitude
+     * @returns {Promise<Object>} Response with updated camera info
+     */
+    setCameraInfo: async (cameraInfo) => {
+        try {
+            const response = await axiosInstance.post('/api/set_camera', cameraInfo);
+            return response.data;
+        } catch (error) {
+            console.error('Error setting camera info:', error);
+            throw error;
+        }
     }
 };
 

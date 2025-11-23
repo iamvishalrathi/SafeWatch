@@ -24,6 +24,7 @@ class Alert(db.Model):
     camera_id = db.Column(db.Integer, nullable=True)
     camera_name = db.Column(db.String(100), nullable=True)
     camera_location = db.Column(db.String(100), nullable=True)
+    camera_locality = db.Column(db.String(100), nullable=True)
     camera_model = db.Column(db.String(100), nullable=True)
     camera_latitude = db.Column(db.Float, nullable=True)
     camera_longitude = db.Column(db.Float, nullable=True)
@@ -47,6 +48,7 @@ class Alert(db.Model):
                 "id": self.camera_id,
                 "name": self.camera_name,
                 "location": self.camera_location,
+                "locality": self.camera_locality,
                 "model": self.camera_model,
                 "latitude": self.camera_latitude,
                 "longitude": self.camera_longitude

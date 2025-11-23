@@ -75,6 +75,7 @@ class SafetyDetector:
             'id': None,
             'name': None,
             'location': None,
+            'locality': None,
             'model': None,
             'latitude': None,
             'longitude': None
@@ -89,13 +90,15 @@ class SafetyDetector:
         }
 
     def set_camera_info(self, camera_id: int = None, camera_name: str = None, 
-                       camera_location: str = None, camera_model: str = None,
-                       camera_lat: float = None, camera_lng: float = None):
+                       camera_location: str = None, camera_locality: str = None,
+                       camera_model: str = None, camera_lat: float = None, 
+                       camera_lng: float = None):
         """Set camera information for alerts"""
         self.camera_info = {
             'id': camera_id,
             'name': camera_name,
             'location': camera_location,
+            'locality': camera_locality,
             'model': camera_model,
             'latitude': camera_lat,
             'longitude': camera_lng
@@ -454,6 +457,7 @@ class SafetyDetector:
             camera_id=self.camera_info['id'],
             camera_name=self.camera_info['name'],
             camera_location=self.camera_info['location'],
+            camera_locality=self.camera_info['locality'],
             camera_model=self.camera_info['model'],
             camera_latitude=self.camera_info['latitude'],
             camera_longitude=self.camera_info['longitude']

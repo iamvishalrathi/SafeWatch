@@ -60,6 +60,21 @@ const CameraDetail = () => {
       const cameras = JSON.parse(savedCameras);
       const camera = cameras.find(cam => cam.id === parseInt(cameraId));
       setCameraInfo(camera);
+      
+      // Set the active camera in the backend when camera loads
+      if (camera) {
+        API.setCameraInfo({
+          id: camera.id,
+          name: camera.position,
+          location: camera.location,
+          locality: camera.locality,
+          model: camera.model,
+          lat: camera.lat,
+          lng: camera.lng
+        }).catch(error => {
+          console.error('Failed to set camera info in backend:', error);
+        });
+      }
     } else {
       // No cameras found - user needs to run setup_cameras.js
       setCameraInfo(null);
