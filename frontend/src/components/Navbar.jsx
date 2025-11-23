@@ -23,6 +23,9 @@ const Navbar = () => {
     if (path === "/news") {
       return location.pathname === "/news";
     }
+    if (path === "/how-to") {
+      return location.pathname === "/how-to";
+    }
     return location.pathname.startsWith(path);
   };
 
@@ -103,10 +106,10 @@ const Navbar = () => {
 
           <li>
             <NavLink
-              to="/contact"
-              className={getLinkClassName("/contact")}
+              to="/how-to"
+              className={getLinkClassName("/how-to")}
             >
-              Contact
+              How To
             </NavLink>
           </li>
         </ul>

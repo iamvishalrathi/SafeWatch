@@ -2,7 +2,7 @@ import 'leaflet/dist/leaflet.css';  // Make sure this is at the top
 import "./App.css";
 
 
-import Contact from "./pages/Contact";
+import HowTo from "./pages/HowTo";
 import Home from "./pages/Home";
 import Live from "./pages/Live";
 import AllAlerts from "./pages/AllAlerts";
@@ -30,7 +30,7 @@ function App() {
           <Route path="/camera/:cameraId" element={<CameraDetail />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/news" element={<News />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/how-to" element={<HowTo />} />
           <Route path="/api-test" element={<APITest />} />
           <Route path="/all-alerts" element={<AllAlerts />} />
           <Route path="/alert/:id" element={<AlertDetail />} />

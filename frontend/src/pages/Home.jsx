@@ -134,7 +134,7 @@ const Home = () => {
 
           <div className="hero-cta mt-8">
             <RippleButton text="Get Started" />
-            <Link to="/contact">
+            <Link to="/how-to">
               <button className="text-white border border-white px-6 py-2 rounded-md ml-4 hover:bg-white hover:text-black transition-all duration-300">
                 Learn More
               </button>
