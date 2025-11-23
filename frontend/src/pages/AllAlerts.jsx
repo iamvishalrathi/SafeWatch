@@ -343,6 +343,7 @@ const AllAlerts = () => {
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [localAlerts, setLocalAlerts] = useState([]);
@@ -361,6 +362,11 @@ const AllAlerts = () => {
       // Filter by type
       if (filterType !== "all") {
         filtered = filtered.filter((alert) => alert.alert_type === filterType);
+      }
+
+      // Filter by status
+      if (filterStatus !== "all") {
+        filtered = filtered.filter((alert) => (alert.status || 'unseen') === filterStatus);
       }
 
       // Filter by search term
@@ -384,7 +390,7 @@ const AllAlerts = () => {
     } else {
       setFilteredAlerts([]);
     }
-  }, [localAlerts, searchTerm, filterType, sortOrder]);
+  }, [localAlerts, searchTerm, filterType, filterStatus, sortOrder]);
 
   const deleteAlert = async (alertId) => {
     try {
@@ -540,7 +546,12 @@ const AllAlerts = () => {
             </p>
             {filterType !== "all" && (
               <span className="text-blue-400 text-sm">
-                Filtered by: <span className="font-semibold">{alertTypes.find(t => t.value === filterType)?.label}</span>
+                Filtered by type: <span className="font-semibold">{alertTypes.find(t => t.value === filterType)?.label}</span>
+              </span>
+            )}
+            {filterStatus !== "all" && (
+              <span className="text-green-400 text-sm">
+                Filtered by status: <span className="font-semibold capitalize">{filterStatus}</span>
               </span>
             )}
           </div>
@@ -563,7 +574,7 @@ const AllAlerts = () => {
             />
           </div>
 
-          {/* Filter */}
+          {/* Filter by Type */}
           <div className="relative">
             <FontAwesomeIcon
               icon={faFilter}
@@ -579,6 +590,25 @@ const AllAlerts = () => {
                   {type.label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Filter by Status */}
+          <div className="relative">
+            <FontAwesomeIcon
+              icon={faInfoCircle}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="pl-10 pr-8 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
+            >
+              <option value="all">All Status</option>
+              <option value="unseen">Unseen</option>
+              <option value="pending">Pending</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
             </select>
           </div>
 
@@ -599,11 +629,12 @@ const AllAlerts = () => {
           </div>
 
           {/* Clear Filters Button */}
-          {(searchTerm || filterType !== "all") && (
+          {(searchTerm || filterType !== "all" || filterStatus !== "all") && (
             <button
               onClick={() => {
                 setSearchTerm("");
                 setFilterType("all");
+                setFilterStatus("all");
               }}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
               title="Clear all filters"
@@ -672,7 +703,7 @@ const AllAlerts = () => {
         {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
           <EmptyState
-            type={searchTerm || filterType !== "all" ? "filtered" : (localAlerts && localAlerts.length === 0 ? "safe" : "alerts")}
+            type={searchTerm || filterType !== "all" || filterStatus !== "all" ? "filtered" : (localAlerts && localAlerts.length === 0 ? "safe" : "alerts")}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
