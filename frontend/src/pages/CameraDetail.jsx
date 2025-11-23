@@ -20,6 +20,24 @@ import { useAlerts, usePersonCount, useDownloadAlertImage } from "../hooks/useAp
 import API from "../utils/api";
 import { getGestureEmoji } from "../utils/gestureUtils";
 
+// Helper function to get age emoji based on age range
+const getAgeEmoji = (ageRange) => {
+  if (!ageRange) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
+  
+  // Parse age range to get approximate age
+  const match = ageRange.match(/\d+/);
+  if (!match) return '\uD83D\uDC64';  // 👤 Bust in Silhouette
+  
+  const age = parseInt(match[0]);
+  
+  if (age < 4) return '\uD83D\uDC76';    // 👶 Baby
+  if (age < 13) return '\uD83E\uDDD2';   // 🧒 Child
+  if (age < 20) return '\uD83D\uDC66';   // 👦 Boy
+  if (age < 40) return '\uD83D\uDC68';   // 👨 Man
+  if (age < 60) return '\uD83E\uDDD1';   // 🧑 Person
+  return '\uD83D\uDC74';                 // 👴 Old Man
+};
+
 // Fix default marker icon issue with Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -340,12 +358,17 @@ const CameraDetail = () => {
                       <span className="text-pink-400">♀</span>
                       <span className="text-gray-300">{alert.female_count || 0}</span>
                     </div>
-                    {alert.gesture && (
+                    {alert.gesture ? (
                       <div className="flex items-center gap-1 ml-auto">
                         <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
                         <span className="text-yellow-400 text-xs capitalize">{alert.gesture.replace('_', ' ')}</span>
                       </div>
-                    )}
+                    ) : alert.age_range ? (
+                      <div className="flex items-center gap-1 ml-auto">
+                        <span className="text-xl">{getAgeEmoji(alert.age_range)}</span>
+                        <span className="text-purple-400 text-xs">Age: {alert.age_range}</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   {alert.latitude && alert.longitude && (
