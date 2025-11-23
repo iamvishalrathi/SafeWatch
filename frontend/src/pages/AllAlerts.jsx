@@ -22,6 +22,7 @@ import {
   faChild,
   faPerson,
   faPersonCane,
+  faHashtag,
 } from "@fortawesome/free-solid-svg-icons";
 import EmptyState from "../components/EmptyState";
 import { useAlerts } from "../hooks/useApi";
@@ -268,8 +269,9 @@ const AlertCardWithScreenshot = ({ alert, onDelete }) => {
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-white/90 text-sm mb-3">
           <div className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faHashtag} className="text-white/70 flex-shrink-0" />
             <span className="truncate">
-              ID: #{alert.id}
+              Alert ID: {alert.id}
             </span>
           </div>
 
