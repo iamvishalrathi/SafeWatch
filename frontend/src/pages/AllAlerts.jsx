@@ -31,16 +31,16 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertIcon = (type) => {
     switch (type) {
-      case "Emergency signal":
+      case "Emergency Signal":
         return faExclamationTriangle;
-      case "distress":
+      case "Distress":
         return faExclamationTriangle;
       case "Attention":
         return faInfoCircle;
-      case "lone_woman":
+      case "Lone Woman":
         return faClock;
-      case "woman_surrounded":
-      case "woman_surrounded_spatial":
+      case "Woman Surrounded":
+      case "Woman Surrounded Spatial":
         return faUserGroup;
       default:
         return faExclamationTriangle;
@@ -49,16 +49,16 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertColor = (type) => {
     switch (type) {
-      case "Emergency signal":
+      case "Emergency Signal":
         return "from-red-600 to-red-700";
-      case "distress":
+      case "Distress":
         return "from-orange-600 to-orange-700";
       case "Attention":
         return "from-yellow-600 to-yellow-700";
-      case "lone_woman":
+      case "Lone Woman":
         return "from-purple-600 to-purple-700";
-      case "woman_surrounded":
-      case "woman_surrounded_spatial":
+      case "Woman Surrounded":
+      case "Woman Surrounded Spatial":
         return "from-orange-600 to-orange-700";
       default:
         return "from-red-600 to-red-700";
@@ -67,17 +67,17 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
 
   const getAlertTitle = (type) => {
     switch (type) {
-      case "Emergency signal":
+      case "Emergency Signal":
         return "Emergency Signal";
-      case "distress":
+      case "Distress":
         return "Distress Signal";
       case "Attention":
         return "Attention Required";
-      case "lone_woman":
+      case "Lone Woman":
         return "Lone Woman Detected";
-      case "woman_surrounded":
+      case "Woman Surrounded":
         return "Woman Surrounded";
-      case "woman_surrounded_spatial":
+      case "Woman Surrounded Spatial":
         return "Spatial Risk Detected";
       default:
         return "Alert";
@@ -128,13 +128,30 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
     window.open(imageUrl, '_blank');
   };
 
+  // Check if alert is recent (within last hour)
+  const isRecentAlert = () => {
+    if (!alert.timestamp) return false;
+    const alertTime = new Date(alert.timestamp);
+    const now = new Date();
+    const diffInMinutes = (now - alertTime) / (1000 * 60);
+    return diffInMinutes < 60;
+  };
+
   return (
     <div
       onClick={handleCardClick}
-      className="bg-[#3A3A3A] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+      className="bg-[#3A3A3A] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-transparent hover:border-gray-600"
     >
       {/* Screenshot/Image Section */}
       <div className="relative h-48 bg-gray-800">
+        {/* Recent Alert Badge */}
+        {isRecentAlert() && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg">
+              NEW
+            </span>
+          </div>
+        )}
         {!imageError ? (
           <>
             {isLoading && (
@@ -192,9 +209,27 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
             />
           </div>
           <div className="flex-1">
-            <h3 className="text-white font-bold text-lg">
-              {getAlertTitle(alert.alert_type)}
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-bold text-lg">
+                {getAlertTitle(alert.alert_type)}
+              </h3>
+              {/* Priority Badge */}
+              {(alert.alert_type === "Emergency Signal") && (
+                <span className="bg-white/30 px-2 py-0.5 rounded text-xs font-bold text-white uppercase animate-pulse">
+                  Critical
+                </span>
+              )}
+              {(alert.alert_type === "distress" || alert.alert_type === "Woman Surrounded" || alert.alert_type === "Woman Surrounded Spatial") && (
+                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase">
+                  High
+                </span>
+              )}
+              {(alert.alert_type === "Attention" || alert.alert_type === "Lone Woman") && (
+                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold text-white uppercase">
+                  Medium
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -205,9 +240,9 @@ const AlertCardWithScreenshot = ({ alert, onDownload, onDelete }) => {
           </div>
 
           {alert.gesture && (
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{getGestureEmoji(alert.gesture)}</span>
-              <span className="capitalize font-medium">{getGestureName(alert.gesture)}</span>
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
+              <span className="text-xl">{getGestureEmoji(alert.gesture)}</span>
+              <span className="font-medium">{getGestureName(alert.gesture)}</span>
             </div>
           )}
 
@@ -354,69 +389,75 @@ const AllAlerts = () => {
 
   const alertTypesInfo = [
     {
-      type: "Emergency signal",
+      type: "Emergency Signal",
       icon: faExclamationTriangle,
       color: "text-red-500",
       title: "Emergency Signal",
-      description: "Detected when a person makes a Thumb-Palm gesture. This indicates someone needs immediate emergency help.",
+      description: "Detected when a person makes a Thumb-Palm gesture (✊). This indicates someone needs immediate emergency help.",
       priority: "CRITICAL",
-      priorityColor: "text-red-500"
+      priorityColor: "text-red-500",
+      emoji: "✊"
     },
     {
-      type: "distress",
+      type: "Distress",
       icon: faExclamationTriangle,
       color: "text-orange-500",
       title: "Distress Signal",
-      description: "Detected when a person makes an OK Sign gesture. This indicates someone may need help.",
+      description: "Detected when a person makes an OK Sign gesture (👌). This indicates someone may need help.",
       priority: "HIGH",
-      priorityColor: "text-orange-500"
+      priorityColor: "text-orange-500",
+      emoji: "👌"
     },
     {
       type: "Attention",
       icon: faInfoCircle,
       color: "text-yellow-500",
       title: "Attention Required",
-      description: "Detected when a person makes a Wave gesture. This indicates someone needs attention.",
+      description: "Detected when a person makes a Wave gesture (👋). This indicates someone needs attention.",
       priority: "MEDIUM",
-      priorityColor: "text-yellow-500"
+      priorityColor: "text-yellow-500",
+      emoji: "👋"
     },
     {
-      type: "lone_woman",
+      type: "Lone Woman",
       icon: faClock,
       color: "text-purple-500",
       title: "Lone Woman Detected",
       description: "Triggered when a woman is detected alone, which may pose safety risks (works day and night).",
       priority: "MEDIUM",
-      priorityColor: "text-purple-500"
+      priorityColor: "text-purple-500",
+      emoji: "👤"
     },
     {
-      type: "woman_surrounded",
+      type: "Woman Surrounded",
       icon: faUserGroup,
       color: "text-orange-500",
       title: "Woman Surrounded by Men",
       description: "Alert triggered when a woman is detected surrounded by multiple men in close proximity, indicating a potentially unsafe situation.",
       priority: "HIGH",
-      priorityColor: "text-orange-500"
+      priorityColor: "text-orange-500",
+      emoji: "👥"
     },
     {
-      type: "woman_surrounded_spatial",
+      type: "Woman Surrounded Spatial",
       icon: faUserGroup,
       color: "text-orange-500",
       title: "Spatial Risk Detection",
       description: "Advanced spatial analysis detected a woman in close proximity to men based on position and movement patterns, indicating potential risk.",
       priority: "HIGH",
-      priorityColor: "text-orange-500"
+      priorityColor: "text-orange-500",
+      emoji: "📍"
     },
   ];
 
   const alertTypes = [
     { value: "all", label: "All Alerts" },
-    { value: "Emergency signal", label: "Emergency Signal" },
-    { value: "distress", label: "Distress" },
+    { value: "Emergency Signal", label: "Emergency Signal" },
+    { value: "Distress", label: "Distress" },
     { value: "Attention", label: "Attention" },
-    { value: "lone_woman", label: "Lone Woman" },
-    { value: "woman_surrounded", label: "Woman Surrounded" },
-    { value: "woman_surrounded_spatial", label: "Spatial Risk" },
+    { value: "Lone Woman", label: "Lone Woman" },
+    { value: "Woman Surrounded", label: "Woman Surrounded" },
+    { value: "Woman Surrounded Spatial", label: "Spatial Risk" },
   ];
 
   if (loading && !alerts) {
@@ -470,9 +511,16 @@ const AllAlerts = () => {
             )}
           </div>
 
-          <p className="text-gray-400">
-            Showing all alerts • Total: {filteredAlerts.length} alert{filteredAlerts.length !== 1 ? 's' : ''}
-          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <p className="text-gray-400">
+              Showing all alerts • Total: <span className="text-white font-semibold">{filteredAlerts.length}</span> alert{filteredAlerts.length !== 1 ? 's' : ''}
+            </p>
+            {filterType !== "all" && (
+              <span className="text-blue-400 text-sm">
+                Filtered by: <span className="font-semibold">{alertTypes.find(t => t.value === filterType)?.label}</span>
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Controls */}
@@ -526,7 +574,78 @@ const AllAlerts = () => {
               <option value="oldest">Oldest First</option>
             </select>
           </div>
+
+          {/* Clear Filters Button */}
+          {(searchTerm || filterType !== "all") && (
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setFilterType("all");
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
+              title="Clear all filters"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+              <span>Clear Filters</span>
+            </button>
+          )}
         </div>
+
+        {/* Alert Statistics Summary */}
+        {localAlerts.length > 0 && (
+          <div className="bg-gray-800 rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-xl font-bold flex items-center gap-2">
+                <FontAwesomeIcon icon={faInfoCircle} className="text-blue-500" />
+                Alert Statistics
+              </h2>
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  <span className="text-gray-400">Critical</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span className="text-gray-400">High</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span className="text-gray-400">Medium</span>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {alertTypesInfo.map((alertType) => {
+                const count = localAlerts.filter(a => a.alert_type === alertType.type).length;
+                if (count === 0) return null;
+                return (
+                  <div
+                    key={alertType.type}
+                    className="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer relative overflow-hidden group"
+                    onClick={() => setFilterType(alertType.type)}
+                  >
+                    {/* Priority indicator */}
+                    <div className={`absolute top-0 right-0 w-1 h-full ${
+                      alertType.priority === 'CRITICAL' ? 'bg-red-500' :
+                      alertType.priority === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-500'
+                    } ${alertType.priority === 'CRITICAL' ? 'animate-pulse' : ''}`}></div>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                      <FontAwesomeIcon icon={alertType.icon} className={`${alertType.color} text-lg`} />
+                      <span className="text-2xl font-bold text-white">{count}</span>
+                    </div>
+                    <p className="text-gray-300 text-xs font-medium truncate">{alertType.title}</p>
+                    
+                    {/* Hover tooltip */}
+                    <div className="absolute inset-0 bg-gray-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-center">
+                      <p className="text-white text-xs font-medium">Click to filter</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Content Grid */}
         {filteredAlerts.length === 0 ? (
@@ -583,8 +702,11 @@ const AllAlerts = () => {
                   >
                     <div className="flex items-start gap-4">
                       {/* Icon */}
-                      <div className={`${alertInfo.color} bg-gray-800 p-4 rounded-xl`}>
+                      <div className={`${alertInfo.color} bg-gray-800 p-4 rounded-xl relative`}>
                         <FontAwesomeIcon icon={alertInfo.icon} className="text-2xl" />
+                        {alertInfo.emoji && (
+                          <span className="absolute -top-1 -right-1 text-2xl">{alertInfo.emoji}</span>
+                        )}
                       </div>
 
                       {/* Content */}
@@ -606,19 +728,19 @@ const AllAlerts = () => {
                         <div className="mt-4 pt-4 border-t border-gray-600">
                           <div className="flex flex-wrap gap-2 text-sm">
                             <span className="text-gray-400">Detected by:</span>
-                            {(alertInfo.type === 'Emergency signal' || alertInfo.type === 'distress' || alertInfo.type === 'Attention') && (
+                            {(alertInfo.type === 'Emergency Signal' || alertInfo.type === 'Distress' || alertInfo.type === 'Attention') && (
                               <>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Hand Gesture Detection</span>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Real-time Monitoring</span>
                               </>
                             )}
-                            {alertInfo.type === 'lone_woman' && (
+                            {alertInfo.type === 'Lone Woman' && (
                               <>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-purple-400">Gender Detection</span>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-purple-400">Person Count</span>
                               </>
                             )}
-                            {(alertInfo.type === 'woman_surrounded' || alertInfo.type === 'woman_surrounded_spatial') && (
+                            {(alertInfo.type === 'Woman Surrounded' || alertInfo.type === 'Woman Surrounded Spatial') && (
                               <>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-orange-400">Gender Detection</span>
                                 <span className="bg-gray-800 px-2 py-1 rounded text-orange-400">Spatial Analysis</span>

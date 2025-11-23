@@ -344,13 +344,13 @@ class SafetyDetector:
                 self.last_alert_time = current_time
                 # Map gestures to alert types
                 if gesture == "thumb_palm":
-                    alert_type = "Emergency signal"
+                    alert_type = "Emergency Signal"
                 elif gesture == "ok_sign":
-                    alert_type = "distress"
+                    alert_type = "Distress"
                 elif gesture == "wave":
                     alert_type = "Attention"
                 else:
-                    alert_type = "distress"
+                    alert_type = "Distress"
                 alert = self._create_alert(frame, alert_type, gesture)
                 return frame, alert
             
@@ -358,20 +358,20 @@ class SafetyDetector:
             # Woman is alone (works day and night)
             if female_count == 1 and male_count == 0:
                 self.last_alert_time = current_time
-                alert = self._create_alert(frame, "lone_woman")
+                alert = self._create_alert(frame, "Lone Woman")
                 return frame, alert
 
             # Woman is with multiple men (possible risk)
             elif female_count == 1 and male_count >= 2:
                 self.last_alert_time = current_time
-                alert = self._create_alert(frame, "woman_surrounded")
+                alert = self._create_alert(frame, "Woman Surrounded")
                 return frame, alert
 
             # Woman is surrounded by men spatially (closer proximity)
             elif female_count == 1 and male_count >= 1:
                 if self._is_surrounded(frame):
                     self.last_alert_time = current_time
-                    alert = self._create_alert(frame, "woman_surrounded_spatial")
+                    alert = self._create_alert(frame, "Woman Surrounded Spatial")
                     return frame, alert
 
         
